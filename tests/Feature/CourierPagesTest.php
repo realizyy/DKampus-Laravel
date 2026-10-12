@@ -155,7 +155,7 @@ class CourierPagesTest extends TestCase
         // Dulu: variabel tidak terdefinisi -> view menerima null -> 500
         $this->actingAs($this->courier())->get('/courier/history')
             ->assertOk()
-            ->assertSee('Have Any History');
+            ->assertSee('Belum ada riwayat pesanan');
     }
 
     public function test_history_lists_only_own_entries_newest_first(): void
