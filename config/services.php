@@ -34,6 +34,8 @@ return [
     // Kunci Maps JavaScript (Places Autocomplete) untuk halaman customer; diisi lewat .env, jangan ditulis di view
     'google_maps' => [
         'key' => env('GOOGLE_MAPS_API_KEY'),
+        // Halaman admin (alamat resto) memakai kunci sendiri; bila kosong memakai kunci di atas
+        'admin_key' => env('GOOGLE_MAPS_ADMIN_KEY', env('GOOGLE_MAPS_API_KEY')),
     ],
 
 ];
