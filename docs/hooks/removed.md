@@ -38,6 +38,85 @@ pages/Users/Register.blade.php|hookIds|inputs
 pages/Users/Register.blade.php|hookIds|modal_error_msg
 pages/Users/Register.blade.php|hookIds|overlayErrorMsg
 pages/Users/Register.blade.php|hookIds|submit_btn
+components/banner/carousel.blade.php|view|*
+components/bannerfade/banner-fade.blade.php|view|*
+components/carousel/slider-category-desktop.blade.php|view|*
+components/carousel/slider-category.blade.php|view|*
+components/floatingcshelp.blade.php|view|*
+components/header/headerForDesktop.blade.php|view|*
+components/header/menu.blade.php|view|*
+components/header/menuDesktop.blade.php|view|*
+components/header/search.blade.php|view|*
+components/header/searchDesktop.blade.php|view|*
+components/header/topbar.blade.php|view|*
+components/list/slider-makanan.blade.php|view|*
+components/list/slider.blade.php|view|*
+components/list-food/slider.blade.php|view|*
+components/navbar/navbar.blade.php|view|*
+components/navbar/navbarDesktop.blade.php|view|*
+components/navbar/subnavbar-homepage.blade.php|view|*
+components/promo-carousel/carousel.blade.php|view|*
+components/promo-slider/carousel.blade.php|view|*
+components/promo-slider/semua-promo-carousel.blade.php|view|*
+components/scrollBehaviourr/scroll-behaviour.blade.php|view|*
+components/wave-animations/wave.blade.php|view|*
+layouts/FavoritLayout.blade.php|view|*
+layouts/PesananLayout.blade.php|view|*
+layouts/PromoLayout.blade.php|view|*
+layouts/Root.blade.php|view|*
+pages/Users/ChatPage.blade.php|dataAttrs|data-count-id
+pages/Users/CheckoutPage.blade.php|hookIds|modalConfrimation
+pages/Users/CheckoutPage.blade.php|hookClasses|bg-gray-300
+pages/Users/DaftarAlamat.blade.php|hookIds|modal-title
+pages/Users/DetailMakanan.blade.php|hookIds|NavCheckbox
+pages/Users/DetailMakanan.blade.php|hookIds|NavLikeButton
+pages/Users/DetailMakanan.blade.php|hookIds|navbar-detail-makanan
+pages/Users/DetailWarung.blade.php|hookIds|CardCheckbox
+pages/Users/DetailWarung.blade.php|hookIds|CardLikeButton
+pages/Users/DetailWarung.blade.php|hookIds|NavCheckbox
+pages/Users/DetailWarung.blade.php|hookIds|NavLikeButton
+pages/Users/DetailWarung.blade.php|hookIds|navbar-detail-warung
+pages/Users/Homepage.blade.php|hookIds|developmentModal
+pages/Users/Homepage.blade.php|hookIds|modal-title
+pages/Users/JastipPage.blade.php|hookIds|addNewAddress
+pages/Users/JastipPage.blade.php|hookIds|jenisJastip
+pages/Users/JastipPage.blade.php|hookIds|overlayAddNewAddress
+pages/Users/JastipPage.blade.php|hookClasses|switch-button
+pages/Users/JastipPage.blade.php|hookClasses|switch-thumb
+pages/Users/JastipPage.blade.php|hookClasses|switch-track
+pages/Users/JastipPage.blade.php|names|kuantitas[0][]
+pages/Users/JastipPage.blade.php|names|nama_menu[0][]
+pages/Users/JastipPage.blade.php|dataAttrs|data-index
+pages/Users/Pay.blade.php|routes|send.notificationCour
+pages/Users/Pesanan.blade.php|hookIds|addNewAddress
+pages/Users/Pesanan.blade.php|hookIds|alamat
+pages/Users/Pesanan.blade.php|hookIds|decrement
+pages/Users/Pesanan.blade.php|hookIds|delete
+pages/Users/Pesanan.blade.php|hookIds|increment
+pages/Users/Pesanan.blade.php|hookIds|number
+pages/Users/Pesanan.blade.php|hookIds|overlayAddNewAddress
+pages/Users/Pesanan.blade.php|hookClasses|quantity-input
+pages/Users/Pesanan.blade.php|names|catatan
+pages/Users/Pesanan.blade.php|names|items[harga][]
+pages/Users/Pesanan.blade.php|names|items[id][]
+pages/Users/Pesanan.blade.php|names|items[quantity][]
+pages/Users/PromoCategoryPage.blade.php|view|*
+pages/Users/PromoSemuaPage.blade.php|view|*
+pages/Users/PromoSpecialPage.blade.php|view|*
+pages/Users/Rating.blade.php|hookClasses|bg-gray-300
+pages/Users/SearchPage.blade.php|hookIds|dropdown-menu
+pages/Users/SearchPage.blade.php|hookIds|options-menu
+pages/Users/SearchPage.blade.php|hookIds|search-input
+pages/Users/SearchPage.blade.php|names|keyword
+pages/Users/SearchPage.blade.php|texts|action="
+pages/Users/SemuaPage.blade.php|view|*
+pages/Users/Status.blade.php|names|courId
+pages/Users/Status.blade.php|names|id
+pages/Users/Status.blade.php|routes|historydetail.cust
+pages/Users/Status.blade.php|routes|rating
+pages/Users/StatusOrder.blade.php|hookClasses|bg-gray-300
+pages/Users/UbahKataSandi.blade.php|names|confirmPassword
+pages/Users/UbahKataSandi.blade.php|names|newPassword
 
 ## Alasan
 
@@ -76,3 +155,10 @@ pages/Users/Register.blade.php|hookIds|submit_btn
 - `pages/Users/Register.blade.php|hookIds|modal_error_msg`: galat registrasi per field
 - `pages/Users/Register.blade.php|hookIds|overlayErrorMsg`: galat registrasi per field
 - `pages/Users/Register.blade.php|hookIds|submit_btn`: tombol "Ya, kirim kode" di modal confirm-email
+
+### Fase 3 (Customer)
+
+- `<view>|view|*` untuk layouts/Root, PromoLayout, PesananLayout, FavoritLayout, komponen header/navbar/carousel/list/promo-*, floatingcshelp, dan view promo lama: digantikan `layouts/customer`, `components/customer/*`, dan satu view `Promo`.
+- `hookIds`/`hookClasses` di halaman customer: drawer/overlay/modal digerakkan style inline dan JS (`public/js/*`) diganti Alpine + `x-ui.modal`/`data-modal-open`; id duplikat (`#increment`, `#decrement`, `#number`, `#delete`) diganti `.increment-btn/.decrement-btn` di Pesanan.
+- `names`: `kuantitas[0][]` dan `nama_menu[0][]` kini dibuat dinamis oleh Alpine (`:name`), field tetap `warung[]`, `nama_menu[i][]`, `kuantitas[i][]`; Pesanan membuang field tak terpakai (`catatan`, `items[*][]`); Ubah Kata Sandi memakai `current_password/password/password_confirmation` (PUT /password).
+- `routes`: `send.notificationCour` di Pay dipertahankan lewat `@push('js')`; `historydetail.cust` dan `rating` kini berada di `components/customer/order-card`.
