@@ -145,7 +145,7 @@ class UserController extends Controller
     public function input_register()
     {
         return view('pages.Users.InputRegister', [
-            'Title' => 'Pesanan',
+            'Title' => 'Input Registrasi',
         ]);
     }
 
