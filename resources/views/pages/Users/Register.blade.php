@@ -1,85 +1,55 @@
-@extends('layouts.Login&Register')
-@section('loginregister-content')
-    <form id="formRegister" action="{{ route('register') }}" method="POST" class="w-[27rem] sm:w-[27rem] h-[40rem] border-2 flex flex-col py-5 mx-auto my-10 rounded-2xl text-[#5E5E5E]">
-        @csrf
-        {{-- Title --}}
-        <h1 class="font-semibold text-xl text-center mb-10 text-black">Daftar <span class="text-[#F9832A]">Sekarang</span>
-        </h1>
+@extends('layouts.auth')
 
-        {{-- Inputs --}}
-        <div id="inputs" class="flex flex-col gap-5 mx-5">
+@section('back', route('login'))
+@section('panel-title', 'Satu akun, semua warung kampus.')
+@section('panel-text', 'Daftar sekarang, pilih warung favoritmu, dan biarkan kurir Dsquad mengantar sampai ke kosan.')
 
-            {{-- Nama Input --}}
-            <div class="flex flex-col gap-3 mx-auto w-full sm:w-96">
-                <label for="nama">Nama Anda</label>
-                <input id="nama" type="text" name="nama" class="rounded-2xl border-2 transition-all duration-100 border-[#5e5e5e]/30 focus:border-[#F9832A] focus:ring-[#F9832A] w-full h-[3.4rem] placeholder:text-[#5e5e5e]/50" placeholder="Nama Lengkap">
-            </div>
+@section('content')
+<h1 class="font-display text-4xl font-extrabold tracking-tightest text-ink">Daftar</h1>
+<p class="mt-2 text-[15px] text-ink-500">Buat akun Dkampus. Kami kirim kode verifikasi ke emailmu.</p>
 
-            {{-- Email Input --}}
-            <div class="flex flex-col gap-3 mx-auto w-full sm:w-96">
-                <label for="email">Email Anda</label>
-                <input id="email" type="text" name="email" class="rounded-2xl border-2 transition-all duration-100 border-[#5e5e5e]/30 focus:border-[#F9832A] focus:ring-[#F9832A] w-full h-[3.4rem] placeholder:text-[#5e5e5e]/50" placeholder="email@gmail.com">
-                {{-- <p>Contoh : email@gmail.com</p> --}}
-            </div>
-
-            {{-- Phone Number Input --}}
-            <div class="flex flex-col gap-3 mx-auto w-full sm:w-96">
-                <label for="no_telp">Nomor Telepon Anda</label>
-                <input id="no_telp" type="text" name="no_telp" class="rounded-2xl border-2 transition-all duration-100 border-[#5e5e5e]/30 focus:border-[#F9832A] focus:ring-[#F9832A] w-full h-[3.4rem] placeholder:text-[#5e5e5e]/50" placeholder="08xxxxxxxxxx">
-            </div>
-
-            {{-- Password Input --}}
-            <div class="flex flex-col gap-3 mx-auto w-full sm:w-96">
-                <label for="password">Password Anda</label>
-                <input id="password" type="password" name="password" class="rounded-2xl border-2 transition-all duration-100 border-[#5e5e5e]/30 focus:border-[#F9832A] focus:ring-[#F9832A] w-full h-[3.4rem] placeholder:text-[#5e5e5e]/50" placeholder="**********">
-            </div>
-
-            {{-- Password_confirmation Input --}}
-            <div class="flex flex-col gap-3 mx-auto w-full sm:w-96">
-                <label for="password_confirmation">Password Confirmation Anda</label>
-                <input id="password_confirmation" type="password" name="password_confirmation" class="rounded-2xl border-2 transition-all duration-100 border-[#5e5e5e]/30 focus:border-[#F9832A] focus:ring-[#F9832A] w-full h-[3.4rem] placeholder:text-[#5e5e5e]/50" placeholder="**********">
-            </div>
-        </div>
-
-
-        {{-- Daftar & Masuk --}}
-        <div id="daftarAndMasuk" class="flex flex-col gap-2 mt-10 mb-2 mx-auto w-full sm:w-96 items-center">
-            <button id="daftar" onclick="showModal()" type="button" class="bg-[#F9832A] w-full h-[3.4rem] rounded-2xl text-white font-semibold text-lg">Daftar</button>
-            <div class="flex flex-row items-center gap-1 ml-auto mt-3">
-                <h2>Sudah mempunyai akun?</h2><a href="/masuk" class="text-[#F9832A]">Masuk</a>
-            </div>
-        </div>
-
-        {{-- Persyaratan dan Kebijakan Privasi --}}
-        <a href="" class="text-center mt-7">
-            Dengan mendaftar, saya menyetujui
-            <br>
-            <span class="text-[#F9832A]">Syarat dan Ketentuan</span> serta <span class="text-[#F9832A]">Kebijakan
-            Privasi</span>
-        </a>
-    </form>
-
-    {{-- Modal email Confirmation --}}
-    <x-modals.modal>
-        <h1 class="font-semibold" id="validation_email"></h1>
-        <p class="text-[#5C5C5C]">Apakah email anda sudah benar?</p>
-        <div class="flex flex-row gap-2">
-            <button id="submit_btn" class="bg-[#F9832A] w-28 h-9 rounded-lg text-white">Ya</button>
-            <button onclick="hideModal()" class="bg-white border-2 w-28 h-9 rounded-lg text-[#F9832A] border-[#F9832A]">Salah</button>
-        </div>
-    </x-modals.modal>
-
-    {{-- Modal Information Error --}}
-    <div id="modal_error_msg" class="flex flex-col absolute opacity-0 transition-all z-0 rounded-xl justify-center gap-3 py-5 items-center scale-0 mx-auto border w-full sm:w-[26.8rem] h-[9rem] bg-white">
-        <p id="errorMsg"></p>
-        <button onclick="hideErrorModal()" class="bg-[#F9832A] w-28 h-9 rounded-lg text-white">Tutup</button>
-    </div>
-    <div id="overlayErrorMsg" onclick="hideErrorModal()" class="bg-black/40 invisible fixed top-0 left-0 w-full h-screen"></div>
+<form id="formRegister" method="POST" action="{{ route('register') }}" class="mt-8 space-y-4" novalidate x-data="{ ok: false }">
+    @csrf
     @if (session('error'))
-        <script>
-            window.onload = function() {
-                showErrorModal("{{ session('error') }}");
-            }
-        </script>
+        <div class="rounded-xl bg-brick-50 p-3 text-[15px] text-brick-700" role="alert">{{ session('error') }}</div>
     @endif
+
+    <x-ui.field label="Nama Lengkap" for="nama" :error="$errors->first('nama')">
+        <x-ui.input id="nama" name="nama" :value="old('nama')" placeholder="Nama lengkap" icon="user" autocomplete="name" :error="$errors->has('nama')" required />
+    </x-ui.field>
+    <x-ui.field label="Email" for="email" :error="$errors->first('email')">
+        <x-ui.input type="email" id="email" name="email" :value="old('email')" placeholder="email@gmail.com" icon="mail" autocomplete="email" :error="$errors->has('email')" required />
+    </x-ui.field>
+    <x-ui.field label="Nomor Telepon" for="no_telp" :error="$errors->first('no_telp')">
+        <x-ui.input type="tel" id="no_telp" name="no_telp" :value="old('no_telp')" placeholder="08xxxxxxxxxx" icon="phone" autocomplete="tel" maxlength="13" :error="$errors->has('no_telp')" required />
+    </x-ui.field>
+    <x-ui.field label="Kata Sandi" for="password" :error="$errors->first('password')" hint="Minimal 8 karakter.">
+        <x-ui.password id="password" name="password" placeholder="Buat kata sandi" autocomplete="new-password" :error="$errors->has('password')" required />
+    </x-ui.field>
+    <x-ui.field label="Konfirmasi Kata Sandi" for="password_confirmation">
+        <x-ui.password id="password_confirmation" name="password_confirmation" placeholder="Ulangi kata sandi" autocomplete="new-password" required />
+    </x-ui.field>
+
+    <p class="text-center text-sm leading-snug text-ink-500">
+        Dengan melanjutkan, artinya Anda setuju dengan
+        <a href="{{ route('terms') }}" class="font-semibold text-brand-700 underline underline-offset-2">Syarat dan Ketentuan</a> dan juga
+        <a href="{{ route('privacy') }}" class="font-semibold text-brand-700 underline underline-offset-2">Kebijakan Privasi</a> kami.
+    </p>
+
+    {{-- Konfirmasi email sebelum kirim: kode verifikasi dikirim ke alamat ini --}}
+    <x-ui.button type="button" size="lg" block @click="$el.form.reportValidity() && (document.getElementById('validation_email').textContent = $el.form.email.value, dkModal.open('confirm-email'))">Daftar</x-ui.button>
+</form>
+
+{{-- Modal di luar <form>: <dialog> berisi <form method=dialog> tidak boleh bersarang di dalam form lain --}}
+<x-ui.modal name="confirm-email" tone="brand" icon="mail" title="Apakah email Anda sudah benar?" description="Kode verifikasi akan dikirim ke alamat ini.">
+    <p id="validation_email" class="break-all rounded-xl bg-sunken p-3 text-center font-mono text-sm font-semibold text-ink"></p>
+    <x-slot:actions>
+        <x-ui.button type="button" block onclick="this.disabled = true; document.getElementById('formRegister').requestSubmit()">Ya, kirim kode</x-ui.button>
+        <x-ui.button variant="outline" data-modal-close block>Salah, ubah email</x-ui.button>
+    </x-slot:actions>
+</x-ui.modal>
+
+<p class="mt-6 text-center text-[15px] text-ink-600">
+    Sudah mempunyai akun? <a href="{{ route('login') }}" class="font-semibold text-brand-700 underline underline-offset-2 hover:text-brand-800">Masuk</a>
+</p>
 @endsection
