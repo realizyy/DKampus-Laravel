@@ -117,11 +117,11 @@
     @break
 
     @case('Detail-Warung')
-    <script src="{{ asset('js/DetailWarung-script.js') }}"></script>
+    <script src="{{ asset('js/detailWarung-script.js') }}"></script>
     @break
 
     @case('Detail-Makanan')
-    <script src="{{ asset('js/DetailMakanan-script.js') }}"></script>
+    <script src="{{ asset('js/detailMakanan-script.js') }}"></script>
     @break
 
     @case('Log in')
