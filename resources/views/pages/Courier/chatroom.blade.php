@@ -1,261 +1,165 @@
-@extends('layouts.Root')
+@extends('layouts.courier')
+
+@php
+    $waValid = str_starts_with((string) $wa, '+');
+@endphp
+
+@section('page-title', $cust_name)
+@section('back', route('chatpage'))
+@section('hide-nav', '1')
+
+@if ($waValid)
+    @section('header-actions')
+        <x-ui.tooltip text="Buka WhatsApp" position="bottom">
+            <a href="{{ url('wa.me/' . $wa) }}" aria-label="Buka WhatsApp" class="ui-press grid size-11 place-items-center rounded-xl text-moss-700 shadow-hairline hover:bg-moss-50">
+                <img src="/whatsapp.svg" alt="" width="22" height="22">
+            </a>
+        </x-ui.tooltip>
+    @endsection
+@endif
+
 @section('content')
-<header class="sticky top-0 left-0 flex justify-between items-center w-full bg-white z-10 shadow-md py-8 mb-5">
-    <a href="{{ route('chatpage') }}" class="flex items-center gap-x-2 ml-5">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#F9832A" class="bi bi-arrow-left" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M10.354 1.646a.5.5 0 0 1 0 .708L5.707 7l4.647 4.646a.5.5 0 0 1-.708.708l-5-5a.5.5 0 0 1 0-.708l5-5a.5.5 0 0 1 .708 0z" />
-        </svg>
-        <div class="flex flex-row gap-3">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#F9832A" class="bi bi-person-circle" viewBox="0 0 16 16">
-                <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm0 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1z" />
-                <path d="M8 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
-                <path d="M8 10a5 5 0 0 0-4 2l1.5.5a4 4 0 0 1 6 0l1.5-.5a5 5 0 0 0-4-2z" />
-            </svg>
-            <h1 class="font-bold text-black text-l">{{ $cust_name }}</h1>
-        </div>
-    </a>
-    <a href="{{ url('wa.me/' . $wa) }}" class="mr-5">
-        <img src="/whatsapp.svg" alt="WhatsApp" width="24" height="24">
-    </a>
-</header>
-<main>
-    <div id="chat-messages" class="flex flex-col gap-3 m-4 overflow-y-auto pb-16">
-        {{-- Chat messages will be displayed here --}}
+<div class="mx-auto max-w-2xl pb-24">
+    <div id="chat-messages" class="flex flex-col gap-2" aria-live="polite">
+        {{-- Pesan dari Firebase dirender di sini --}}
     </div>
-</main>
-<footer class="fixed bottom-0 left-0 w-full bg-white z-10 shadow-md py-2 px-4">
-    <form id="message-form" action="#" method="POST" enctype="multipart/form-data">
+</div>
+
+{{-- Composer: menempel di bawah layar --}}
+<div class="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:left-[4.5rem]">
+    <form id="message-form" action="#" method="POST" enctype="multipart/form-data" class="mx-auto flex max-w-2xl items-center gap-2 p-3">
         @csrf
-        <div class="flex items-center mb-2">
-            <input id="message-input" type="text" name="message" placeholder="Type a message" class="flex-grow border rounded-lg p-3 mr-2">
-            <input id="image-input" type="file" name="image" accept="image/*" class="hidden">
-            <button type="button" id="image-btn" class="bg-[#F9832A] rounded-lg p-2 mr-2">
-                <img src="{{ asset('/image-icon.svg') }}" width="24" height="24" class="bi bi-image">
-            </button>
-            <button type="submit" id="send-btn" class="bg-[#F9832A] rounded-lg p-2">
-                <img src="{{ asset('/send.svg') }}" width="24" height="24" class="bi bi-box-arrow-in-right">
-            </button>
-        </div>
+        <input id="image-input" type="file" name="image" accept="image/*" class="hidden">
+        <x-ui.button id="image-btn" variant="secondary" class="!px-0 size-11 shrink-0" aria-label="Kirim gambar"><x-ui.icon name="paperclip" class="size-5" /></x-ui.button>
+        <input id="message-input" type="text" name="message" placeholder="Ketik pesan…" autocomplete="off"
+               class="block h-11 min-w-0 flex-1 rounded-xl border-0 bg-surface px-4 text-[15px] text-ink shadow-inset ring-1 ring-inset ring-line transition placeholder:text-ink-400 hover:ring-line-strong focus:ring-2 focus:ring-brand-600">
+        <x-ui.button id="send-btn" type="submit" class="!px-0 size-11 shrink-0" aria-label="Kirim pesan"><x-ui.icon name="send" class="size-5" /></x-ui.button>
     </form>
-</footer>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+</div>
+@endsection
+
+@push('js')
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    // Initialize Firebase
-    var firebaseConfig = {
-        apiKey: "{{ env('FIREBASE_API_KEY') }}",
-        authDomain: "{{ env('FIREBASE_AUTH_DOMAIN') }}",
-        databaseURL: "{{ env('FIREBASE_DATABASE_URL') }}",
-        projectId: "{{ env('FIREBASE_PROJECT_ID') }}",
-        storageBucket: "{{ env('FIREBASE_STORAGE_BUCKET') }}",
-        messagingSenderId: "{{ env('FIREBASE_MESSAGING_SENDER_ID') }}",
-        appId: "{{ env('FIREBASE_APP_ID') }}",
-        measurementId: "{{ env('FIREBASE_MEASUREMENT_ID') }}"
-    };
-    firebase.initializeApp(firebaseConfig);
+(function () {
+    var custId = @json((string) $custId);
+    var courId = @json((string) $courId);
+    var box = document.getElementById('chat-messages');
+    var form = document.getElementById('message-form');
+    var textInput = document.getElementById('message-input');
+    var fileInput = document.getElementById('image-input');
+    var csrf = document.querySelector('meta[name="csrf-token"]').content;
+    var uploadUrl = '/courier/uploadChatImageCour';
+    var notifyUrl = @json(route('send.notification'));
+    var IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'heic', 'webp'];
+    var lastDateKey = null;
+    var preview = !!window.dkChatSource || @json(isset($previewMessages));
+    var database = null;
+    if (!preview) { try { database = firebase.database(); } catch (e) { console.warn('Firebase belum siap:', e); } }
 
-    // Get a reference to the Firebase database
-    var database = firebase.database();
-
-    var custId = "{{ $custId }}";
-    var courId = "{{ $courId }}";
-
-    // Function to send a message
-    function sendMessage(message) {
-        const trace = perf.trace('send_message');
-        trace.start();
-
-        var date = new Date();
-        var year = date.getFullYear();
-        var month = (date.getMonth() + 1).toString().padStart(2, '0');
-        var day = date.getDate().toString().padStart(2, '0');
-        var hours = date.getHours().toString().padStart(2, '0');
-        var minutes = date.getMinutes().toString().padStart(2, '0');
-        var seconds = date.getSeconds().toString().padStart(2, '0');
-
-        var formattedTimestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-        database.ref('chats/' + custId + '-' + courId).push().set({
-            msgs: {
-                role: 'driver',
-                msg: message,
-                timestamp: formattedTimestamp
-            }
-        }).then(function() {
-            console.log('try send notif');
-            trace.stop();
-            sendNotificationToServer(custId, "New Message", message);
-        });
-
-        var chatRef = database.ref('chats/' + custId + '-' + courId + '/courNewMssg');
-        chatRef.transaction(function(currentValue) {
-            return (currentValue || 0) + 1;
-        });
-
+    function isImageFile(name) { return IMAGE_EXT.indexOf(String(name).split('.').pop().toLowerCase()) !== -1; }
+    function parseTs(value) {
+        if (typeof value === 'number') return new Date(value);
+        var d = new Date(String(value).replace(' ', 'T'));
+        return isNaN(d.getTime()) ? new Date() : d;
     }
-
-    var lastDisplayedDate = null;
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function dateLabel(d) {
+        var today = new Date(), yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
+        if (d.toDateString() === today.toDateString()) return 'Hari ini';
+        if (d.toDateString() === yesterday.toDateString()) return 'Kemarin';
+        return d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    }
 
     function displayMessage(role, message, timestamp) {
-        // Create message elements
-        var date = new Date(timestamp);
-        var today = new Date();
-        var hours = date.getHours().toString().padStart(2, '0');
-        var minutes = date.getMinutes().toString().padStart(2, '0');
-        var formattedTimestamp = hours + ':' + minutes;
-
-        // Format the date for display
-        var messageDate = date.toDateString();
-        var yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 1);
-
-        var dateLabel;
-        if (messageDate === today.toDateString()) {
-            dateLabel = "Today";
-        } else if (messageDate === yesterday.toDateString()) {
-            dateLabel = "Yesterday";
-        } else {
-            dateLabel = date.toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
+        var d = parseTs(timestamp);
+        var key = d.toDateString();
+        if (key !== lastDateKey) {
+            var label = document.createElement('div');
+            label.className = 'date-label my-2 text-center';
+            label.innerHTML = '<span class="inline-block rounded-full bg-sunken px-3 py-1 font-mono text-xs font-semibold text-ink-600"></span>';
+            label.firstChild.textContent = dateLabel(d);
+            box.appendChild(label);
+            lastDateKey = key;
         }
-
-        // Check if we need to add a new date div
-        if (lastDisplayedDate !== messageDate) {
-            var dateDiv = $('<div>').addClass('text-center my-2 date-label');
-            var dateSpan = $('<span>').addClass('inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700').text(dateLabel);
-            dateDiv.append(dateSpan);
-            $('#chat-messages').append(dateDiv);
-            // Update the last displayed date
-            lastDisplayedDate = messageDate;
-        }
-
-        var messageDiv = $('<div>').addClass('flex flex-col mb-3 m-4');
-        var containerDiv = $('<div>').addClass('rounded-lg p-3');
-
+        var mine = role === 'driver';
+        var row = document.createElement('div');
+        row.className = 'flex ' + (mine ? 'justify-end' : 'justify-start');
+        var bubble = document.createElement('div');
+        bubble.className = 'max-w-[80%] rounded-2xl px-3.5 py-2.5 text-[15px] leading-snug ' +
+            (mine ? 'rounded-br-md bg-brand-700 text-white' : 'rounded-bl-md bg-surface text-ink shadow-card');
         if (isImageFile(message)) {
-            var imageUrl = `/storage/chatsImg/${message}`;
-            var messageText = $('<img>').attr('src', imageUrl).addClass('mt-2 max-w-xs rounded-lg');
+            var img = document.createElement('img');
+            img.src = /^(https?:)?\//.test(message) ? message : '/storage/chatsImg/' + message;
+            img.alt = 'Gambar dikirim';
+            img.loading = 'lazy';
+            img.className = 'max-h-80 w-full max-w-[16rem] rounded-xl object-contain bg-surface';
+            bubble.appendChild(img);
         } else {
-            var messageText = $('<p>').text(message);
+            var p = document.createElement('p');
+            p.className = 'whitespace-pre-wrap break-words';
+            p.textContent = message;
+            bubble.appendChild(p);
         }
-
-        var timestampText = $('<p>').addClass('text-xs').text(formattedTimestamp);
-
-        if (role === 'driver') {
-            messageDiv.addClass('items-end');
-            containerDiv.addClass('bg-[#F8832B]');
-        } else {
-            messageDiv.addClass('items-start');
-            containerDiv.addClass('bg-[#FFE6D4]');
-            timestampText.addClass('text-gray-500');
-        }
-
-        // Append elements to container
-        containerDiv.append(messageText, timestampText);
-        messageDiv.append(containerDiv);
-
-        // Append container to chat messages
-        $('#chat-messages').append(messageDiv);
-
-        var chatWindow = document.getElementById('chat-messages');
-        var latestMessage = chatWindow.lastElementChild;
-        latestMessage.scrollIntoView({
-            behavior: 'smooth'
-        });
+        var time = document.createElement('p');
+        time.className = 'mt-1 text-right font-mono text-[11px] ' + (mine ? 'text-white' : 'text-ink-500');
+        time.textContent = pad(d.getHours()) + ':' + pad(d.getMinutes());
+        bubble.appendChild(time);
+        row.appendChild(bubble);
+        box.appendChild(row);
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        row.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'end' });
     }
 
-    // Listen for new messages
-    database.ref('chats/' + custId + '-' + courId).on('child_added', function(snapshot) {
-        const trace = perf.trace('listen_message');
-        trace.start();
+    function sendNotification(userId, title, body) {
+        var data = new URLSearchParams({ user_id: userId, title: title, body: body, _token: csrf });
+        fetch(notifyUrl, { method: 'POST', body: data, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .catch(function (error) { console.error('Error sending notification:', error); });
+    }
 
-        var messageData = snapshot.val();
+    function sendMessage(message) {
+        var now = new Date();
+        var stamp = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+        if (preview || !database) { displayMessage('driver', message, stamp); return; }
+        database.ref('chats/' + custId + '-' + courId).push().set({ msgs: { role: 'driver', msg: message, timestamp: stamp } })
+            .then(function () { sendNotification(custId, 'New Message', message); });
+        database.ref('chats/' + custId + '-' + courId + '/courNewMssg').transaction(function (current) { return (current || 0) + 1; });
+    }
 
-        if (messageData.msgs) {
-            var role = messageData.msgs.role;
-            var message = messageData.msgs.msg;
-            var timestamp = messageData.msgs.timestamp;
-            displayMessage(role, message, timestamp);
-            trace.stop();
-        }
-
-    });
-
-    // Send message when form is submitted
-    $('#message-form').submit(function(event) {
-        event.preventDefault(); // Prevent form submission
-
-        var message = $('#message-input').val().trim();
-        var imageFile = $('#image-input')[0].files[0];
-
-        if (imageFile) {
-            var formData = new FormData();
-            formData.append('image', imageFile);
-            formData.append('_token', $('meta[name="csrf-token"]').attr('content')); // Add CSRF token if needed
-            $.ajax({
-                url: '/courier/uploadChatImageCour',
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    if (response.success) {
-                        var imageUrl = response.imageUrl;
-                        sendMessage(imageUrl.split('/').pop());
-                        console.log('success');
-                    } else {
-                        console.log('Image upload failed');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.log('Error: ' + error);
-                }
-            });
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        var message = textInput.value.trim();
+        var file = fileInput.files[0];
+        if (file) {
+            var body = new FormData();
+            body.append('image', file);
+            body.append('_token', csrf);
+            fetch(uploadUrl, { method: 'POST', body: body, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (response) { return response.json(); })
+                .then(function (json) {
+                    if (json.success) sendMessage(json.imageUrl.split('/').pop());
+                    else window.DKToast && DKToast.error('Gambar gagal diunggah');
+                })
+                .catch(function () { window.DKToast && DKToast.error('Gambar gagal diunggah'); });
         } else if (message !== '') {
             sendMessage(message);
         }
-
-        $('#message-input').val('');
-        $('#image-input').val('');
+        textInput.value = '';
+        fileInput.value = '';
     });
+    document.getElementById('image-btn').addEventListener('click', function () { fileInput.click(); });
+    fileInput.addEventListener('change', function () { form.requestSubmit(); });
 
-    $('#image-btn').click(function() {
-        $('#image-input').click();
-    });
-
-    $('#image-input').change(function() {
-        $('#message-form').submit();
-    });
-
-    function isImageFile(fileName) {
-        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'heic', 'webp'];
-
-        const fileExtension = fileName.split('.').pop().toLowerCase();
-
-        return imageExtensions.includes(fileExtension);
-    }
-
-    function sendNotificationToServer(userId, title, body) {
-        $.ajax({
-            url: '{{ route("send.notification") }}',
-            type: 'POST',
-            data: {
-                user_id: userId,
-                title: title,
-                body: body,
-                _token: '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                console.log('Notification sent successfully:', response);
-            },
-            error: function(xhr, status, error) {
-                console.error('Error sending notification:', error);
-            }
+    @isset($previewMessages)
+        @json($previewMessages).forEach(function (m) { displayMessage(m.role, m.msg, m.timestamp); });
+    @endisset
+    if (database) {
+        database.ref('chats/' + custId + '-' + courId).on('child_added', function (snapshot) {
+            var data = snapshot.val();
+            if (data && data.msgs) displayMessage(data.msgs.role, data.msgs.msg, data.msgs.timestamp);
         });
     }
+})();
 </script>
-@endsection
+@endpush
