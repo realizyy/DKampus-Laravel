@@ -36,3 +36,16 @@
     <p class="text-center"><a href="{{ url('/pesanan') }}" class="text-[15px] text-ink-600 underline underline-offset-2 hover:text-ink">Batalkan transaksi?</a></p>
 </div>
 @endsection
+
+@push('js')
+<script>
+    // Beri tahu kurir ada order baru; keepalive agar tetap terkirim walau halaman langsung berpindah setelah submit
+    document.getElementById('submitOrder').addEventListener('click', function () {
+        fetch(@json(route('send.notificationCour')), {
+            method: 'POST', keepalive: true,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: new URLSearchParams({ _token: document.querySelector('meta[name="csrf-token"]').content }),
+        }).catch(function (error) { console.error('Error sending notification:', error); });
+    });
+</script>
+@endpush
