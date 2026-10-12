@@ -3,6 +3,21 @@
     @include('components.header.courierHeader')
     <div class="bg-[#F0F3F8] flex flex-col items-center justify-center mb-48">
         <div class="w-full h-full space-y-8 bg-white rounded-lg p-8">
+            {{-- Hasil ubah password / nomor telepon (modalnya tertutup, jadi pesan ditampilkan di sini) --}}
+            @if (session('status') === 'password-updated')
+                <div class="rounded-md bg-green-100 p-3 text-sm text-green-700">Password berhasil diubah.</div>
+            @elseif (session('status') === 'phone-updated')
+                <div class="rounded-md bg-green-100 p-3 text-sm text-green-700">Nomor telepon berhasil diubah.</div>
+            @endif
+            @if ($errors->updatePassword->any() || $errors->updatePhone->any())
+                <div class="rounded-md bg-red-100 p-3 text-sm text-red-700">
+                    <ul class="list-disc pl-5">
+                        @foreach (array_merge($errors->updatePassword->all(), $errors->updatePhone->all()) as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <div class="profile-section text-center">
                 <img class="w-24 h-24 rounded-full mx-auto object-cover" src="{{ asset('logoDkampus.png') }}" alt="Profil Picture">
                 <h2 class="text-2xl font-semibold mt-4">{{ Auth::user()->nama_user ?? 'null' }}</h2>
@@ -61,19 +76,21 @@
                 </button>
                 <div class="py-6 px-6 lg:px-8">
                     <h3 class="mb-4 text-xl font-medium text-gray-900">Ubah Password</h3>
-                    <form class="space-y-6" action="#">
-                        {{-- ... (Form untuk ubah password) ... --}}
+                    {{-- Memakai endpoint yang sudah ada (PasswordController::update, error bag "updatePassword") --}}
+                    <form class="space-y-6" method="POST" action="{{ route('password.update') }}">
+                        @csrf
+                        @method('PUT')
                         <div class="flex flex-col space-y-1">
                             <label for="password" class="text-sm font-medium text-gray-700">Password Lama</label>
-                            <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            <input type="password" id="password" name="current_password" autocomplete="current-password" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                         </div>
                         <div class="flex flex-col space-y-1">
                             <label for="new-password" class="text-sm font-medium text-gray-700">Password Baru</label>
-                            <input type="password" id="new-password" name="new-password" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            <input type="password" id="new-password" name="password" autocomplete="new-password" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                         </div>
                         <div class="flex flex-col space-y-1">
                             <label for="confirm-password" class="text-sm font-medium text-gray-700">Konfirmasi Password Baru</label>
-                            <input type="password" id="confirm-password" name="confirm-password" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            <input type="password" id="confirm-password" name="password_confirmation" autocomplete="new-password" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                         </div>
                         <div class="flex flex-row justify-end space-x-4">
                             <button type="button" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-md" data-modal-hide="ubahPasswordModal">Batal</button>
@@ -95,11 +112,12 @@
                 </button>
                 <div class="py-6 px-6 lg:px-8">
                     <h3 class="mb-4 text-xl font-medium text-gray-900">Ubah Nomor Telepon</h3>
-                    <form class="space-y-6" action="#">
-                        {{-- ... (Form untuk ubah nomor telepon) ... --}}
+                    <form class="space-y-6" method="POST" action="{{ route('cour.profile.phone') }}">
+                        @csrf
+                        @method('PATCH')
                         <div class="flex flex-col space-y-1">
                             <label for="no-telp" class="text-sm font-medium text-gray-700">Nomor Telepon Baru</label>
-                            <input type="tel" id="no-telp" name="no-telp" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            <input type="tel" id="no-telp" name="no_telp" value="{{ old('no_telp', Auth::user()->no_telp) }}" maxlength="13" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                         </div>
                         <div class="flex flex-row justify-end space-x-4">
                             <button type="button" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-md" data-modal-hide="ubahNomorTeleponModal">Batal</button>

@@ -307,6 +307,7 @@ Route::middleware(['auth', 'verified', 'check.courier.role'])->prefix('courier')
             'Title' => 'Profile',
         ]
     )->name('profile');
+    Route::patch('/profile/phone', [CourierController::class, 'updatePhone'])->name('cour.profile.phone');
 
     Route::get('/order', [CourierController::class, 'listOrder'])->name('courierorder');
     Route::post('/take-Order', [CourierController::class, 'takeOrder'])->name('take.order');

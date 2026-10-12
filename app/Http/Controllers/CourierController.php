@@ -407,4 +407,15 @@ class CourierController extends Controller
         }
         return redirect()->away('https://wa.me/' . $convertedNumber);
     }
+
+    public function updatePhone(Request $request)
+    {
+        $validated = $request->validateWithBag('updatePhone', [
+            'no_telp' => ['required', 'string', 'max:13', Rule::unique('users', 'no_telp')->ignore(Auth::id())],
+        ]);
+
+        Auth::user()->update(['no_telp' => $validated['no_telp']]);
+
+        return back()->with('status', 'phone-updated');
+    }
 }
