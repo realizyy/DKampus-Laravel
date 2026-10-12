@@ -10,6 +10,7 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Kreait\Firebase\Contract\Auth;
 
 class UmkmController extends Controller
@@ -137,67 +138,121 @@ class UmkmController extends Controller
     public function storeUmkm(Request $request)
     {
         $staticDate = '2024-01-01 ';
-        try {
-            $validatedData = $request->validate([
-                'user_id' => 'required',
-                'nama_umkm' => 'required',
-                'logo_umkm' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'alamat' => 'required',
-                'open_time' => 'required',
-                'close_time' => 'required',
-                'no_telp_umkm' => 'required',
-                'vip' => 'required',
-                'alamat' => 'required',
-                'link' => 'required',
-                'geo' => 'required',
-            ]);
 
-            Data_umkm::create([
-                'user_id' => $request->user_id,
-                'nama_umkm' => $request->nama_umkm,
-                'logo_umkm' => $request->logo_umkm->storePublicly($request->nama_umkm, 'public'),
-                'alamat' => $request->alamat,
-                'open_time' => $staticDate . $request->open_time . ':00',
-                'close_time' => $staticDate . $request->close_time . ':00',
-                'no_telp_umkm' => $request->no_telp_umkm,
-                'vip' => $request->vip,
-                "alamat" => $request->alamat,
-                "link" => $request->link,
-                "geo" => $request->geo,
-            ]);
-            return redirect()->route('umkm')->with('success', 'Data UMKM berhasil ditambahkan');
+        // Divalidasi di luar try/catch supaya pesan galat sampai ke form (dulu ValidationException ikut tertelan jadi "Error")
+        $request->validate([
+            'nama_umkm' => 'required|string|max:255',
+            'logo_umkm' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'alamat' => 'required|string|max:255',
+            'open_time' => 'required|date_format:H:i',
+            'close_time' => 'required|date_format:H:i',
+            'no_telp_umkm' => 'required|string|max:255',
+            'vip' => 'required|in:0,1',
+            'link' => 'nullable|string',
+            'geo' => 'required|string|max:255',
+            // Produk awal dari wizard (Figma: Produk*, minimal satu); produk lain bisa ditambah nanti dari halaman detail
+            'products' => 'required|array|min:1|max:50',
+            'products.*.nama_makanan' => 'required|string|max:255',
+            'products.*.deskripsi' => 'required|string',
+            'products.*.harga' => 'required|numeric|min:0',
+            'products.*.promo' => 'nullable|numeric|min:0|max:100',
+            'products.*.category' => ['required', Rule::in(array_keys(Menu::CATEGORIES))],
+            'products.*.image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ], [], [
+            'nama_umkm' => 'nama resto',
+            'logo_umkm' => 'gambar resto',
+            'alamat' => 'alamat',
+            'open_time' => 'jam buka',
+            'close_time' => 'jam tutup',
+            'no_telp_umkm' => 'no. telp',
+            'vip' => 'VIP',
+            'geo' => 'koordinat lokasi',
+            'products' => 'produk',
+            'products.*.nama_makanan' => 'nama produk',
+            'products.*.deskripsi' => 'deskripsi produk',
+            'products.*.harga' => 'harga produk',
+            'products.*.promo' => 'diskon produk',
+            'products.*.category' => 'kategori produk',
+            'products.*.image' => 'gambar produk',
+        ]);
+
+        try {
+            $umkm = DB::transaction(function () use ($request, $staticDate) {
+                $umkm = Data_umkm::create([
+                    'user_id' => $request->user()->id,
+                    'nama_umkm' => $request->nama_umkm,
+                    'logo_umkm' => $request->logo_umkm->storePublicly($request->nama_umkm, 'public'),
+                    'alamat' => $request->alamat,
+                    'open_time' => $staticDate . $request->open_time . ':00',
+                    'close_time' => $staticDate . $request->close_time . ':00',
+                    'no_telp_umkm' => $request->no_telp_umkm,
+                    'vip' => $request->vip,
+                    // Tanpa Google Places, tautan peta dibuat dari teks alamat
+                    'link' => $request->link ?: 'https://www.google.com/maps/search/?api=1&query=' . urlencode($request->alamat),
+                    'geo' => $request->geo,
+                ]);
+
+                foreach ((array) $request->input('products', []) as $i => $product) {
+                    Menu::create([
+                        'data_umkm_id' => $umkm->id,
+                        'nama_makanan' => $product['nama_makanan'],
+                        'deskripsi' => $product['deskripsi'],
+                        'harga' => $product['harga'],
+                        'image' => $request->file("products.$i.image")->storePublicly('public/' . $umkm->nama_umkm),
+                        'rating' => 0,
+                        'slug' => '',
+                        'diskon' => $product['promo'] ?? 0,
+                        'category' => $product['category'],
+                    ]);
+                }
+
+                return $umkm;
+            });
+
+            return redirect()->route('umkmEdit', $umkm)->with('success', 'Resto ' . $umkm->nama_umkm . ' berhasil ditambahkan.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error2', 'Error');
+            report($e);
+            return redirect()->back()->withInput()->with('error2', 'Resto belum bisa disimpan. Coba lagi.');
         }
     }
 
     public function addProduct(Request $request)
     {
+        $request->validate([
+            'umkm' => 'required|exists:data_umkms,id',
+            'nama_makanan' => 'required|string|max:255',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'deskripsi' => 'required|string',
+            'harga' => 'required|numeric|min:0',
+            'promo' => 'nullable|numeric|min:0|max:100',
+            'category' => ['required', Rule::in(array_keys(Menu::CATEGORIES))],
+        ], [], [
+            'umkm' => 'resto',
+            'nama_makanan' => 'nama makanan',
+            'image' => 'gambar',
+            'deskripsi' => 'deskripsi',
+            'harga' => 'harga',
+            'promo' => 'diskon',
+            'category' => 'kategori',
+        ]);
+
         try {
-            $idUmkm = Data_umkm::find($request->umkm)->id;
-            $validatedData = $request->validate([
-                'umkm' => 'required',
-                'nama_makanan' => 'required',
-                //'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'deskripsi' => 'required',
-                'harga' => 'required',
-                //'promo' => 'required',
-                'category' => 'required',
-            ]);
+            $umkm = Data_umkm::findOrFail($request->umkm);
             Menu::create([
-                "data_umkm_id" => $idUmkm,
-                "nama_makanan" => $request->nama_makanan,
-                "deskripsi" => $request->deskripsi,
-                "harga" => $request->harga,
-                "image" => $request->image->storePublicly('public/' . Data_umkm::find($request->umkm)->nama_umkm),
-                "rating" => 0,
-                "slug" => "",
-                "diskon" => $request->promo,
-                "category" => $request->category,
+                'data_umkm_id' => $umkm->id,
+                'nama_makanan' => $request->nama_makanan,
+                'deskripsi' => $request->deskripsi,
+                'harga' => $request->harga,
+                'image' => $request->image->storePublicly('public/' . $umkm->nama_umkm),
+                'rating' => 0,
+                'slug' => '',
+                'diskon' => $request->promo ?? 0,
+                'category' => $request->category,
             ]);
-            return redirect()->back()->with('success', 'Menu stored successfully.');
+            return redirect()->back()->with('success', 'Produk ' . $request->nama_makanan . ' ditambahkan.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to store the menu.');
+            report($e);
+            return redirect()->back()->withInput()->with('error2', 'Produk belum bisa disimpan. Coba lagi.');
         }
     }
 
