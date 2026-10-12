@@ -16,9 +16,9 @@
         </div>
         <div class="relative max-w-xl">
             <h2 class="font-display text-5xl font-extrabold leading-[0.95] tracking-tightest xl:text-7xl">@hasSection('panel-title')@yield('panel-title')@else Selamat datang di Dkampus.@endif</h2>
-            <p class="mt-6 max-w-md text-lg leading-relaxed text-brand-100">@hasSection('panel-text')@yield('panel-text')@else Jelajahi kelezatan kuliner di sekitar Telkom University dengan mudah dan cepat!@endif</p>
+            <p class="mt-6 max-w-md text-lg leading-relaxed text-white">@hasSection('panel-text')@yield('panel-text')@else Jelajahi kelezatan kuliner di sekitar Telkom University dengan mudah dan cepat!@endif</p>
         </div>
-        <p class="relative font-mono text-xs uppercase tracking-widest text-brand-200">Telkom University · Bandung</p>
+        <p class="relative font-mono text-xs uppercase tracking-widest text-white">Telkom University · Bandung</p>
     </aside>
 
     <main class="flex min-h-dvh flex-col px-5 pb-8 pt-[max(1.25rem,env(safe-area-inset-top))] md:px-12 md:py-10">
