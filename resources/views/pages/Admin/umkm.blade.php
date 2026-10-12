@@ -10,6 +10,16 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <h1 class="text-2xl font-bold mb-4">UMKM yang terdaftar</h1>
 
+                    @if ($errors->any())
+                    <div class="mb-4 rounded-md bg-red-100 p-3 text-sm text-red-700">
+                        <ul class="list-disc pl-5">
+                            @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+
                     <!-- Button trigger modal -->
                     <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" data-bs-toggle="modal" data-bs-target="#umkmModal">
                         Tambah UMKM
@@ -37,7 +47,7 @@
                                     <td class="">{{ $umkm->alamat }}</td>
                                     <td class="hidden"> {{ $umkm->link }} </td>
                                     {{-- <td><img src="{{ Storage::url($umkm->logo_umkm) }}" alt="umkm_img" width="50"></td>--}}
-                                    <td class="">{{ date('H:i', strtotime($umkm->open_time)) }} - {{ date('H:i', strtotime($umkm->close_time)) }}</td>
+                                    <td class="">{{ $umkm->open_time ? date('H:i', strtotime($umkm->open_time)) : '--:--' }} - {{ $umkm->close_time ? date('H:i', strtotime($umkm->close_time)) : '--:--' }}</td>
                                     <td class="text-center">{{ $umkm->no_telp_umkm }}</td>
                                     <td class="text-center">{{ $umkm->vip ? 'Ya' : 'Tidak' }}</td>
                                     <td class="text-center">{{ $umkm->rating }}</td>
@@ -320,8 +330,8 @@
             var alamat = button.getAttribute('data-alamat');
             var dateOpen_Time = button.getAttribute('data-open_time'); // "2024-05-17 06:00:00"
             var dateClose_Time = button.getAttribute('data-close_time'); // "2024-05-17 07:00:00"
-            var open_time = dateOpen_Time.slice(11, 16); // "06:00"
-            var close_time = dateClose_Time.slice(11, 16); // "07:00"
+            var open_time = (dateOpen_Time || '').slice(11, 16); // "06:00"
+            var close_time = (dateClose_Time || '').slice(11, 16); // "07:00"
             var no_telp_umkm = button.getAttribute('data-no_telp_umkm');
             var vip = button.getAttribute('data-vip');
             var link = button.getAttribute('data-link');
@@ -333,7 +343,11 @@
             document.getElementById('edit_open_time').value = open_time;
             document.getElementById('edit_close_time').value = close_time;
             document.getElementById('edit_no_telp_umkm').value = no_telp_umkm;
-            document.getElementById('edit_vip').value = vip;
+            // Radio punya id ganda; centang yang sesuai, jangan menimpa value-nya
+            var vipRadio = document.querySelector('input[name="edit_vip"][value="' + vip + '"]');
+            if (vipRadio) {
+                vipRadio.checked = true;
+            }
             document.getElementById('edit_geo').value = geo;
 
             edit = document.getElementById('edit_alamat');

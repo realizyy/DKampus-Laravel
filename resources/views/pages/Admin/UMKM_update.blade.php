@@ -11,20 +11,44 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <h1 class="text-2xl font-bold mb-4">Update UMKM</h1>
 
+                    @if ($errors->any())
+                    <div class="mb-4 rounded-md bg-red-100 p-3 text-sm text-red-700">
+                        <ul class="list-disc pl-5">
+                            @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+
+                    @if (session('success'))
+                    <div class="mb-4 rounded-md bg-green-100 p-3 text-sm text-green-700">{{ session('success') }}</div>
+                    @endif
+
                     <form method="POST" action="{{ route('umkmUpdate', $umkm->id) }}" enctype="multipart/form-data" class="space-y-4">
                         @csrf
                         @method('PUT')
 
                         <!-- Input fields for UMKM data -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <input type="hidden" name="user_id" id="" value="{{ Auth::id() }}">
+                            {{-- Nama field (edit_*) mengikuti UmkmController::update; link & geo dipertahankan --}}
+                            <input type="hidden" name="edit_link" value="{{ old('edit_link', $umkm->link) }}">
+                            <input type="hidden" name="edit_geo" value="{{ old('edit_geo', $umkm->geo) }}">
                             <div>
-                                <label for="nama_umkm">Nama UMKM:</label>
-                                <input type="text" name="nama_umkm" id="nama_umkm" placeholder="Nama UMKM" class="text-black w-full px-3 py-2 border rounded-md" value="{{ $umkm->nama_umkm }}">
+                                <label for="edit_nama_umkm">Nama UMKM:</label>
+                                <input type="text" name="edit_nama_umkm" id="edit_nama_umkm" placeholder="Nama UMKM" class="text-black w-full px-3 py-2 border rounded-md" value="{{ old('edit_nama_umkm', $umkm->nama_umkm) }}" required>
                             </div>
                             <div>
-                                <label for="alamat">Alamat:</label>
-                                <textarea name="alamat" id="alamat" placeholder="Alamat" class="text-black w-full px-3 py-2 border rounded-md">{{ $umkm->alamat }}</textarea>
+                                <label for="edit_alamat">Alamat:</label>
+                                <textarea name="edit_alamat" id="edit_alamat" placeholder="Alamat" class="text-black w-full px-3 py-2 border rounded-md" required>{{ old('edit_alamat', $umkm->alamat) }}</textarea>
+                            </div>
+                            <div>
+                                <label for="edit_open_time">Jam Buka:</label>
+                                <input type="time" name="edit_open_time" id="edit_open_time" class="text-black w-full px-3 py-2 border rounded-md" value="{{ old('edit_open_time', $umkm->open_time ? date('H:i', strtotime($umkm->open_time)) : '') }}" required>
+                            </div>
+                            <div>
+                                <label for="edit_close_time">Jam Tutup:</label>
+                                <input type="time" name="edit_close_time" id="edit_close_time" class="text-black w-full px-3 py-2 border rounded-md" value="{{ old('edit_close_time', $umkm->close_time ? date('H:i', strtotime($umkm->close_time)) : '') }}" required>
                             </div>
                             <div>
                                 <label for="logo_umkm">Logo UMKM:</label>
@@ -43,18 +67,18 @@
                                 </div>
                             </div>
                             <div>
-                                <label for="no_telp_umkm">No. Telp UMKM:</label>
-                                <input type="text" name="no_telp_umkm" id="no_telp_umkm" placeholder="No. Telp UMKM" class="text-black w-full px-3 py-2 border rounded-md" value="{{ $umkm->no_telp_umkm }}">
+                                <label for="edit_no_telp_umkm">No. Telp UMKM:</label>
+                                <input type="text" name="edit_no_telp_umkm" id="edit_no_telp_umkm" placeholder="No. Telp UMKM" class="text-black w-full px-3 py-2 border rounded-md" value="{{ old('edit_no_telp_umkm', $umkm->no_telp_umkm) }}" required>
                             </div>
                         </div>
 
                         <!-- VIP Radio Buttons -->
                         <div>
                             <div class="flex items-center">
-                                <label for="vip">VIP: &nbsp;</label>
-                                <input type="radio" name="vip" value="0" id="vip-ya" {{ $umkm->vip == 0 ? 'checked' : '' }}>
+                                <label>VIP: &nbsp;</label>
+                                <input type="radio" name="edit_vip" value="1" id="vip-ya" {{ old('edit_vip', $umkm->vip) == 1 ? 'checked' : '' }} required>
                                 <label for="vip-ya" class="ml-1">Ya</label>
-                                <input type="radio" name="vip" value="1" id="vip-tidak" class="ml-4" {{ $umkm->vip == 1 ? 'checked' : '' }}>
+                                <input type="radio" name="edit_vip" value="0" id="vip-tidak" class="ml-4" {{ old('edit_vip', $umkm->vip) == 0 ? 'checked' : '' }} required>
                                 <label for="vip-tidak" class="ml-1">Tidak</label>
                             </div>
                         </div>
@@ -113,7 +137,7 @@
                             <td class="border-b border-slate-100 dark:border-slate-700 p-4 pr-8 text-slate-500 dark:text-slate-400 flex flex-col">
                                 <a href="" class="py-1 text-center font-semibold text-sm bg-green-400 text-white rounded-full shadow-sm mb-2">View</a>
                                 <a href="{{ route('product.edit', $data->id) }}" class="py-1 text-center font-semibold text-sm bg-cyan-500 text-white rounded-full shadow-sm mb-2">Edit</a>
-                                <form action="{{ route("product.destroy", $data) }}" method="POST" class="delete-form w-full">
+                                <form action="{{ route('productDestroy', $data->id) }}" method="POST" class="delete-form w-full">
                                     @csrf
                                     @method("DELETE")
                                     <button value="{{ $data->nama_makanan }}" class="w-full delete-button py-1 text-center font-semibold text-sm bg-red-400 text-white rounded-full shadow-sm mb-2">Delete</button>

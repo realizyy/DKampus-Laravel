@@ -167,6 +167,29 @@ class UmkmController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Divalidasi di luar try/catch supaya pesan error sampai ke form, bukan "Error" generik
+        $request->validate([
+            'edit_nama_umkm' => 'required|string|max:255',
+            'edit_alamat' => 'required|string|max:255',
+            'edit_open_time' => 'required|date_format:H:i',
+            'edit_close_time' => 'required|date_format:H:i',
+            'edit_no_telp_umkm' => 'required|string|max:255',
+            'edit_vip' => 'required|in:0,1',
+            'edit_link' => 'nullable|string',
+            'edit_geo' => 'nullable|string|max:255',
+            'logo_umkm' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [], [
+            'edit_nama_umkm' => 'nama UMKM',
+            'edit_alamat' => 'alamat',
+            'edit_open_time' => 'jam buka',
+            'edit_close_time' => 'jam tutup',
+            'edit_no_telp_umkm' => 'no. telp',
+            'edit_vip' => 'VIP',
+            'edit_link' => 'link',
+            'edit_geo' => 'geo',
+            'logo_umkm' => 'logo',
+        ]);
+
         try {
             $umkm = Data_umkm::findOrFail($id);
             $staticDate = '2024-01-01 ';
