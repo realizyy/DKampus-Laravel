@@ -1,3 +1,4 @@
 @props(['disabled' => false])
 
-<input {{ $disabled ? 'disabled' : '' }} {!! $attributes->merge(['class' => 'border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm']) !!}>
+{{-- Input Breeze (auth/profil) dengan gaya sistem desain DKampus: lihat juga <x-ui.input> --}}
+<input {{ $disabled ? 'disabled' : '' }} {!! $attributes->merge(['class' => 'h-12 rounded-xl border-0 bg-surface px-4 text-[15px] text-ink shadow-inset ring-1 ring-inset ring-line transition placeholder:text-ink-400 hover:ring-line-strong focus:ring-2 focus:ring-brand-600 disabled:cursor-not-allowed disabled:bg-sunken disabled:text-ink-400']) !!}>
