@@ -31,4 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // Kunci Maps JavaScript (Places Autocomplete) untuk halaman customer; diisi lewat .env, jangan ditulis di view
+    'google_maps' => [
+        'key' => env('GOOGLE_MAPS_API_KEY'),
+    ],
+
 ];
