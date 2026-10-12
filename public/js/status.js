@@ -18,5 +18,8 @@ function toggleState(){
     state.condition = !state.condition;
     render01()
 }
-toggleShowMore.addEventListener('click',toggleState);
-render01()
+// Elemen ini hanya dirender kalau ada pesanan aktif
+if (listMakananSatuan && toggleShowMore && iconToggle) {
+    toggleShowMore.addEventListener('click',toggleState);
+    render01()
+}
