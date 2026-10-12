@@ -15,11 +15,6 @@
     $hideNav = $__env->hasSection('hide-nav');
 @endphp
 
-@push('head')
-    {{-- jQuery 3.7.1: dipakai blok FCM (registerToken) dan skrip lama --}}
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-@endpush
-
 @section('shell')
 <div class="min-h-dvh md:pl-[4.5rem]">
     {{-- Rail desktop --}}
