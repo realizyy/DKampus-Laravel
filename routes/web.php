@@ -168,6 +168,22 @@ Route::redirect('/promo/cemilan', '/promo/category/cemilan');
 // Galeri komponen UI (hanya lingkungan lokal)
 if (app()->isLocal()) {
     Route::view('/_ui', 'dev.ui');
+
+    // Pratinjau halaman dengan data contoh (tanpa Firebase/database): /_ui/courier/{dashboard|orders|history|history-detail|profile|chats|chat-room}
+    Route::get('/_ui/courier/{page}', function (string $page) {
+        \Illuminate\Support\Facades\Auth::setUser(\App\Support\DevFixtures::courierUser());
+
+        return match ($page) {
+            'dashboard' => view('pages.Courier.dashboard', \App\Support\DevFixtures::courierDashboard((bool) request('empty'))),
+            'orders' => view('pages.Courier.orderspage', ['Title' => 'Daftar Orderan', 'navActive' => 'courierorder', 'previewOrders' => request('empty') ? [] : \App\Support\DevFixtures::previewOrders()]),
+            'history' => view('pages.Courier.riwayat', ['Title' => 'History', 'navActive' => 'cour.history', 'data' => collect(request('empty') ? [] : \App\Support\DevFixtures::courierHistory()), 'nama_umkm' => [1 => 'Raja Seafood - Sukabirus', 2 => 'Mie Ahong - Sukabirus']]),
+            'history-detail' => view('pages.Courier.riwayatdetail', ['Title' => 'Detail history', 'navActive' => 'cour.history', 'cust_name' => 'Kevin Pratama', 'status' => 'completed', 'custId' => 101, 'umkm' => 'Raja Seafood - Sukabirus', 'id' => 'tr00000007895675', 'total' => 80600, 'ongkir' => 3000, 'created_at' => \Illuminate\Support\Carbon::parse('2024-06-12 19:04:00')]),
+            'profile' => view('pages.Courier.profile', ['Title' => 'Profile', 'navActive' => 'profile']),
+            'chats' => view('pages.Courier.chatpage', ['Title' => 'Chat', 'navActive' => 'dashboardCourier', 'courId' => 7, 'previewChats' => request('empty') ? [] : \App\Support\DevFixtures::previewChats()]),
+            'chat-room' => view('pages.Courier.chatroom', ['Title' => 'room-chat', 'navActive' => 'dashboardCourier', 'custId' => 101, 'courId' => 7, 'date' => null, 'cust_name' => 'Kevin Pratama', 'wa' => '+6281298765432', 'previewMessages' => \App\Support\DevFixtures::previewMessages()]),
+            default => abort(404),
+        };
+    });
 }
 
 // Detail Routes
