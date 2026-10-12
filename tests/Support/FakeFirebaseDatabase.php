@@ -43,6 +43,12 @@ class FakeFirebaseReference
         return $node;
     }
 
+    /** Urutan tidak disimulasikan: test cukup memastikan isi node terbaca. */
+    public function orderByChild(string $child): static
+    {
+        return $this;
+    }
+
     /** @return array<int, string> */
     public function getChildKeys(): array
     {
