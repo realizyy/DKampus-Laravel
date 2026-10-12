@@ -84,7 +84,7 @@
                 </a>
                 <div id="desc" class="flex flex-col gap-2 py-2 px-3">
                     <div id="ratings" class="flex flex-row items-center gap-1">
-                        <img src="../Iconly/Bold/Star.svg" alt="">
+                        <img src="/Iconly/Bold/Star.svg" alt="">
                         <h2>{{$food->rating}}</h2>
                     </div>
                     <a href="/detail-makanan/{{$food->nama_makanan}}" class="font-semibold text-xl line-clamp-1">{{$food->nama_makanan}}</a>
