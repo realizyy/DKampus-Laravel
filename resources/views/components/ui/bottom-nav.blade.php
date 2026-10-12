@@ -6,13 +6,14 @@
 @props(['items' => []])
 @php
     $count = max(count($items), 1);
-    $active = collect($items)->search(fn ($i) => ! empty($i['active']));
-    $active = $active === false ? 0 : $active;
+    $found = collect($items)->search(fn ($i) => ! empty($i['active']));
+    $hasActive = $found !== false;
+    $active = $hasActive ? $found : 0;
 @endphp
 <nav x-data="bottomNav({{ $count }}, {{ $active }})" aria-label="Navigasi utama"
      {{ $attributes->class('fixed inset-x-0 bottom-0 z-40 bg-surface pb-[env(safe-area-inset-bottom)] shadow-nav') }}>
     <ul class="relative grid" style="grid-template-columns: repeat({{ $count }}, minmax(0, 1fr))">
-        <span x-ref="bump" class="pointer-events-none absolute bottom-0 h-1.5 w-11 -translate-x-1/2 rounded-t-full bg-brand-500" style="left: {{ (($active + 0.5) / $count) * 100 }}%" aria-hidden="true"></span>
+        @if ($hasActive)<span x-ref="bump" class="pointer-events-none absolute bottom-0 h-1.5 w-11 -translate-x-1/2 rounded-t-full bg-brand-500" style="left: {{ (($active + 0.5) / $count) * 100 }}%" aria-hidden="true"></span>@endif
         @foreach ($items as $item)
             @php($on = ! empty($item['active']))
             <li>
