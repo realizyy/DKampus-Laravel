@@ -56,7 +56,7 @@ class PromoModel
             'nama_makanan' => $menu->nama_makanan,
             'nama_umkm' => Data_umkm::where('id', $menu->data_umkm_id)->first()->nama_umkm,
             'image_umkm' => Data_umkm::where('id', $menu->data_umkm_id)->first()->logo_umkm,
-            'Discount' => $menu->diskon,
+            'DiscountPercent' => $menu->diskon,
             'PriceDiscount' => $menu->harga - ($menu->harga * $menu->diskon / 100),
             'PriceOri' => $menu->harga,
             'Ratings' => $menu->rating,
