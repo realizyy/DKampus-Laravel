@@ -69,7 +69,10 @@ if (mode === 'snapshot') {
     const removed = existsSync(removedPath) ? read(removedPath) : '';
     let missing = 0;
     for (const [view, hooks] of Object.entries(base)) {
-        if (!current[view]) { console.log(`HILANG  view ${view}`); missing++; continue; }
+        if (!current[view]) {
+            if (!removed.includes(`${view}|view|*`)) { console.log(`HILANG  view ${view}`); missing++; }
+            continue;
+        }
         for (const [kind, list] of Object.entries(hooks)) {
             for (const item of list) {
                 // id/kelas dianggap ada selama masih ada di view (walau JS-nya sudah tidak merujuk lagi)
