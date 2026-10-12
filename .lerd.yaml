@@ -1,0 +1,4 @@
+secured: true
+workers:
+  - queue
+  - vite
