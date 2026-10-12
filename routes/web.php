@@ -372,9 +372,13 @@ Route::resource('umkm', 'UmkmController');
 Route::middleware(['auth', 'verified', 'check.admin.role'])->prefix('admin')->group(function () {
     Route::post('/updateUser', [AdminController::class, 'editUser'])->name('editUser');
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-    Route::view('/umkm', 'pages/Admin/umkm', [
-        'umkms' => Data_umkm::paginate(10),
-    ])->name('umkm');
+    // Closure (bukan Route::view): query harus jalan saat request, bukan saat route didaftarkan,
+    // kalau tidak aplikasi tidak bisa boot di database kosong (migrate:fresh, test).
+    Route::get('/umkm', function () {
+        return view('pages/Admin/umkm', [
+            'umkms' => Data_umkm::paginate(10),
+        ]);
+    })->name('umkm');
     Route::post('/umkm-save', [UmkmController::class, 'storeUmkm'])->name('umkm.save');
     Route::post('/products', [UmkmController::class, 'addProduct'])->name('save.product');
     Route::get('/product', function () {
@@ -428,11 +432,11 @@ Route::middleware(['auth', 'verified', 'check.admin.role'])->prefix('admin')->gr
     Route::get('/transaction', [AdminController::class, 'transacation'])->name('transaction');
 
     //account-user management route
-    Route::view('/account', 'pages/Admin/account', [
-        'users' => \App\Models\User::all(),
-    ])->name('account');
-
-    Route::post('/account/update/{userid}', [UserController::class, 'update'])->name('account.update');
+    Route::get('/account', function () {
+        return view('pages/Admin/account', [
+            'users' => \App\Models\User::all(),
+        ]);
+    })->name('account');
 
     //chat route
     Route::view(
