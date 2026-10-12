@@ -162,3 +162,128 @@ pages/Users/UbahKataSandi.blade.php|names|newPassword
 - `hookIds`/`hookClasses` di halaman customer: drawer/overlay/modal digerakkan style inline dan JS (`public/js/*`) diganti Alpine + `x-ui.modal`/`data-modal-open`; id duplikat (`#increment`, `#decrement`, `#number`, `#delete`) diganti `.increment-btn/.decrement-btn` di Pesanan.
 - `names`: `kuantitas[0][]` dan `nama_menu[0][]` kini dibuat dinamis oleh Alpine (`:name`), field tetap `warung[]`, `nama_menu[i][]`, `kuantitas[i][]`; Pesanan membuang field tak terpakai (`catatan`, `items[*][]`); Ubah Kata Sandi memakai `current_password/password/password_confirmation` (PUT /password).
 - `routes`: `send.notificationCour` di Pay dipertahankan lewat `@push('js')`; `historydetail.cust` dan `rating` kini berada di `components/customer/order-card`.
+
+### Fase 4 (Admin)
+
+- `pages/Admin/UMKM_update.blade.php|hookIds|image-preview`: pratinjau gambar kini x-ui.image-input (Alpine)
+- `pages/Admin/UMKM_update.blade.php|hookIds|image_logo_umkm`: pratinjau logo kini x-ui.image-input (Alpine)
+- `pages/Admin/UMKM_update.blade.php|hookIds|preview`: pratinjau gambar kini x-ui.image-input (Alpine)
+- `pages/Admin/UMKM_update.blade.php|hookClasses|delete-button`: konfirmasi hapus SweetAlert diganti x-ui.modal (delete-product/delete-umkm)
+- `pages/Admin/UMKM_update.blade.php|hookClasses|delete-form`: konfirmasi hapus SweetAlert diganti x-ui.modal (delete-product/delete-umkm)
+- `pages/Admin/UMKM_update.blade.php|names|header`: slot header (x-app-layout) diganti @section('page-title') di layouts/admin
+- `pages/Admin/UMKM_update.blade.php|routes|product`: daftar produk resto memakai panel edit/hapus (modal) dan tombol Tambah, bukan tautan halaman
+- `pages/Admin/UMKM_update.blade.php|routes|product.edit`: daftar produk resto memakai panel edit/hapus (modal) dan tombol Tambah, bukan tautan halaman
+- `pages/Admin/account.blade.php|hookIds|modal-edit`: panel edit akun kini x-ui.sheet name="user" (#modal-user)
+- `pages/Admin/account.blade.php|names|header`: slot header (x-app-layout) diganti @section('page-title') di layouts/admin
+- `pages/Admin/chatpage.blade.php|hookIds|addNewChat`: tombol uji coba yang mengirim 'Hello, can i help you?!' ke customer id 24 dibuang
+- `pages/Admin/chatpage.blade.php|names|header`: slot header (x-app-layout) diganti @section('page-title') di layouts/admin
+- `pages/Admin/chatpage.blade.php|dataAttrs|data-count-id`: lencana jumlah pesan belum dibaca tidak pernah dirender; dibuang
+- `pages/Admin/chatpage.blade.php|dataAttrs|data-del-id`: atribut ini kini dibuat JS (dataset.delId) pada item chat
+- `pages/Admin/dashboard.blade.php|names|header`: slot header (x-app-layout) diganti @section('page-title') di layouts/admin
+- `pages/Admin/product.blade.php|hookIds|edit-image-preview`: pratinjau gambar kini x-ui.image-input (Alpine)
+- `pages/Admin/product.blade.php|hookIds|edit-preview`: pratinjau gambar kini x-ui.image-input (Alpine)
+- `pages/Admin/product.blade.php|hookIds|edit_category`: pindah ke pages/Admin/partials/product-modals.blade.php, pages/Admin/product_update.blade.php
+- `pages/Admin/product.blade.php|hookIds|edit_deskripsi`: pindah ke pages/Admin/partials/product-modals.blade.php, pages/Admin/product_update.blade.php
+- `pages/Admin/product.blade.php|hookIds|edit_harga`: pindah ke pages/Admin/partials/product-modals.blade.php, pages/Admin/product_update.blade.php
+- `pages/Admin/product.blade.php|hookIds|edit_image`: pindah ke pages/Admin/partials/product-modals.blade.php, pages/Admin/product_update.blade.php
+- `pages/Admin/product.blade.php|hookIds|edit_nama_makanan`: pindah ke pages/Admin/partials/product-modals.blade.php, pages/Admin/product_update.blade.php
+- `pages/Admin/product.blade.php|hookIds|edit_promo`: pindah ke pages/Admin/partials/product-modals.blade.php, pages/Admin/product_update.blade.php
+- `pages/Admin/product.blade.php|hookIds|edit_umkm`: pindah ke pages/Admin/partials/product-modals.blade.php, pages/Admin/product_update.blade.php
+- `pages/Admin/product.blade.php|hookIds|image-preview`: pratinjau gambar kini x-ui.image-input (Alpine)
+- `pages/Admin/product.blade.php|hookIds|modalEditProductumkm`: panel edit produk kini x-ui.sheet name="edit-product" (#modal-edit-product)
+- `pages/Admin/product.blade.php|hookIds|preview`: pratinjau gambar kini x-ui.image-input (Alpine)
+- `pages/Admin/product.blade.php|hookIds|umkm`: pindah ke pages/Admin/partials/product-modals.blade.php
+- `pages/Admin/product.blade.php|names|category`: pindah ke pages/Admin/partials/product-modals.blade.php
+- `pages/Admin/product.blade.php|names|deskripsi`: pindah ke pages/Admin/partials/product-modals.blade.php
+- `pages/Admin/product.blade.php|names|edit_category`: pindah ke pages/Admin/partials/product-modals.blade.php, pages/Admin/product_update.blade.php
+- `pages/Admin/product.blade.php|names|edit_deskripsi`: pindah ke pages/Admin/partials/product-modals.blade.php, pages/Admin/product_update.blade.php
+- `pages/Admin/product.blade.php|names|edit_harga`: pindah ke pages/Admin/partials/product-modals.blade.php, pages/Admin/product_update.blade.php
+- `pages/Admin/product.blade.php|names|edit_image`: pindah ke pages/Admin/partials/product-modals.blade.php, pages/Admin/product_update.blade.php
+- `pages/Admin/product.blade.php|names|edit_nama_makanan`: pindah ke pages/Admin/partials/product-modals.blade.php, pages/Admin/product_update.blade.php
+- `pages/Admin/product.blade.php|names|edit_promo`: pindah ke pages/Admin/partials/product-modals.blade.php, pages/Admin/product_update.blade.php
+- `pages/Admin/product.blade.php|names|edit_umkm`: pindah ke pages/Admin/partials/product-modals.blade.php, pages/Admin/product_update.blade.php
+- `pages/Admin/product.blade.php|names|harga`: pindah ke pages/Admin/partials/product-modals.blade.php
+- `pages/Admin/product.blade.php|names|header`: slot header (x-app-layout) diganti @section('page-title') di layouts/admin
+- `pages/Admin/product.blade.php|names|image`: pindah ke pages/Admin/partials/product-modals.blade.php, pages/Courier/chatroom.blade.php, pages/Users/ChatRoomPage.blade.php
+- `pages/Admin/product.blade.php|names|nama_makanan`: pindah ke pages/Admin/partials/product-modals.blade.php
+- `pages/Admin/product.blade.php|names|promo`: pindah ke pages/Admin/partials/product-modals.blade.php
+- `pages/Admin/product.blade.php|routes|save.product`: pindah ke pages/Admin/partials/product-modals.blade.php
+- `pages/Admin/product.blade.php|texts|name="edit_nama_makanan"`: pindah ke pages/Admin/partials/product-modals.blade.php, pages/Admin/product_update.blade.php
+- `pages/Admin/product.blade.php|texts|name="edit_promo"`: pindah ke pages/Admin/partials/product-modals.blade.php, pages/Admin/product_update.blade.php
+- `pages/Admin/product_update.blade.php|hookIds|edit-preview`: pratinjau gambar kini x-ui.image-input (Alpine)
+- `pages/Admin/product_update.blade.php|hookClasses|bg-gray-300`: kelas utilitas lama (bukan hook JS)
+- `pages/Admin/product_update.blade.php|hookClasses|nama_umkm`: kelas penanda select2 lama; select2 tidak dipakai lagi
+- `pages/Admin/product_update.blade.php|names|header`: slot header (x-app-layout) diganti @section('page-title') di layouts/admin
+- `pages/Admin/transaction.blade.php|hookIds|date`: id tetap sama; dibuat lewat @foreach di panel x-ui.sheet name="detail"
+- `pages/Admin/transaction.blade.php|hookIds|jarak`: id tetap sama; dibuat lewat @foreach di panel x-ui.sheet name="detail"
+- `pages/Admin/transaction.blade.php|hookIds|modal-edit`: panel detail kini x-ui.sheet name="detail" (#modal-detail)
+- `pages/Admin/transaction.blade.php|hookIds|ongkir`: id tetap sama; dibuat lewat @foreach di panel x-ui.sheet name="detail"
+- `pages/Admin/transaction.blade.php|hookIds|orderBy`: id tetap sama; dibuat lewat @foreach di panel x-ui.sheet name="detail"
+- `pages/Admin/transaction.blade.php|hookIds|orderID`: id tetap sama; dibuat lewat @foreach di panel x-ui.sheet name="detail"
+- `pages/Admin/transaction.blade.php|hookIds|payment`: id tetap sama; dibuat lewat @foreach di panel x-ui.sheet name="detail"
+- `pages/Admin/transaction.blade.php|hookIds|payment-proof-modal`: modal bukti pembayaran kini x-ui.modal name="proof" (#modal-proof)
+- `pages/Admin/transaction.blade.php|hookIds|status`: id tetap sama; dibuat lewat @foreach di panel x-ui.sheet name="detail"
+- `pages/Admin/transaction.blade.php|hookIds|takenBy`: id tetap sama; dibuat lewat @foreach di panel x-ui.sheet name="detail"
+- `pages/Admin/transaction.blade.php|hookIds|total`: id tetap sama; dibuat lewat @foreach di panel x-ui.sheet name="detail"
+- `pages/Admin/transaction.blade.php|hookIds|umkm`: id tetap sama; dibuat lewat @foreach di panel x-ui.sheet name="detail"
+- `pages/Admin/transaction.blade.php|names|header`: slot header (x-app-layout) diganti @section('page-title') di layouts/admin
+- `pages/Admin/umkm.blade.php|hookIds|alamat`: pindah ke pages/Users/JastipPage.blade.php
+- `pages/Admin/umkm.blade.php|hookIds|autocomplete`: pindah ke pages/Admin/umkm_create.blade.php, pages/Users/DaftarAlamat.blade.php
+- `pages/Admin/umkm.blade.php|hookIds|editForm`: modal tambah/edit di daftar dihapus: tambah di halaman umkm_create (wizard), edit di Detail Resto (UMKM_update)
+- `pages/Admin/umkm.blade.php|hookIds|edit_alamat`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|hookIds|edit_close_time`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|hookIds|edit_geo`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|hookIds|edit_link`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|hookIds|edit_nama_umkm`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|hookIds|edit_no_telp_umkm`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|hookIds|edit_open_time`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|hookIds|geo`: pindah ke pages/Admin/umkm_create.blade.php, pages/Users/JastipPage.blade.php
+- `pages/Admin/umkm.blade.php|hookIds|image-preview`: modal tambah/edit di daftar dihapus: tambah di halaman umkm_create (wizard), edit di Detail Resto (UMKM_update)
+- `pages/Admin/umkm.blade.php|hookIds|link`: pindah ke pages/Admin/umkm_create.blade.php, pages/Users/JastipPage.blade.php
+- `pages/Admin/umkm.blade.php|hookIds|logo_umkm`: pindah ke pages/Admin/UMKM_update.blade.php, pages/Admin/umkm_create.blade.php
+- `pages/Admin/umkm.blade.php|hookIds|modal-edit`: modal edit di daftar dihapus; edit dilakukan di halaman Detail Resto (UMKM_update)
+- `pages/Admin/umkm.blade.php|hookIds|modalumkm`: form tambah resto kini halaman wizard /admin/umkm/create (umkm_create)
+- `pages/Admin/umkm.blade.php|hookIds|preview`: modal tambah/edit di daftar dihapus: tambah di halaman umkm_create (wizard), edit di Detail Resto (UMKM_update)
+- `pages/Admin/umkm.blade.php|hookIds|umkmForm`: pindah ke pages/Admin/umkm_create.blade.php
+- `pages/Admin/umkm.blade.php|names|alamat`: pindah ke pages/Admin/umkm_create.blade.php, pages/Users/JastipPage.blade.php, pages/Users/Pesanan.blade.php
+- `pages/Admin/umkm.blade.php|names|close_time`: pindah ke pages/Admin/umkm_create.blade.php
+- `pages/Admin/umkm.blade.php|names|edit_alamat`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|names|edit_close_time`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|names|edit_geo`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|names|edit_link`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|names|edit_nama_umkm`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|names|edit_no_telp_umkm`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|names|edit_open_time`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|names|edit_vip`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|names|geo`: pindah ke pages/Admin/umkm_create.blade.php, pages/Users/DaftarAlamat.blade.php, pages/Users/JastipPage.blade.php
+- `pages/Admin/umkm.blade.php|names|header`: slot header (x-app-layout) diganti @section('page-title') di layouts/admin
+- `pages/Admin/umkm.blade.php|names|link`: pindah ke pages/Admin/umkm_create.blade.php, pages/Users/DaftarAlamat.blade.php, pages/Users/JastipPage.blade.php
+- `pages/Admin/umkm.blade.php|names|logo_umkm`: pindah ke pages/Admin/UMKM_update.blade.php, pages/Admin/umkm_create.blade.php
+- `pages/Admin/umkm.blade.php|names|nama_umkm`: pindah ke pages/Admin/umkm_create.blade.php
+- `pages/Admin/umkm.blade.php|names|no_telp_umkm`: pindah ke pages/Admin/umkm_create.blade.php
+- `pages/Admin/umkm.blade.php|names|open_time`: pindah ke pages/Admin/umkm_create.blade.php
+- `pages/Admin/umkm.blade.php|names|user_id`: pindah ke pages/Admin/umkm_create.blade.php
+- `pages/Admin/umkm.blade.php|names|vip`: pindah ke pages/Admin/umkm_create.blade.php
+- `pages/Admin/umkm.blade.php|routes|umkm.save`: pindah ke pages/Admin/umkm_create.blade.php
+- `pages/Admin/umkm.blade.php|routes|umkmUpdate`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|dataAttrs|data-alamat`: modal tambah/edit di daftar dihapus: tambah di halaman umkm_create (wizard), edit di Detail Resto (UMKM_update)
+- `pages/Admin/umkm.blade.php|dataAttrs|data-bs-target`: Bootstrap JS dicabut; modal memakai data-modal-open
+- `pages/Admin/umkm.blade.php|dataAttrs|data-bs-toggle`: Bootstrap JS dicabut; modal memakai data-modal-open
+- `pages/Admin/umkm.blade.php|dataAttrs|data-geo`: modal tambah/edit di daftar dihapus: tambah di halaman umkm_create (wizard), edit di Detail Resto (UMKM_update)
+- `pages/Admin/umkm.blade.php|dataAttrs|data-id`: pindah ke components/customer/order-card.blade.php, pages/Admin/UMKM_update.blade.php, pages/Admin/account.blade.php
+- `pages/Admin/umkm.blade.php|dataAttrs|data-link`: modal tambah/edit di daftar dihapus: tambah di halaman umkm_create (wizard), edit di Detail Resto (UMKM_update)
+- `pages/Admin/umkm.blade.php|dataAttrs|data-vip`: modal tambah/edit di daftar dihapus: tambah di halaman umkm_create (wizard), edit di Detail Resto (UMKM_update)
+- `pages/Admin/umkm.blade.php|texts|name="edit_nama_umkm"`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|texts|name="edit_open_time"`: pindah ke pages/Admin/UMKM_update.blade.php
+- `pages/Admin/umkm.blade.php|texts|name="edit_vip"`: pindah ke pages/Admin/UMKM_update.blade.php
+- `profile/edit.blade.php|names|header`: slot header (x-app-layout) diganti @section('page-title') di layouts/admin
+- `components/application-logo.blade.php|view|*`: komponen Breeze tak terpakai (logo memakai asset logoDkampus.svg)
+- `components/danger-button.blade.php|view|*`: digantikan x-ui.button variant=danger
+- `components/secondary-button.blade.php|view|*`: digantikan x-ui.button variant=outline/secondary
+- `components/dropdown.blade.php|view|*`: menu pengguna admin kini ada di sidebar layouts/admin
+- `components/dropdown-link.blade.php|view|*`: menu pengguna admin kini ada di sidebar layouts/admin
+- `components/modal.blade.php|view|*`: digantikan x-ui.modal (dialog native) dan x-ui.sheet
+- `components/nav-link.blade.php|view|*`: navigasi admin kini di layouts/admin
+- `components/responsive-nav-link.blade.php|view|*`: navigasi admin kini di layouts/admin
+- `layouts/app.blade.php|view|*`: digantikan layouts/admin (komponen x-app-layout dihapus)
+- `layouts/navigation.blade.php|view|*`: digantikan sidebar + bottom-nav di layouts/admin
