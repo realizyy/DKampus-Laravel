@@ -159,14 +159,12 @@ class UserController extends Controller
     public function alamatUtama()
     {
         try {
-            $checkAddress = Addresse::where('user_id', request()->custId)->where('utama', 1)->first();
-            // dd($checkAddress);
-            if ($checkAddress) {
-                $checkAddress->update(['utama' => 0]);
-                Addresse::where('id', request()->id)->update(['utama' => 1]);
-            } else {
-                Addresse::where('id', request()->id)->update(['utama' => 1]);
-            }
+            // Selalu pakai user yang login: id dari request tidak boleh menunjuk alamat milik orang lain
+            $userId = Auth::id();
+            $address = Addresse::where('user_id', $userId)->findOrFail(request()->id);
+
+            Addresse::where('user_id', $userId)->where('utama', 1)->update(['utama' => 0]);
+            $address->update(['utama' => 1]);
 
             return redirect()->back();
         } catch (Exception $e) {
@@ -177,7 +175,7 @@ class UserController extends Controller
     public function deleteAlamat()
     {
         try {
-            Addresse::where('id', request()->id)->delete();
+            Addresse::where('user_id', Auth::id())->where('id', request()->id)->delete();
             return redirect()->back();
         } catch (Exception $e) {
             return redirect()->back()->with('error2', 'Error');
