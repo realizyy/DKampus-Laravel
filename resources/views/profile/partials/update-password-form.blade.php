@@ -1,47 +1,31 @@
-<section>
+<section aria-labelledby="profile-password-title">
     <header>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-            {{ __('Update Password') }}
-        </h2>
-
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {{ __('Ensure your account is using a long, random password to stay secure.') }}
-        </p>
+        <h2 id="profile-password-title" class="font-display text-xl font-bold tracking-tight text-ink">Ubah Kata Sandi</h2>
+        <p class="mt-1 text-[15px] text-ink-500">Pakai kata sandi yang panjang dan acak supaya akunmu tetap aman.</p>
     </header>
 
-    <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('password.update') }}" class="mt-5 space-y-4">
         @csrf
         @method('put')
 
-        <div>
-            <x-input-label for="current_password" :value="__('Current Password')" />
-            <x-text-input id="current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
-            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
-        </div>
+        <x-ui.field label="Kata Sandi Saat Ini" for="current_password" :error="$errors->updatePassword->first('current_password')">
+            <x-ui.password name="current_password" id="current_password" autocomplete="current-password" :error="$errors->updatePassword->has('current_password')" />
+        </x-ui.field>
 
-        <div>
-            <x-input-label for="password" :value="__('New Password')" />
-            <x-text-input id="password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2" />
-        </div>
+        <x-ui.field label="Kata Sandi Baru" for="password" :error="$errors->updatePassword->first('password')">
+            <x-ui.password name="password" id="password" autocomplete="new-password" :error="$errors->updatePassword->has('password')" />
+        </x-ui.field>
 
-        <div>
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-            <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
-        </div>
+        <x-ui.field label="Konfirmasi Kata Sandi Baru" for="password_confirmation" :error="$errors->updatePassword->first('password_confirmation')">
+            <x-ui.password name="password_confirmation" id="password_confirmation" autocomplete="new-password" :error="$errors->updatePassword->has('password_confirmation')" />
+        </x-ui.field>
 
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
-
+        <div class="flex items-center gap-3">
+            <x-ui.button type="submit">Simpan</x-ui.button>
             @if (session('status') === 'password-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600 dark:text-gray-400"
-                >{{ __('Saved.') }}</p>
+                <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 3000)" class="flex items-center gap-1.5 text-sm font-semibold text-moss-700" role="status">
+                    <x-ui.icon name="circle-check" class="size-4" />Kata sandi diubah
+                </p>
             @endif
         </div>
     </form>
