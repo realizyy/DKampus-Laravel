@@ -23,8 +23,9 @@ class PasswordConfirmationTest extends TestCase
     {
         $user = User::factory()->create();
 
+        // 12345 = password bawaan UserFactory
         $response = $this->actingAs($user)->post('/confirm-password', [
-            'password' => 'password',
+            'password' => '12345',
         ]);
 
         $response->assertRedirect();

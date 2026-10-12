@@ -15,11 +15,12 @@ class PasswordUpdateTest extends TestCase
     {
         $user = User::factory()->create();
 
+        // 12345 = password bawaan UserFactory
         $response = $this
             ->actingAs($user)
             ->from('/profile')
             ->put('/password', [
-                'current_password' => 'password',
+                'current_password' => '12345',
                 'password' => 'new-password',
                 'password_confirmation' => 'new-password',
             ]);
