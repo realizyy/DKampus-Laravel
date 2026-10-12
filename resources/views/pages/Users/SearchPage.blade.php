@@ -86,7 +86,7 @@
                                 <div class="tracking-wide text-l text-black font-semibold truncate">{{ $umkm->nama_umkm }}</div>
                                 <div class="flex justify-between items-center mt-1">
                                     <div class="flex items center">
-                                        <img src='Iconly/Bold/Star.svg' alt="" class="w-5">
+                                        <img src='/Iconly/Bold/Star.svg' alt="" class="w-5">
                                         <p class="text-[#5E5E5E] text-m ml-2">{{ $umkm->rating }} Rating</p>
                                     </div>
                                 </div>
