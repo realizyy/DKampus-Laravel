@@ -8,6 +8,10 @@ use App\Models\Menu;
 use App\Models\Data_umkm;
 use App\Models\User;
 use App\Models\history;
+use App\Models\Addresse;
+use App\Models\EmailOtp;
+use App\Models\Favorit;
+use App\Models\Rating;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
@@ -93,6 +97,14 @@ class AdminController extends Controller
         return response()->json($users);
     }
 
+    /** Daftar akun (disaring di sisi klien: nama, role, status). */
+    public function accounts()
+    {
+        return view('pages.Admin.account', [
+            'users' => User::orderBy('nama_user')->get(),
+        ]);
+    }
+
     public function editUser(Request $request)
     {
         $id = $request->id_user;
@@ -104,11 +116,44 @@ class AdminController extends Controller
 
         $user = User::findOrFail($id);
 
+        // Admin tidak boleh mengunci dirinya sendiri atau menurunkan admin terakhir
+        $losesAdmin = $user->role === 'admin' && $request->role !== 'admin';
+        if ($user->is($request->user()) && ($losesAdmin || $request->restriction)) {
+            return redirect()->back()->with('error2', 'Anda tidak bisa menurunkan atau menonaktifkan akun yang sedang dipakai.');
+        }
+        if ($losesAdmin && User::where('role', 'admin')->count() <= 1) {
+            return redirect()->back()->with('error2', 'Admin terakhir tidak bisa diturunkan rolenya.');
+        }
+
         $user->role = $request->role;
         $user->restriction = $request->restriction;
 
         $user->save();
 
-        return redirect()->back()->with('success', 'User updated successfully.');
+        return redirect()->back()->with('success', 'Akun '.$user->nama_user.' diperbarui.');
+    }
+
+    /** Hapus akun (Figma: Hapus Akun). Riwayat transaksi harus tetap utuh, jadi akun yang pernah bertransaksi hanya bisa dinonaktifkan. */
+    public function destroyUser(Request $request, User $user)
+    {
+        if ($user->is($request->user())) {
+            return redirect()->back()->with('error2', 'Anda tidak bisa menghapus akun yang sedang dipakai.');
+        }
+        if ($user->role === 'admin' && User::where('role', 'admin')->count() <= 1) {
+            return redirect()->back()->with('error2', 'Admin terakhir tidak bisa dihapus.');
+        }
+        if (history::where('user_id', $user->id)->orWhere('cour_id', $user->id)->exists()) {
+            return redirect()->back()->with('error2', 'Akun '.$user->nama_user.' punya riwayat transaksi. Nonaktifkan saja supaya riwayatnya tetap utuh.');
+        }
+
+        DB::transaction(function () use ($user) {
+            Addresse::where('user_id', $user->id)->delete();
+            Favorit::where('user_id', $user->id)->delete();
+            Rating::where('user_id', $user->id)->delete();
+            EmailOtp::where('email', $user->email)->delete();
+            $user->delete();
+        });
+
+        return redirect()->route('account')->with('success', 'Akun '.$user->nama_user.' dihapus.');
     }
 }

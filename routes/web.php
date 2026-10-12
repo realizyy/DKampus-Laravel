@@ -371,11 +371,8 @@ Route::middleware(['auth', 'verified', 'check.admin.role'])->prefix('admin')->gr
     Route::get('/transaction', [AdminController::class, 'transacation'])->name('transaction');
 
     //account-user management route
-    Route::get('/account', function () {
-        return view('pages/Admin/account', [
-            'users' => \App\Models\User::all(),
-        ]);
-    })->name('account');
+    Route::get('/account', [AdminController::class, 'accounts'])->name('account');
+    Route::delete('/account/{user}', [AdminController::class, 'destroyUser'])->name('account.destroy');
 
     //chat route
     Route::view(
