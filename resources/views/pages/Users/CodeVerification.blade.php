@@ -1,7 +1,7 @@
 @extends('layouts.Login&Register')
 @section('loginregister-content')
 <div class="w-[27rem] h-[27rem] border-2 flex flex-col gap-5 py-10 mx-auto my-10 rounded-2xl text-[#5E5E5E]">
-<img src="gmail.svg" alt="" class="w-14 mx-auto">
+<img src="/gmail.svg" alt="" class="w-14 mx-auto">
 <div id="desc" class="flex flex-col items-center">
     <h1 class="font-bold text-2xl text-black">Masukkan kode verifikasi</h1>
     <p class="text-center">Kode verifikasi telah dikirim ke email
