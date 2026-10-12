@@ -88,7 +88,7 @@
 
             <div class="flex justify-between items-center">
                 <a id="alamatshow" class="flex flex-row gap-3 items-center border-2 border-[#F9832A] p-3 h-12 rounded-lg">
-                    <img src="Map.svg" alt="" class="w-6">
+                    <img src="/Map.svg" alt="" class="w-6">
                     <div id="desc" class="flex flex-row gap-2 items-center">
                         @if ($alamatUtama !== null)
                         <h1 class="text-[#5e5e5e] font-medium" id="selected_address">{{ $alamatUtama->nama_alamat }}</h1>
@@ -97,7 +97,7 @@
                         <h1 class="text-[#5e5e5e] font-medium" id="selected_address">Masukan Alamat</h1>
                         <input type="text" class="hidden" id="selected_address_id" name="selected_address_id" value="">
                         @endif
-                        <img src="ArrowTop.svg" alt="">
+                        <img src="/ArrowTop.svg" alt="">
                     </div>
                 </a>
                 <button type="submit" class="bg-[#F9832A] hover:bg-[#d87525] text-white font-bold py-2 px-4 rounded-md">
@@ -113,11 +113,11 @@
                     <a class="address-button flex flex-col gap-2" onclick="renderHideListAddress()" data-id="{{ $Item['id'] }}" data-name="{{ $Item['nama_alamat'] }}">
                         <h1 class=" font-semibold text-lg">{{ $Item['nama_alamat'] }}</h1>
                         <div id="location" class="flex flex-row gap-2 items-center">
-                            <img src="markLocation.svg" alt="" class="w-5">
+                            <img src="/markLocation.svg" alt="" class="w-5">
                             <h1 class="text-wrapper-location">{{ $Item['address'] }}</h1>
                         </div>
                     </a>
-                    <img src="edit.svg" alt="" class="w-5">
+                    <img src="/edit.svg" alt="" class="w-5">
                 </div>
                 @empty
                 <h1 class=" font-semibold text-lg">Silahkan Tambahkan Alamat</h1>
