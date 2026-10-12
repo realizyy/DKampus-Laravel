@@ -5,6 +5,8 @@ use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\OtpVerificationController;
+use App\Http\Controllers\Auth\PasswordOtpController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -34,6 +36,16 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+
+    // Verifikasi akun & atur ulang kata sandi lewat kode OTP email (Figma)
+    Route::get('verifikasi-akun', [OtpVerificationController::class, 'show'])->name('otp.show');
+    Route::post('verifikasi-akun', [OtpVerificationController::class, 'verify'])->middleware('throttle:10,1')->name('otp.verify');
+    Route::post('verifikasi-akun/kirim-ulang', [OtpVerificationController::class, 'resend'])->middleware('throttle:6,1')->name('otp.resend');
+
+    Route::get('atur-ulang-kata-sandi', [PasswordOtpController::class, 'create'])->name('reset.request');
+    Route::post('atur-ulang-kata-sandi', [PasswordOtpController::class, 'store'])->middleware('throttle:5,1')->name('reset.send');
+    Route::get('kata-sandi-baru', [PasswordOtpController::class, 'edit'])->name('reset.new');
+    Route::post('kata-sandi-baru', [PasswordOtpController::class, 'update'])->middleware('throttle:6,1')->name('reset.update');
 });
 
 Route::middleware('auth')->group(function () {
