@@ -230,6 +230,7 @@ Route::middleware(['auth', 'verified', 'check.hasloggin'])->group(function () {
     Route::post('/pesanan/status/detail', [CartController::class, 'StatusOrder'])->name('status.order');
     Route::post('/detail-Order', [CartController::class, 'detailHistory'])->name('historydetail.cust');
     Route::post('/rating', [CartController::class, 'rating'])->name('rating');
+    Route::post('/rating/kirim', [\App\Http\Controllers\RatingController::class, 'store'])->name('rating.store');
     Route::get('/pesanan', [CartController::class, 'index']);
     Route::delete('/pesanan/delete', [CartController::class, 'destroy'])->name('cart.delete');
     Route::post("/pesanan/update-quantity", [CartController::class, 'updateQuantity'])->name('update.quantity');
