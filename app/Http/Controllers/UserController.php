@@ -135,26 +135,8 @@ class UserController extends Controller
         }
     }
 
-    public function code_verification()
-    {
-        return view('pages.Users.CodeVerification', [
-            'Title' => 'Code Verification'
-        ]);
-    }
 
-    public function input_register()
-    {
-        return view('pages.Users.InputRegister', [
-            'Title' => 'Input Registrasi',
-        ]);
-    }
 
-    public function atur_ulang_kata_sandi()
-    {
-        return view('pages.Users.AturUlangKataSandi', [
-            'Title' => 'Atur Ulang Kata Sandi',
-        ]);
-    }
 
     public function alamatUtama()
     {
