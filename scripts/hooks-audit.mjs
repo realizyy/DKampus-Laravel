@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const walk = (dir, ext, out = []) => {
+    if (!existsSync(dir)) return out;
     for (const f of readdirSync(dir)) {
         const p = join(dir, f);
         statSync(p).isDirectory() ? walk(p, ext, out) : ext.some((e) => p.endsWith(e)) && out.push(p);
