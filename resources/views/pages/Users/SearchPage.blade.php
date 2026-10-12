@@ -103,7 +103,11 @@
 
     function setFilter(filter) {
         activeFilter = filter;
-        document.getElementById('filter-status').textContent = filter;
+        // label filter dirender server-side; elemen ini tidak selalu ada
+        var status = document.getElementById('filter-status');
+        if (status) {
+            status.textContent = filter;
+        }
     }
 
     window.onload = function() {
