@@ -368,7 +368,6 @@ Route::middleware(['auth', 'verified', 'check.courier.role'])->prefix('courier')
 });
 
 // Admin Routes
-Route::resource('umkm', 'UmkmController');
 Route::middleware(['auth', 'verified', 'check.admin.role'])->prefix('admin')->group(function () {
     Route::post('/updateUser', [AdminController::class, 'editUser'])->name('editUser');
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
