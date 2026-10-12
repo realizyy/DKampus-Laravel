@@ -104,10 +104,14 @@ class MenuController extends Controller
             $jumlah = $request->input('quantity');
             $existingUmkmID = $database->getReference('cart/' . $userID . '/orders')->getSnapshot()->exists();
 
+            // Harga yang disimpan di keranjang sudah dipotong diskon (konsisten dengan halaman detail)
+            $hargaFinal = (float) $saved->diskon > 0 ? (int) round($saved->harga * (1 - $saved->diskon / 100)) : $saved->harga;
+
             $postData = [
                 'id' => $idMakanan,
                 'nama' => $saved->nama_makanan,
-                'harga' => $saved->harga,
+                'harga' => $hargaFinal,
+                'harga_asli' => $saved->harga,
                 'umkm_id' => $umkmID,
                 'jumlah' => $jumlah,
                 'catatan' => $request->input('catatan') ?? "-"
