@@ -39,20 +39,15 @@
     }
 
     function registerToken(token) {
-        $.ajax({
-            url: '{{ route("register.token") }}',
-            type: 'POST',
-            data: {
-                token: token,
-                _token: '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                console.log(response);
-            },
-            error: function(xhr, status, error) {
-                console.error('Error registering token:', error);
-            }
-        });
+        // Tanpa jQuery: kirim token FCM ke server dengan fetch (form-urlencoded + CSRF)
+        fetch('{{ route("register.token") }}', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+            body: new URLSearchParams({ token: token, _token: '{{ csrf_token() }}' })
+        })
+            .then(function(response) { return response.text(); })
+            .then(function(body) { console.log(body); })
+            .catch(function(error) { console.error('Error registering token:', error); });
     }
 
     // Call the function to request notification permission
