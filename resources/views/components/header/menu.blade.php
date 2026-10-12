@@ -9,7 +9,7 @@
 
 @auth
 <button onclick="showMenu()" class="relative z-[30]">
-    <img src="menu.svg" alt="" class="w-8">
+    <img src="/menu.svg" alt="" class="w-8">
 </button>
 @endauth
 
@@ -33,7 +33,7 @@
         <div id="profile"
              class="relative shadow-md w-[22rem] h-28 flex flex-row items-start border rounded-lg mx-auto px-3 pt-5">
             <button>
-                <img src="Avatar/Large.svg" alt="" class="w-[4.5rem]">
+                <img src="/Avatar/Large.svg" alt="" class="w-[4.5rem]">
             </button>
             <div id="infoPengguna" class="my-0.5 flex flex-col gap-0.5 mx-2">
                 {{--Nama pengguna--}}
@@ -42,7 +42,7 @@
                 <h1 class="text-xs">{{ Auth::user()->email ?? 'null' }}</h1>
                 {{--Alamat pengguna--}}
                 <div id="location" class="flex flex-row gap-1 items-center">
-                    <img src="markLocation.svg" alt="" class="w-4">
+                    <img src="/markLocation.svg" alt="" class="w-4">
                     @if(Auth::user() != null)
                         <h1 class="">{{ Auth::user()->addresses->where('utama', 1)->first()->nama_alamat ?? 'null' }}</h1>
                     @endif
@@ -59,7 +59,7 @@
             <div class="flex flex-col gap-7 items-center">
                 @foreach ($PengaturanAkun as $Item)
                     <a href="{{ $Item['Url'] }}" id="itemPengaturanAkun" class="flex flex-row gap-3 items-center">
-                        <img src="{{ $Item['Icon'] }}" alt="" class="w-5">
+                        <img src="/{{ ltrim($Item['Icon'], '/') }}" alt="" class="w-5">
                         <div class="flex flex-col gap-1">
                             <h1 class="font-semibold">{{ $Item['Title'] }}</h1>
                             <p class="text-sm w-72">{{ $Item['Desc'] }}</p>
@@ -80,7 +80,7 @@
             <div class="flex flex-col gap-7 items-center">
                 @foreach ($SeputarDkampus as $Item)
                     <a href="{{ $Item['Url'] }}" id="itemPengaturanAkun" class="flex flex-row gap-3 items-center">
-                        <img src="{{ $Item['Icon'] }}" alt="" class="w-5">
+                        <img src="/{{ ltrim($Item['Icon'], '/') }}" alt="" class="w-5">
                         <div class="flex flex-col gap-1">
                             <h1 class="font-semibold">{{ $Item['Title'] }}</h1>
                             <p class="text-sm w-72">{{ $Item['Desc'] }}</p>
@@ -96,7 +96,7 @@
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button onclick="" class="flex flex-row gap-3 items-center">
-                            <img src="logOut.svg" alt="" class="w-5">
+                            <img src="/logOut.svg" alt="" class="w-5">
                             <h1 class="font-semibold text-lg">Keluar</h1>
                         </button>
                     </form>
