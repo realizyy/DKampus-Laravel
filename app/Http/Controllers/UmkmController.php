@@ -98,6 +98,42 @@ class UmkmController extends Controller
         }
     }
 
+    /** Kelola Resto: daftar dengan pencarian dan filter kategori menu. */
+    public function adminIndex(Request $request)
+    {
+        $q = trim((string) $request->query('q'));
+        $kategori = (string) $request->query('kategori');
+
+        $umkms = Data_umkm::query()
+            ->withCount('menu')
+            ->when($q !== '', fn ($query) => $query->where(fn ($w) => $w->where('nama_umkm', 'like', "%{$q}%")->orWhere('alamat', 'like', "%{$q}%")))
+            ->when(isset(Menu::CATEGORIES[$kategori]), fn ($query) => $query->whereHas('menu', fn ($m) => $m->where('category', $kategori)))
+            ->orderBy('nama_umkm')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('pages.Admin.umkm', [
+            'umkms' => $umkms,
+            'q' => $q,
+            'kategori' => isset(Menu::CATEGORIES[$kategori]) ? $kategori : '',
+        ]);
+    }
+
+    /** Tambah Resto (Figma: wizard Informasi, Produk, Selesai). */
+    public function create()
+    {
+        return view('pages.Admin.umkm_create');
+    }
+
+    /** Detail Resto: informasi (bisa diedit) + daftar produk. */
+    public function edit(Data_umkm $umkm)
+    {
+        return view('pages.Admin.UMKM_update', [
+            'umkm' => $umkm,
+            'products' => Menu::where('data_umkm_id', $umkm->id)->get(),
+        ]);
+    }
+
     public function storeUmkm(Request $request)
     {
         $staticDate = '2024-01-01 ';

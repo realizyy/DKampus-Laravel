@@ -216,6 +216,41 @@ class MenuController extends Controller
         }
     }
 
+    /** Produk: semua menu dengan pencarian, filter resto dan kategori. */
+    public function adminIndex(Request $request)
+    {
+        $q = trim((string) $request->query('q'));
+        $kategori = isset(Menu::CATEGORIES[(string) $request->query('kategori')]) ? (string) $request->query('kategori') : '';
+        $umkmId = (int) $request->query('umkm');
+
+        $menus = Menu::query()
+            ->with('data_umkm')
+            ->when($q !== '', fn ($query) => $query->where('nama_makanan', 'like', "%{$q}%"))
+            ->when($kategori !== '', fn ($query) => $query->where('category', $kategori))
+            ->when($umkmId > 0, fn ($query) => $query->where('data_umkm_id', $umkmId))
+            ->orderBy('data_umkm_id')
+            ->orderBy('nama_makanan')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('pages.Admin.product', [
+            'umkms' => Data_umkm::orderBy('nama_umkm')->get(),
+            'menus' => $menus,
+            'q' => $q,
+            'kategori' => $kategori,
+            'umkmId' => $umkmId,
+        ]);
+    }
+
+    /** Form edit produk satu halaman (juga dipakai dari daftar produk resto). */
+    public function edit(Menu $menu)
+    {
+        return view('pages.Admin.product_update', [
+            'model' => $menu,
+            'umkm' => Data_umkm::pluck('nama_umkm', 'id'),
+        ]);
+    }
+
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([

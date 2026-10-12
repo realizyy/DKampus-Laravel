@@ -311,39 +311,16 @@ Route::middleware(['auth', 'verified', 'check.courier.role'])->prefix('courier')
 Route::middleware(['auth', 'verified', 'check.admin.role'])->prefix('admin')->group(function () {
     Route::post('/updateUser', [AdminController::class, 'editUser'])->name('editUser');
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-    // Closure (bukan Route::view): query harus jalan saat request, bukan saat route didaftarkan,
-    // kalau tidak aplikasi tidak bisa boot di database kosong (migrate:fresh, test).
-    Route::get('/umkm', function () {
-        return view('pages/Admin/umkm', [
-            'umkms' => Data_umkm::paginate(10),
-        ]);
-    })->name('umkm');
+    // Daftar/form admin dilayani controller (query jalan saat request, bukan saat route didaftarkan).
+    Route::get('/umkm', [UmkmController::class, 'adminIndex'])->name('umkm');
+    Route::get('/umkm/create', [UmkmController::class, 'create'])->name('umkm.create');
     Route::post('/umkm-save', [UmkmController::class, 'storeUmkm'])->name('umkm.save');
     Route::post('/products', [UmkmController::class, 'addProduct'])->name('save.product');
-    Route::get('/product', function () {
-        return view('pages/Admin/product', [
-            'model' => new Menu(),
-            'umkms' => Data_umkm::all(),
-            'menus' => Menu::paginate(10),
-            'button' => 'SIMPAN',
-            'route' => "product.store",
-            'method' => 'POST'
-        ]);
-    })->name('product');
-
-
+    Route::get('/product', [MenuController::class, 'adminIndex'])->name('product');
 
     // edit & delete product route
     //to edit product form
-    Route::get('/product/{menu}/edit', function (Menu $menu) {
-        return view('pages/Admin/product_update', [
-            'model' => $menu,
-            'umkm' => Data_umkm::pluck('nama_umkm', 'id'),
-            'button' => 'UPDATE',
-            'route' => ['product.update', $menu->id],
-            'method' => 'PUT'
-        ]);
-    })->name('product.edit');
+    Route::get('/product/{menu}/edit', [MenuController::class, 'edit'])->name('product.edit');
 
     //data from edit product form
     Route::put('/product/{id}', [MenuController::class, 'update'])->name('productUpdate');
@@ -353,13 +330,8 @@ Route::middleware(['auth', 'verified', 'check.admin.role'])->prefix('admin')->gr
 
     // edit & delete umkm route
 
-    //to edit umkm form
-    Route::get('/umkm/{umkm}/edit', function (Data_umkm $umkm) {
-        return view('pages/Admin/UMKM_update', [
-            'umkm' => $umkm,
-            'products' => Menu::where('data_umkm_id', $umkm->id)->get(),
-        ]);
-    })->name('umkmEdit');
+    //to edit umkm form (= Detail Resto)
+    Route::get('/umkm/{umkm}/edit', [UmkmController::class, 'edit'])->name('umkmEdit');
 
     //data from edit umkm form
     Route::put('/umkm/{id}', [UmkmController::class, 'update'])->name('umkmUpdate');
