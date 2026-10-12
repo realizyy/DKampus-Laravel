@@ -397,7 +397,7 @@ Route::middleware(['auth', 'verified', 'check.admin.role'])->prefix('admin')->gr
     // edit & delete product route
     //to edit product form
     Route::get('/product/{menu}/edit', function (Menu $menu) {
-        return view('pages/admin/product_form', [
+        return view('pages/Admin/product_update', [
             'model' => $menu,
             'umkm' => Data_umkm::pluck('nama_umkm', 'id'),
             'button' => 'UPDATE',
@@ -416,7 +416,7 @@ Route::middleware(['auth', 'verified', 'check.admin.role'])->prefix('admin')->gr
 
     //to edit umkm form
     Route::get('/umkm/{umkm}/edit', function (Data_umkm $umkm) {
-        return view('pages/admin/umkm_update', [
+        return view('pages/Admin/UMKM_update', [
             'umkm' => $umkm,
             'products' => Menu::where('data_umkm_id', $umkm->id)->get(),
         ]);
