@@ -296,22 +296,22 @@ class MenuController extends Controller
 
     public function destroy(Menu $menu)
     {
+        // Resto harus punya minimal satu produk: pesan lama sudah menyatakan ini, tetapi produk tetap terhapus
+        if (Menu::where('data_umkm_id', $menu->data_umkm_id)->count() <= 1) {
+            return redirect()->back()->with('error2', 'Produk ' . $menu->nama_makanan . ' tidak bisa dihapus karena ' . ($menu->data_umkm->nama_umkm ?? 'resto ini') . ' hanya punya 1 produk. Tambah produk lain dulu.');
+        }
+
         DB::beginTransaction();
         try {
-            $MenuCount = Menu::where('data_umkm_id', $menu->data_umkm_id)->count();
-            if ($MenuCount == 1) {
-                session()->flash('error2', 'Product ' . $menu->nama_makanan . ' Gagal Dihapus, karena UMKM ' . $menu->data_umkm->nama_umkm . ' hanya memiliki 1 product');
-            }
-            Menu::findOrFail($menu->id)->delete();
-            Storage::delete('public/' . $menu->data_umkm->nama_umkm . '/' . $menu->image);
+            $umkmName = $menu->data_umkm->nama_umkm;
+            $menu->delete();
+            Storage::delete('public/' . $umkmName . '/' . $menu->image);
             DB::commit();
-            session()->flash('success', 'Product ' . $menu->nama_makanan . ' Berhasil Dihapus');
-            return redirect()->back();
+            return redirect()->back()->with('success', 'Produk ' . $menu->nama_makanan . ' dihapus.');
         } catch (\Exception $e) {
-            dd($e);
             DB::rollback();
-            session()->flash('error2', 'Product ' . $menu->nama_makanan . ' Gagal Dihapus');
-            return redirect()->back();
+            report($e);
+            return redirect()->back()->with('error2', 'Produk ' . $menu->nama_makanan . ' gagal dihapus.');
         }
     }
 }
