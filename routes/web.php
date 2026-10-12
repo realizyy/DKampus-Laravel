@@ -75,8 +75,7 @@ Route::get('/rekomendasi-warung', function () {
 Route::get('/rekomendasi-menu', function () {
     return view('pages.Users.RekomendasiMenuPage', [
         'Title' => 'Rekomendasi Menu',
-        'RekomendasiMenu' => Menu::all(),
-        'umkm' => Data_umkm::where('id', Menu::first()->data_umkm_id)->first(),
+        'RekomendasiMenu' => Menu::with('data_umkm')->get(),
     ]);
 });
 
