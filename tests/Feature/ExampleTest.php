@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
+    // Homepage membaca tabel menus/data_umkms, jadi butuh skema database test
+    use RefreshDatabase;
+
     /**
      * A basic test example.
      */
