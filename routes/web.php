@@ -442,7 +442,7 @@ Route::middleware('auth')->group(function () {
 });
 
 
-Route::post('/favoritStore/{menuId}', [FavoritController::class, 'favoritStore'])->name('favorite.add');
+Route::post('/favoritStore/{menuId}', [FavoritController::class, 'favoritStore'])->middleware('auth')->name('favorite.add');
 
 
 //searching routes
