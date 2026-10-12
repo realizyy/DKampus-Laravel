@@ -12,19 +12,19 @@ CardCheckbox.addEventListener('change', function () {
 
 document.addEventListener('scroll',function(){
     const navbarDetailWarung = document.getElementById('navbar-detail-warung')
-    const titleDetail = document.getElementById('titleDetail');
+    const titleDetail = document.getElementById('titleDetail'); // opsional: tidak selalu ada di view
     const scrolled = window.scrollY;
     if(scrolled > 100 ){
         navbarDetailWarung.style.marginTop = "0rem";
         navbarDetailWarung.classList.add('backdrop-blur')
-        titleDetail.classList.add('visible')
+        titleDetail?.classList.add('visible')
         navbarDetailWarung.classList.add('bg-[#F9832A]')
         navbarDetailWarung.classList.add('py-20')
-        titleDetail.classList.remove('invisible')
+        titleDetail?.classList.remove('invisible')
     } else if (scrolled < 100){
         navbarDetailWarung.style.marginTop = "2.5rem";
-        titleDetail.classList.add('invisible')
-        titleDetail.classList.remove('visible')
+        titleDetail?.classList.add('invisible')
+        titleDetail?.classList.remove('visible')
         navbarDetailWarung.classList.remove('py-20')
         navbarDetailWarung.classList.remove('bg-[#F9832A]')
         navbarDetailWarung.classList.remove('backdrop-blur')
@@ -51,5 +51,9 @@ function toggleState(){
     state.condition = !state.condition;
     renderCondition()
 }
-document.getElementById('buttonLike').addEventListener('click',toggleState);
-renderCondition()
+// Tombol like sudah tidak ada di view (bagian Favorit dikomentari)
+const buttonLike = document.getElementById('buttonLike');
+if (buttonLike) {
+    buttonLike.addEventListener('click',toggleState);
+    renderCondition()
+}
