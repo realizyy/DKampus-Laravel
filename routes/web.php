@@ -160,58 +160,10 @@ Route::get('/promo/special', function (UmkmController $umkmController) {
     ]);
 });
 
-Route::get('/promo/makanan', function () {
-    return view('pages.Users.MakananPage', [
-        'Title' => 'Promo',
-        'PromoTerlarisSlider' => PromoModel::promoTerlaris(),
-        'PengaturanAkun' => HomeModel::pengaturanAkun(),
-        'SeputarDkampus' => HomeModel::seputarDkampus(),
-        'NavPromo' => 'Makanan',
-        'CategoryPromo' => PromoModel::promoCategory(),
-        'PromoMakananSlider' => PromoModel::promoMakanan(),
-        'CarouselPromo' => PromoModel::carouselPromo(),
-        'FooterPart1' => Footer::footerPart1(),
-        'FooterPart2Beli' => Footer::footerPart2Beli(),
-        'FooterPart2Jual' => Footer::footerPart2Jual(),
-        'FooterPart3KeamananDanPrivasi' => Footer::footerPart3KeamananDanPrivasi(),
-        'FooterPart3IkutiKami' => Footer::footerPart3IkutiKami(),
-    ]);
-});
-
-Route::get('/promo/minuman', function () {
-    return view('pages.Users.MinumanPage', [
-        'Title' => 'Promo',
-        'PromoTerlarisSlider' => PromoModel::promoTerlaris(),
-        'PengaturanAkun' => HomeModel::pengaturanAkun(),
-        'SeputarDkampus' => HomeModel::seputarDkampus(),
-        'NavPromo' => 'Minuman',
-        'CategoryPromo' => PromoModel::promoCategory(),
-        'PromoMinumanSlider' => PromoModel::promoMakanan(),
-        'CarouselPromo' => PromoModel::carouselPromo(),
-        'FooterPart1' => Footer::footerPart1(),
-        'FooterPart2Beli' => Footer::footerPart2Beli(),
-        'FooterPart2Jual' => Footer::footerPart2Jual(),
-        'FooterPart3KeamananDanPrivasi' => Footer::footerPart3KeamananDanPrivasi(),
-        'FooterPart3IkutiKami' => Footer::footerPart3IkutiKami(),
-    ]);
-});
-
-Route::get('/promo/cemilan', function () {
-    return view('pages.Users.CemilanPage', [
-        'Title' => 'Promo',
-        'PromoTerlarisSlider' => PromoModel::promoTerlaris(),
-        'PengaturanAkun' => HomeModel::pengaturanAkun(),
-        'SeputarDkampus' => HomeModel::seputarDkampus(),
-        'NavPromo' => 'Cemilan',
-        'PromoCemilanSlider' => PromoModel::promoMakanan(),
-        'CarouselPromo' => PromoModel::carouselPromo(),
-        'FooterPart1' => Footer::footerPart1(),
-        'FooterPart2Beli' => Footer::footerPart2Beli(),
-        'FooterPart2Jual' => Footer::footerPart2Jual(),
-        'FooterPart3KeamananDanPrivasi' => Footer::footerPart3KeamananDanPrivasi(),
-        'FooterPart3IkutiKami' => Footer::footerPart3IkutiKami(),
-    ]);
-});
+// Halaman lama per kategori, sekarang dilayani oleh /promo/category/{value}
+Route::redirect('/promo/makanan', '/promo/category/makanan');
+Route::redirect('/promo/minuman', '/promo/category/minuman');
+Route::redirect('/promo/cemilan', '/promo/category/cemilan');
 
 // Detail Routes
 Route::get('/detail-warung/{umkm:nama_umkm}', function (Data_umkm $umkm) {
@@ -314,7 +266,6 @@ Route::middleware(['auth', 'verified', 'check.hasloggin'])->group(function () {
     Route::delete('/pesanan/delete', [CartController::class, 'destroy'])->name('cart.delete');
     Route::post("/pesanan/update-quantity", [CartController::class, 'updateQuantity'])->name('update.quantity');
     Route::post('/checkout', [CartController::class, 'checkout'])->name('checkout');
-    Route::get('/pay/{orderID}', [CartController::class, 'pay'])->name('payment');
     Route::post('/pay/order/', [CartController::class, 'order'])->name('order');
     Route::post('/checkout/confirm', [CartController::class, 'confirmPay'])->name('confirm.pay');
     // User Chat page
@@ -358,12 +309,6 @@ Route::middleware(['auth', 'verified', 'check.courier.role'])->prefix('courier')
     )->name('profile');
 
     Route::get('/order', [CourierController::class, 'listOrder'])->name('courierorder');
-    Route::get('/order/{id}', function ($id) {
-        return view('pages/Courier/orderdetail', [
-            'Title' => 'Order Detail',
-            'id' => $id,
-        ]);
-    })->name('orderdetail');
     Route::post('/take-Order', [CourierController::class, 'takeOrder'])->name('take.order');
 });
 
