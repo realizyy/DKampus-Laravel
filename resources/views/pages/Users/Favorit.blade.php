@@ -29,7 +29,7 @@
                         </div>
                         <h1 class="font-semibold text-[3vw] text-base sm:text-xl truncate">{{$item->nama_umkm}}</h1>
                         <div class="flex flex-row items-center gap-1">
-                            <img src="Iconly/Bold/Star.svg" alt="" class="w-5">
+                            <img src="/Iconly/Bold/Star.svg" alt="" class="w-5">
                             <h1 class="text-[#787878] text-sm sm:text-base">{{$item->rating}}</h1>
 {{--                            @if ($listJarak != null && Auth::id() != null)--}}
 {{--                                @php $distanceInMeters = $listJarak[$index] @endphp--}}
@@ -78,7 +78,7 @@
                     <div class="flex flex-col px-3 h-24 justify-center">
                         <h1 class="font-semibold text-[3vw] text-base sm:text-xl truncate">{{$item->nama_makanan}}</h1>
                         <div class="flex flex-row items-center gap-1">
-                            <img src="Iconly/Bold/Star.svg" alt="" class="w-5">
+                            <img src="/Iconly/Bold/Star.svg" alt="" class="w-5">
                             <h1 class="text-[#787878] text-sm sm:text-base">{{$item->rating}}</h1>
                             <h1 class="text-[#787878] text-sm sm:text-base">•</h1>
                             <h1 class="text-[#787878] text-sm sm:text-base">{{$item->data_umkm->nama_umkm}}</h1>
@@ -97,7 +97,7 @@
         @forelse ($PromoTerlarisSlider as $Item)
             <swiper-slide class="w-full h-full bg-white rounded-xl shadow-md mb-2 md:hidden overflow-hidden border transition-all duration-300 flex flex-col">
                 <img src="{{Storage::url($Item['Img'])}}" alt="" class="w-full h-40 object-cover">
-                <img src="{{$Item['Discount']}}" alt="" class="absolute">
+                <img src="/{{$Item['Discount']}}" alt="" class="absolute">
                 <a href="/detail-makanan/{{$Item['nama_makanan']}}" class="p-4">
                     <div class="tracking-wide text-l text-black font-semibold truncate">{{$Item['nama_makanan']}}</div>
                     <div class="flex items-center mt-1">
@@ -108,7 +108,7 @@
                         <p class="block text lg leading-tight font-medium text-black">Rp {{number_format($Item['PriceDiscount'], 0, ',', '.')}}</p>
                         <p class="line-through text-[#BCBCBC] text-xs sm:text-base font-semibold">{{number_format($Item['PriceOri'], 0, ',', '.')}}</p>
                         <div class="flex items center">
-                            <img src="Iconly/Bold/Star.svg" alt="" class="w-5 h-5">
+                            <img src="/Iconly/Bold/Star.svg" alt="" class="w-5 h-5">
                             <p class="text-[#5E5E5E] text-m ml-2">{{$Item['Ratings']}}</p>
                         </div>
                     </div>
