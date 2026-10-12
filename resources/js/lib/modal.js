@@ -24,6 +24,11 @@ export function registerModal() {
             return;
         }
         const closer = event.target.closest('[data-modal-close]');
-        if (closer) closer.closest('dialog')?.close();
+        if (closer) {
+            closer.closest('dialog')?.close();
+            return;
+        }
+        // Klik di latar (::backdrop) panel samping menutupnya; modal biasa memakai form[method=dialog]
+        if (event.target instanceof HTMLDialogElement && event.target.classList.contains('ui-sheet')) event.target.close();
     });
 }

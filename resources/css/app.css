@@ -80,6 +80,56 @@
         pointer-events: none;
     }
 
+    /* Panel samping (x-ui.sheet): bottom sheet di mobile, slide-over kanan di desktop */
+    .ui-sheet {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        max-width: none;
+        max-height: none;
+        position: fixed;
+        inset: auto 0 0 0;
+        width: 100%;
+        height: auto;
+        overflow: hidden;
+        border-radius: 1rem 1rem 0 0;
+        box-shadow: theme('boxShadow.pop');
+    }
+    .ui-sheet[open] {
+        animation: sheet-up 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .ui-sheet::backdrop {
+        background: rgb(31 26 20 / 0.4);
+    }
+    .ui-sheet[open]::backdrop {
+        animation: sheet-fade 0.2s ease-out both;
+    }
+    @media (min-width: 768px) {
+        .ui-sheet {
+            inset: 0 0 0 auto;
+            width: min(30rem, 100vw);
+            height: 100dvh;
+            border-radius: 1rem 0 0 1rem;
+        }
+        .ui-sheet[open] {
+            animation-name: sheet-in;
+        }
+    }
+    @keyframes sheet-up {
+        from { transform: translateY(24px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes sheet-in {
+        from { transform: translateX(32px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes sheet-fade {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
     /* Elemen x-motion tersembunyi sampai Alpine menganimasikannya (failsafe bila JS tidak jalan) */
     .js [x-motion]:not([data-motion-done]) {
         opacity: 0;
