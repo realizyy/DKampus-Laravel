@@ -116,4 +116,56 @@ class DevFixtures
             ['role' => 'driver', 'msg' => 'Apakah pesanan sudah sesuai?', 'timestamp' => "$today 19:08:00"],
         ];
     }
+
+    public static function customerUser(): User
+    {
+        $user = new User(['nama_user' => 'Kevin Pratama', 'email' => 'kevin@example.test', 'no_telp' => '081298765432', 'role' => 'customer']);
+        $user->id = 101;
+        $user->setRelation('addresses', collect([]));
+
+        return $user;
+    }
+
+    /** Isi keranjang (Firebase cart/{uid}/orders) untuk Users/Pesanan. */
+    public static function cartItems(): array
+    {
+        return [
+            'item1' => ['id' => 1, 'nama' => 'Mie Ayam', 'harga' => 20000, 'umkm_id' => 1, 'jumlah' => 2, 'catatan' => 'Pedas level 2'],
+            'item2' => ['id' => 2, 'nama' => 'Bakmie Ayam', 'harga' => 30000, 'umkm_id' => 1, 'jumlah' => 1, 'catatan' => '-'],
+        ];
+    }
+
+    public static function addresses(): array
+    {
+        return [
+            ['id' => 1, 'nama_alamat' => 'Pondok Eden', 'address' => 'Jl. H. Umar, Citeureup, Dayeuhkolot, Bandung'],
+            ['id' => 2, 'nama_alamat' => 'Kampus Fakultas Teknik', 'address' => 'Jl. Telekomunikasi No. 1, Bandung'],
+        ];
+    }
+
+    /** Riwayat pesanan customer (objek history belum tersimpan). */
+    public static function customerHistory(): array
+    {
+        $rows = [
+            ['id' => 11, 'user_id' => 101, 'cour_id' => 7, 'umkm_id' => 1, 'item' => '1 Mie Ayam, 1 Bakmie Ayam', 'order_id' => 'tr00000007895675', 'status' => 'completed', 'harga' => 50000, 'ongkir' => 3000, 'created_at' => '2024-06-12 19:04:00'],
+            ['id' => 12, 'user_id' => 101, 'cour_id' => 7, 'umkm_id' => 0, 'item' => 'Titip beli galon', 'order_id' => 'tr00000007895674', 'status' => 'canceled', 'harga' => 21000, 'ongkir' => 5000, 'created_at' => '2024-06-10 09:30:00'],
+        ];
+
+        return collect($rows)->map(function ($r) {
+            $h = new history($r);
+            $h->id = $r['id'];
+            $h->created_at = \Illuminate\Support\Carbon::parse($r['created_at']);
+
+            return $h;
+        })->all();
+    }
+
+    /** Pesanan aktif (Firebase) untuk tab Proses. */
+    public static function liveOrders(): array
+    {
+        return [
+            ['umkm' => 'Bakmi Jogja Piyaman, Karawaci', 'date' => '12 Juni 2024 19:04', 'status' => 'On Delivery', 'items' => '2 Mie Ayam, 1 Bakmie Ayam', 'orderId' => 'tr00000008', 'total' => 74000, 'courId' => '7'],
+            ['umkm' => 'Mie Ahong - Sukabirus', 'date' => '12 Juni 2024 19:11', 'status' => 'Searching', 'items' => '1 Mie Chilli Oil', 'orderId' => 'tr00000009', 'total' => 22000, 'courId' => ''],
+        ];
+    }
 }

@@ -121,6 +121,26 @@ if (app()->isLocal()) {
         };
     });
 
+    // Pratinjau halaman customer dengan data contoh: /_ui/customer/{cart|checkout|pay|status|status-order|rating|chats|chat-room|jastip|alamat}
+    Route::get('/_ui/customer/{page}', function (string $page) {
+        $user = \App\Support\DevFixtures::customerUser();
+        \Illuminate\Support\Facades\Auth::setUser($user);
+        $addresses = \App\Support\DevFixtures::addresses();
+
+        return match ($page) {
+            'cart' => view('pages.Users.Pesanan', [
+                'Title' => 'Pesanan', 'data' => request('empty') ? null : \App\Support\DevFixtures::cartItems(), 'namaUMKM' => 'Bakmi Jogja Piyaman, Karawaci',
+                'AddressList' => $addresses, 'alamatUtama' => (object) ['id' => 1, 'nama_alamat' => 'Pondok Eden'],
+            ]),
+            'status' => view('pages.Users.Status', ['Title' => 'Status', 'custId' => 101, 'data' => request('empty') ? null : collect(\App\Support\DevFixtures::customerHistory()), 'previewLive' => request('empty') ? [] : \App\Support\DevFixtures::liveOrders()]),
+            'status-order' => view('pages.Users.StatusOrder', ['Title' => 'Status Order', 'status' => 'On Delivery', 'date' => '12 Juni 2024 19:04', 'nama_driver' => 'Yanto Joseph', 'courId' => 7, 'nama_umkm' => 'Bakmi Jogja Piyaman, Karawaci', 'orderId' => 'tr00000008', 'subTotal' => 70000, 'ongkir' => 4000, 'orders' => \App\Support\DevFixtures::cartItems()]),
+            'rating' => view('pages.Users.Rating', ['Title' => 'Rating', 'data' => (object) ['id' => 11], 'dataUMKM' => (object) ['nama_umkm' => 'Bakmi Jogja Piyaman, Karawaci', 'logo_umkm' => 'warmingUp.svg'], 'Orders' => [['quantity' => 2, 'name' => 'Mie'], ['quantity' => 1, 'name' => 'Bakmie']]]),
+            'checkout' => view('pages.Users.CheckoutPage', ['Title' => 'Checkout', 'carts' => \App\Support\DevFixtures::cartItems(), 'nama_umkm' => 'Bakmi Jogja Piyaman, Karawaci', 'total' => 70000, 'ongkir' => 4000]),
+            'pay' => view('pages.Users.Pay', ['Title' => 'Pay', 'carts' => \App\Support\DevFixtures::cartItems(), 'nama_umkm' => 'Bakmi Jogja Piyaman, Karawaci', 'orderID' => 'tr00000007895675', 'total' => 74000]),
+            default => abort(404),
+        };
+    });
+
     // Pratinjau halaman dengan data contoh (tanpa Firebase/database): /_ui/courier/{dashboard|orders|history|history-detail|profile|chats|chat-room}
     Route::get('/_ui/courier/{page}', function (string $page) {
         \Illuminate\Support\Facades\Auth::setUser(\App\Support\DevFixtures::courierUser());
