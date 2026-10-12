@@ -28,4 +28,15 @@ class Icon
 
         return self::$cache[$name] = $inner;
     }
+
+    /** SVG utuh sebagai string (untuk template JS), mis. Icon::svg('store', 'size-5'). */
+    public static function svg(string $name, string $class = 'size-5', float|int $stroke = 2): string
+    {
+        $inner = self::inner($name);
+        if ($inner === null) {
+            return '';
+        }
+
+        return '<svg class="'.e($class).' shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="'.$stroke.'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'.$inner.'</svg>';
+    }
 }
