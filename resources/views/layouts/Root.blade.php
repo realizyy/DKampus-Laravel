@@ -128,22 +128,6 @@
     <script src="{{ asset('js/detailMakanan-script.js') }}"></script>
     @break
 
-    @case('Log in')
-    <script src="{{ asset('js/login.js') }}"></script>
-    @break
-
-    @case('Register')
-    <script src="{{ asset('js/register.js') }}"></script>
-    @break
-
-    @case('Code Verification')
-    <script src="{{ asset('js/codeVerification.js') }}"></script>
-    @break
-
-    @case('Input Registrasi')
-    <script src="{{ asset('js/inputRegistration.js') }}"></script>
-    @break
-
     @default
     {{-- <script src="{{asset('js/DetailWarung-script.js')}}"></script>
     <script src="{{asset('js/DetailMakanan-script.js')}}"></script> --}}
