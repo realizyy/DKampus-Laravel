@@ -11,8 +11,6 @@ export default {
         './resources/views/**/*.blade.php',
         './resources/js/**/*.js',
         './app/View/Components/**/*.php',
-        // JS publik menambah kelas lewat classList / template string
-        './public/js/**/*.js',
     ],
 
     // Satu tema terang. Kelas dark: bawaan Breeze tidak lagi mengikuti prefers-color-scheme.
