@@ -106,11 +106,14 @@ renderShowListAddress();
 
 const checkAllCheckbox = document.getElementById("checkboxWarung");
 const checkboxes = document.querySelectorAll("#checkboxMakanan");
-checkAllCheckbox.addEventListener("change", function () {
-    checkboxes.forEach(function (checkbox) {
-        checkbox.checked = checkAllCheckbox.checked;
+// #checkboxWarung hanya ada kalau keranjang berisi item
+if (checkAllCheckbox) {
+    checkAllCheckbox.addEventListener("change", function () {
+        checkboxes.forEach(function (checkbox) {
+            checkbox.checked = checkAllCheckbox.checked;
+        });
     });
-});
+}
 
 const incrementBtns = document.querySelectorAll("#increment");
 const decrementBtns = document.querySelectorAll("#decrement");
