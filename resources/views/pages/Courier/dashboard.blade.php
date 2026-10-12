@@ -222,72 +222,63 @@
         </div>
     @endif
 </main>
-@endsection
 @include('components.navbar.navbarCourier')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Modal & tombol ini hanya dirender kalau kurir punya pesanan aktif
         var modal = document.getElementById('modalConfirmation');
-        var triggerButtons = document.querySelectorAll('.triggerModalButton');
+        var cancelModal = document.getElementById('cancelModal');
+        if (!modal || !cancelModal) {
+            return;
+        }
 
-        triggerButtons.forEach(function(triggerButton) {
+        // Isi custId modal dari order yang diklik (tiap kartu punya input custId sendiri),
+        // bukan selalu order pertama.
+        function setModalCustomer(targetModal, trigger) {
+            var source = trigger.parentElement.querySelector('input[name="custId"]');
+            var target = targetModal.querySelector('input[name="custId"]');
+            if (source && target) {
+                target.value = source.value;
+            }
+        }
+
+        document.querySelectorAll('.triggerModalButton').forEach(function(triggerButton) {
             triggerButton.addEventListener('click', function() {
+                setModalCustomer(modal, triggerButton);
                 modal.classList.remove('hidden');
             });
         });
-
-        var closeButton = document.getElementById('closeModal');
-        closeButton.addEventListener('click', function() {
+        document.getElementById('closeModal').addEventListener('click', function() {
             modal.classList.add('hidden');
         });
-    });
 
-    document.addEventListener('DOMContentLoaded', function() {
-        var uploadButton = document.getElementById('uploadButton');
-        var fileInput = document.getElementById('bukti');
-        var fileNameDisplay = document.getElementById('fileName');
-
-        uploadButton.addEventListener('click', function() {
-            fileInput.click();
-        });
-
-        fileInput.addEventListener('change', function() {
-            var files = fileInput.files;
-            if (files.length > 0) {
-                fileNameDisplay.textContent = files[0].name;
-            }
-        });
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        var uploadButton = document.getElementById('uploadButton_batal');
-        var fileInput = document.getElementById('bukti_batal');
-        var fileNameDisplay = document.getElementById('fileName_batal');
-
-        uploadButton.addEventListener('click', function() {
-            fileInput.click();
-        });
-
-        fileInput.addEventListener('change', function() {
-            var files = fileInput.files;
-            if (files.length > 0) {
-                fileNameDisplay.textContent = files[0].name;
-            }
-        });
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        var cancelModal = document.getElementById('cancelModal');
-        var triggerCancelButtons = document.querySelectorAll('.triggerCancelModal');
-
-        triggerCancelButtons.forEach(function(triggerButton) {
+        document.querySelectorAll('.triggerCancelModal').forEach(function(triggerButton) {
             triggerButton.addEventListener('click', function() {
+                setModalCustomer(cancelModal, triggerButton);
                 cancelModal.classList.remove('hidden');
             });
         });
-
-        var closeCancelModal = document.getElementById('closeCancelModal');
-        closeCancelModal.addEventListener('click', function() {
+        document.getElementById('closeCancelModal').addEventListener('click', function() {
             cancelModal.classList.add('hidden');
+        });
+
+        // Tombol "Pilih File" membuka input file dan menampilkan nama file
+        [['uploadButton', 'bukti', 'fileName'], ['uploadButton_batal', 'bukti_batal', 'fileName_batal']].forEach(function(ids) {
+            var uploadButton = document.getElementById(ids[0]);
+            var fileInput = document.getElementById(ids[1]);
+            var fileNameDisplay = document.getElementById(ids[2]);
+            if (!uploadButton || !fileInput || !fileNameDisplay) {
+                return;
+            }
+            uploadButton.addEventListener('click', function() {
+                fileInput.click();
+            });
+            fileInput.addEventListener('change', function() {
+                if (fileInput.files.length > 0) {
+                    fileNameDisplay.textContent = fileInput.files[0].name;
+                }
+            });
         });
     });
 </script>
+@endsection
