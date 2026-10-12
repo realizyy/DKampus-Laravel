@@ -41,7 +41,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{{ mix('js/performanceFirebase.js') }}" defer></script>
 <script>
     // Initialize Firebase
     var firebaseConfig = {
