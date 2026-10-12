@@ -74,6 +74,7 @@
         <p id="errorMsg"></p>
         <button onclick="hideErrorModal()" class="bg-[#F9832A] w-28 h-9 rounded-lg text-white">Tutup</button>
     </div>
+    <div id="overlayErrorMsg" onclick="hideErrorModal()" class="bg-black/40 invisible fixed top-0 left-0 w-full h-screen"></div>
     @if (session('error'))
         <script>
             window.onload = function() {
