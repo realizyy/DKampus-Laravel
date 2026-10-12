@@ -9,6 +9,7 @@ use App\Models\Menu;
 use App\Models\Footer;
 use Illuminate\Http\Request;
 use App\Models\HomeModel;
+use App\Models\PromoModel;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use GuzzleHttp\Client;
@@ -29,6 +30,7 @@ class UserController extends Controller
 //            }
             return view('pages.Users.Homepage', [
                 'Banner' => HomeModel::bannerData(),
+                'PromoTerlaris' => PromoModel::promoTerlaris(),
                 'PengaturanAkun' => HomeModel::pengaturanAkun(),
                 'SeputarDkampus' => HomeModel::seputarDkampus(),
                 'Carousel' => HomeModel::carouselData(),
@@ -47,6 +49,7 @@ class UserController extends Controller
         } catch (Exception $e) {
             return view('pages.Users.Homepage', [
                 'Banner' => HomeModel::bannerData(),
+                'PromoTerlaris' => PromoModel::promoTerlaris(),
                 'PengaturanAkun' => HomeModel::pengaturanAkun(),
                 'SeputarDkampus' => HomeModel::seputarDkampus(),
                 'Carousel' => HomeModel::carouselData(),
