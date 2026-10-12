@@ -18,9 +18,9 @@
         @method('patch')
 
         <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" placeholder="{{$user->nama_user}}" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
+            <x-input-label for="nama_user" :value="__('Name')" />
+            <x-text-input id="nama_user" name="nama_user" type="text" class="mt-1 block w-full" :value="old('nama_user', $user->nama_user)" required autofocus autocomplete="name" />
+            <x-input-error class="mt-2" :messages="$errors->get('nama_user')" />
         </div>
 
         <div>

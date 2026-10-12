@@ -16,7 +16,8 @@ class ProfileUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['string', 'max:255'],
+            // Kolom nama di tabel users adalah nama_user (bukan "name" bawaan Breeze)
+            'nama_user' => ['required', 'string', 'max:255'],
             'email' => ['email', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
         ];
     }
