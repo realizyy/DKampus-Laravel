@@ -21,11 +21,32 @@
         <env name="APP_ENV" value="testing"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_DRIVER" value="array"/>
-        <!-- <env name="DB_CONNECTION" value="sqlite"/> -->
-        <!-- <env name="DB_DATABASE" value=":memory:"/> -->
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+        <!-- Jangan menulis ke storage/logs/laravel.log yang juga dipakai server development -->
+        <env name="LOG_CHANNEL" value="null" force="true"/>
+
+        <!--
+            Database khusus test. Test memakai RefreshDatabase, jadi JANGAN pernah diarahkan ke
+            database development (dkampus). Buat dulu: CREATE DATABASE dkampus_testing;
+            tests/CreatesApplication.php menolak berjalan kalau nama database tidak berakhiran "_testing".
+        -->
+        <env name="DB_DATABASE" value="dkampus_testing" force="true"/>
+
+        <!--
+            Integrasi eksternal dimatikan saat test supaya tidak ada yang menyentuh Firebase,
+            Telegram, Google Maps, atau chatbot. Path kredensial Firebase sengaja tidak ada,
+            sehingga app('firebase.database') langsung gagal (tanpa request jaringan);
+            kode yang memakainya sudah membungkusnya dengan try/catch.
+        -->
+        <env name="FIREBASE_CREDENTIALS" value="storage/framework/testing/firebase-disabled.json" force="true"/>
+        <env name="GOOGLE_APPLICATION_CREDENTIALS" value="" force="true"/>
+        <env name="FIREBASE_DATABASE_URL" value="http://127.0.0.1:1" force="true"/>
+        <env name="TELEGRAM_BOT_TOKEN" value="" force="true"/>
+        <env name="TELEGRAM_CHAT_ID" value="" force="true"/>
+        <env name="GOOGLE_MAPS_API_KEY" value="" force="true"/>
+        <env name="CHATBOT_ENDPOINT" value="http://127.0.0.1:1/chat" force="true"/>
     </php>
 </phpunit>
