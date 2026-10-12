@@ -1,44 +1,21 @@
-@extends('layouts.Root')
+@extends('layouts.customer')
+
+@section('page-title', 'Kategori '.ucfirst($Kategori))
+@section('back', url('/'))
+
 @section('content')
-<main>
-    {{-- Header --}}
-    <header class="sticky top-0 left-0 flex justify-center w-full bg-white z-10 shadow-md py-8">
-        <a href="{{'/'}}" class="absolute top-5 left-5 flex items-center gap-x-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#F9832A" class="bi bi-arrow-left" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M10.354 1.646a.5.5 0 0 1 0 .708L5.707 7l4.647 4.646a.5.5 0 0 1-.708.708l-5-5a.5.5 0 0 1 0-.708l5-5a.5.5 0 0 1 .708 0z"/>
-            </svg>
-            <h1 class="font-bold text-black text-xl mb-1">Kategori Menu {{ ucfirst($Kategori) }}</h1>
-        </a>
-    </header>
-    <div class="flex flex-col mt-2">
-        {{-- hasil search --}}
-        <div class="grid grid-cols-2 gap-5 p-2">
-            @foreach($menus as $menu)
-                <a href="/detail-makanan/{{ $menu->nama_makanan }}" class="w-full h-full bg-white rounded-xl shadow-md overflow-hidden">
-                    <img src="{{Storage::url($menu->image)}}" alt="" class="w-full h-40 object-cover">
-                    <div class="p-4">
-                        <div class="tracking-wide text-l text-black font-semibold">{{ $menu->nama_makanan }}</div>
-                        <div class="flex items-center mt-1">
-                            <img src="{{ asset('shop.svg') }}" alt="" class="w-5 h-5">
-                            <p class="text-[#5E5E5E] ml-2 truncate">{{ \App\Models\Data_umkm::where('id', $menu->data_umkm_id)->first()->nama_umkm }}</p>
-                        </div>
-                        <div class="flex justify-between items-center mt-1">
-                            <p class="block text-lg leading-tight font-medium text-black">Rp {{ number_format($menu->harga, 0, ',', '.') }}</p>
-                            <div class="flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#F9832A" class="bi bi-star-fill" viewBox="0 0 16 16">
-                                    <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.283.95l-3.523 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
-                                </svg>
-                                <p class="text-[#5E5E5E] text-m ml-2">{{ $menu->rating }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </a>
+<div class="space-y-6">
+    <x-ui.page-header :title="'Kategori '.ucfirst($Kategori)" :subtitle="$menus->count().' menu ditemukan'" class="hidden md:flex" />
+    @if ($menus->isEmpty())
+        <x-ui.card class="!p-0"><x-ui.empty-state icon="utensils" title="Belum ada menu" description="Menu untuk kategori ini belum tersedia." >
+            <x-ui.button :href="url('/')" variant="secondary">Kembali ke beranda</x-ui.button>
+        </x-ui.empty-state></x-ui.card>
+    @else
+        <div class="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 xl:grid-cols-5" x-motion.rise.stagger>
+            @foreach ($menus as $menu)
+                <x-customer.food-card :menu="$menu" />
             @endforeach
         </div>
-        @if($menus->isEmpty())
-            <div class="items-center justify-center flex flex-col gap-2 h-screen">
-                <p class="text-center text-xl text-gray-500">Tidak ada data yang ditemukan</p>
-            </div>
-        @endif
-    </div>
-</main>
+    @endif
+</div>
+@endsection
