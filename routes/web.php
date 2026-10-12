@@ -79,86 +79,26 @@ Route::get('/rekomendasi-menu', function () {
     ]);
 });
 
-// Promo Page
-Route::get('/promo', function () {
-    return view('pages.Users.SemuaPage', [
-        'Title' => 'Promo',
-        'PengaturanAkun' => HomeModel::pengaturanAkun(),
-        'SeputarDkampus' => HomeModel::seputarDkampus(),
-        'NavPromo' => 'Semua',
-        'CategoryPromo' => PromoModel::promoCategory(),
-        'PromoTerlarisSlider' => PromoModel::promoTerlaris(),
-        'UmkmHavePromo' => PromoModel::promoUmkm(),
-        'CarouselPromo' => PromoModel::carouselPromo(),
-        'FooterPart1' => Footer::footerPart1(),
-        'FooterPart2Beli' => Footer::footerPart2Beli(),
-        'FooterPart2Jual' => Footer::footerPart2Jual(),
-        'FooterPart3KeamananDanPrivasi' => Footer::footerPart3KeamananDanPrivasi(),
-        'FooterPart3IkutiKami' => Footer::footerPart3IkutiKami(),
-    ]);
-});
-
-Route::get('/promo/semua', function (UmkmController $umkmController) {
-    $Jarak = [];
-    if (\Illuminate\Support\Facades\Auth::user() != null) {
-        $umkmGeo = [];
-        for ($i = 0; $i < count(PromoModel::promoSpecial()); $i++) {
-            $umkmGeo[] = Data_umkm::where('id', PromoModel::promoSpecial()[$i]->data_umkm_id)->first()->id;
-        }
-        //        for ($i = 0; $i < count($umkmGeo); $i++) {
-        //            $Jarak[] = $umkmController->getDistance(Auth::user()->id, $umkmGeo[$i]);
-        //        }
-    } else {
-        $Jarak = null;
+// Halaman Promo: satu tampilan untuk /promo, /promo/semua, /promo/special, dan /promo/category/{value}
+$promoPage = function (string $title, ?string $category = null) {
+    $menus = Menu::where('diskon', '>', 0)->with('data_umkm')->orderByDesc('diskon')->get();
+    $categories = $menus->pluck('category')->filter()->unique()->values();
+    if ($category !== null && $category !== '' && strtolower($category) !== 'semua') {
+        $menus = $menus->filter(fn ($m) => strtolower((string) $m->category) === strtolower($category))->values();
     }
-    return view('pages.Users.PromoSemuaPage', [
-        'Title' => 'Semua Promo',
-        'promoSpecial' => PromoModel::promoSpecial(),
-        'umkm' => Data_umkm::all(),
-        //        'jarakUmkm' => $Jarak,
-        'PengaturanAkun' => HomeModel::pengaturanAkun(),
-        'SeputarDkampus' => HomeModel::seputarDkampus(),
-    ]);
-});
 
-Route::get('/promo/category/{value}', function ($value) {
-    return view('pages.Users.PromoCategoryPage', [
-        'Title' => 'Promo ' . ucfirst($value),
-        'PromoTerlarisSlider' => PromoModel::promoTerlaris(),
-        'menus' => Menu::all(),
-        'CategoryPromo' => PromoModel::promoCategory(),
-        'UmkmHavePromo' => PromoModel::promoUmkm(),
-        'NavPromo' => ucfirst($value),
-        'CarouselPromo' => PromoModel::carouselPromo(),
-        'FooterPart1' => Footer::footerPart1(),
-        'FooterPart2Beli' => Footer::footerPart2Beli(),
-        'FooterPart2Jual' => Footer::footerPart2Jual(),
-        'FooterPart3KeamananDanPrivasi' => Footer::footerPart3KeamananDanPrivasi(),
-        'FooterPart3IkutiKami' => Footer::footerPart3IkutiKami(),
+    return view('pages.Users.Promo', [
+        'Title' => $title,
+        'menus' => $menus,
+        'umkms' => Data_umkm::whereIn('id', $menus->pluck('data_umkm_id')->unique())->get(),
+        'categories' => $categories,
+        'activeCategory' => $category,
     ]);
-});
-
-Route::get('/promo/special', function (UmkmController $umkmController) {
-    $Jarak = [];
-    if (\Illuminate\Support\Facades\Auth::user() != null) {
-        $umkmGeo = [];
-        for ($i = 0; $i < count(PromoModel::promoSpecial()); $i++) {
-            $umkmGeo[] = Data_umkm::where('id', PromoModel::promoSpecial()[$i]->data_umkm_id)->first()->id;
-        }
-        //        for ($i = 0; $i < count($umkmGeo); $i++) {
-        //            $Jarak[] = $umkmController->getDistance(Auth::user()->id, $umkmGeo[$i]);
-        //        }
-    } else {
-        $Jarak = null;
-    }
-    //    dd($Jarak);
-    return view('pages.Users.PromoSpecialPage', [
-        'Title' => 'Promo Special',
-        'promoSpecial' => PromoModel::promoSpecial(),
-        'umkm' => Data_umkm::all(),
-        'jarakUmkm' => $Jarak,
-    ]);
-});
+};
+Route::get('/promo', fn () => $promoPage('Promo'));
+Route::get('/promo/semua', fn () => $promoPage('Semua Promo'));
+Route::get('/promo/special', fn () => $promoPage('Promo Special'));
+Route::get('/promo/category/{value}', fn ($value) => $promoPage('Promo ' . ucfirst($value), $value));
 
 // Halaman lama per kategori, sekarang dilayani oleh /promo/category/{value}
 Route::redirect('/promo/makanan', '/promo/category/makanan');
