@@ -1,5 +1,5 @@
 @props([
-    'variant' => 'primary', // primary | secondary | soft | ghost | outline | danger
+    'variant' => 'primary', // primary | secondary | soft | ghost | outline | success | danger-soft | danger
     'size' => 'md',         // sm | md | lg
     'href' => null,
     'type' => 'button',
@@ -17,6 +17,8 @@
         'soft' => 'bg-brand-100 text-brand-800 hover:bg-brand-200 active:bg-brand-300',
         'ghost' => 'text-ink-600 hover:bg-sunken hover:text-ink active:bg-line',
         'outline' => 'bg-transparent text-ink shadow-[0_0_0_1px_theme(colors.line.strong)] hover:bg-sunken active:bg-line',
+        'success' => 'bg-moss-600 text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_0_0_1px_rgb(47_84_48/0.7)] hover:bg-moss-700 active:bg-moss-700',
+        'danger-soft' => 'bg-brick-50 text-brick-700 shadow-[0_0_0_1px_theme(colors.brick.100)] hover:bg-brick-100 active:bg-brick-100',
         'danger' => 'bg-brick-600 text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.14),0_0_0_1px_rgb(143_50_32/0.7)] hover:bg-brick-700 active:bg-brick-700',
     ];
     $sizes = [
