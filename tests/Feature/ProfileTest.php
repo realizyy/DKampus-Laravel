@@ -12,23 +12,26 @@ class ProfileTest extends TestCase
 
     public function test_profile_page_is_displayed(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['nama_user' => 'Nama Lama']);
 
         $response = $this
             ->actingAs($user)
             ->get('/profile');
 
         $response->assertOk();
+        // Form harus terisi nama_user (bukan atribut "name" bawaan Breeze)
+        $response->assertSee('name="nama_user"', false);
+        $response->assertSee('Nama Lama');
     }
 
     public function test_profile_information_can_be_updated(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['email_verified_at' => now()]);
 
         $response = $this
             ->actingAs($user)
             ->patch('/profile', [
-                'name' => 'Test User',
+                'nama_user' => 'Test User',
                 'email' => 'test@example.com',
             ]);
 
@@ -38,19 +41,19 @@ class ProfileTest extends TestCase
 
         $user->refresh();
 
-        $this->assertSame('Test User', $user->name);
+        $this->assertSame('Test User', $user->nama_user);
         $this->assertSame('test@example.com', $user->email);
         $this->assertNull($user->email_verified_at);
     }
 
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['email_verified_at' => now()]);
 
         $response = $this
             ->actingAs($user)
             ->patch('/profile', [
-                'name' => 'Test User',
+                'nama_user' => 'Test User',
                 'email' => $user->email,
             ]);
 
