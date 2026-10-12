@@ -10,6 +10,20 @@ class Menu extends Model
 {
     use HasFactory, SearchableTrait;
 
+    /** Kategori yang ditawarkan di form admin; nilai disimpan apa adanya di menus.category. */
+    public const CATEGORIES = [
+        'minuman' => 'Minuman',
+        'jajanan' => 'Jajanan',
+        'aneka nasi' => 'Aneka Nasi',
+        'ayam & bebek' => 'Ayam & Bebek',
+        'cepat saji' => 'Cepat Saji',
+        'roti' => 'Roti',
+        'bakso & soto' => 'Bakso & Soto',
+        'bakmie' => 'Bakmie',
+        'mie' => 'Mie',
+        'sate' => 'Sate',
+    ];
+
     protected $guarded = [
         'id',        
     ];
