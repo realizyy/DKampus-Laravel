@@ -7,6 +7,8 @@ use App\Models\Addresse;
 use App\Models\HomeModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use App\Models\User;
 use App\Models\Data_umkm;
 use App\Models\history;
@@ -18,80 +20,58 @@ class CourierController extends Controller
 {
     public function index()
     {
+        $courId = Auth::id();
+        $viewData = [
+            'Title' => 'Dashboard Courier',
+            'PengaturanAkun' => HomeModel::pengaturanAkun(),
+            'SeputarDkampus' => HomeModel::seputarDkampus(),
+            'cour_name' => optional(User::find($courId))->nama_user,
+            'orders' => [],
+            'custId' => [],
+            'nama_penerima' => [],
+            'no_telp_umkm' => [],
+            'no_telp_cust' => [],
+        ];
+
         try {
-            $courId = Auth::user()->id;
             $database = app('firebase.database');
-            $reference = $database->getReference('onProgress/');
-            $snapshot = $reference->getSnapshot();
-            if ($snapshot->exists()) {
-                $uid_user = $database->getReference('onProgress/')->getChildKeys();
-                $itemCount = $database->getReference('onProgress/')->getSnapshot()->numChildren();
-                $umkmId = [];
-                $result = [];
-                $custId = [];
-                $idCust = [];
-                $i = 0;
-                while ($i < $itemCount) {
-                    $getUid = explode("-", $uid_user[$i]);
-                    if ($getUid[1] == $courId) {
-                        $custId = $getUid[0];
-                        $idCust[] = $getUid[0];
-                        $result[] = $database->getReference('onProgress/' . $custId . '-' . $courId)->getValue();
-                        $item = $database->getReference('onProgress/' . $custId . '-' . $courId . '/orders')->getChildKeys();
-                        $umkmId[] = $database->getReference('onProgress/' . $custId . '-' . $courId . '/orders' . '/' . $item[0] . '/umkm_id')->getValue();
-                        $nama_penerima[] = $database->getReference('onProgress/' . $custId . '-' . $courId . '/nama_penerima')->getValue();
-                    }
-                    $i++;
+            $onProgress = $database->getReference('onProgress/');
+
+            if (! $onProgress->getSnapshot()->exists()) {
+                return view('pages/Courier/dashboard', $viewData);
+            }
+
+            // Hanya membaca: ambil order milik kurir ini (key onProgress = "custId-courId")
+            foreach ($onProgress->getChildKeys() as $key) {
+                $parts = explode('-', $key);
+                if (count($parts) < 2 || $parts[1] != $courId) {
+                    continue;
                 }
-                if ($umkmId != null) {
-                    foreach ($umkmId as $id) {
-                        if ($id == 'Jastip') {
-                            $no_telp_umkm[] = '-';
-                        } else {
-                            $no_telp_umkm[] = Data_umkm::find($id)->no_telp_umkm;
-                        }
-                    }
-                    return view('pages/Courier/dashboard', [
-                        'Title' => 'Dashboard Courier',
-                        // 'nama_umkm' => $nama_umkm,
-                        'PengaturanAkun' => HomeModel::pengaturanAkun(),
-                        'SeputarDkampus' => HomeModel::seputarDkampus(),
-                        'nama_penerima' => $nama_penerima,
-                        'no_telp_umkm' => $no_telp_umkm,
-                        'orders' => $result,
-                        'no_telp_cust' => User::find($custId)->no_telp,
-                        'cour_name' => User::find($courId)->nama_user,
-                        'custId' => $idCust
-                    ]);
-                } else {
-                    return view('pages/Courier/dashboard', [
-                        'Title' => 'Dashboard Courier',
-                        // 'nama_umkm' => $nama_umkm,
-                        'PengaturanAkun' => HomeModel::pengaturanAkun(),
-                        'SeputarDkampus' => HomeModel::seputarDkampus(),
-                        // 'nama_penerima' => $nama_penerima,
-                        'no_telp_umkm' => null,
-                        'orders' => $result,
-                        // 'no_telp_cust' => User::find($custId)->no_telp,
-                        'cour_name' => User::find($courId)->nama_user,
-                    ]);
-                }
-            } else {
-                return view('pages/Courier/dashboard', [
-                    'Title' => 'Dashboard Courier',
-                    // 'nama_umkm' => $nama_umkm,
-                    'SeputarDkampus' => HomeModel::seputarDkampus(),
-                    'PengaturanAkun' => HomeModel::pengaturanAkun(),
-                    // 'nama_penerima' => $nama_penerima,
-                    'no_telp_umkm' => null,
-                    'orders' => null,
-                    // 'no_telp_cust' => User::find($custId)->no_telp,
-                    'cour_name' => User::find($courId)->nama_user,
-                ]);
+
+                $custId = $parts[0];
+                $path = 'onProgress/' . $custId . '-' . $courId;
+                $itemKeys = $database->getReference($path . '/orders')->getChildKeys();
+                $umkmId = isset($itemKeys[0])
+                    ? $database->getReference($path . '/orders/' . $itemKeys[0] . '/umkm_id')->getValue()
+                    : null;
+
+                $viewData['orders'][] = $database->getReference($path)->getValue();
+                $viewData['custId'][] = $custId;
+                $viewData['nama_penerima'][] = $database->getReference($path . '/nama_penerima')->getValue();
+                $viewData['no_telp_umkm'][] = ($umkmId === null || $umkmId == 'Jastip')
+                    ? '-'
+                    : (optional(Data_umkm::find($umkmId))->no_telp_umkm ?? '-');
+                // Satu nomor per order (sebelumnya semua order memakai nomor pelanggan terakhir)
+                $viewData['no_telp_cust'][] = optional(User::find($custId))->no_telp ?? '-';
             }
         } catch (Exception $e) {
-            return redirect()->back()->with('error2', 'Error');
+            // Jangan redirect()->back(): dari dashboard itu bisa berputar tanpa akhir.
+            Log::warning('Courier dashboard: gagal membaca data order', ['error' => $e->getMessage()]);
+            $viewData['orders'] = [];
+            session()->now('error2', 'Data pesanan belum bisa dimuat, coba lagi nanti.');
         }
+
+        return view('pages/Courier/dashboard', $viewData);
     }
 
     public function listOrder()

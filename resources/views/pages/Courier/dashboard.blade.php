@@ -42,7 +42,7 @@
                             {{-- @if ($item['notesAlamat'] != "-")--}}
                             {{-- <p><span class="font-semibold">Catatan Alamat:</span> {{ $item['notesAlamat'] }}</p>--}}
                             {{-- @endif--}}
-                            <p><span class="font-semibold">No. Telp Cust:</span> {{ $no_telp_cust }}</p>
+                            <p><span class="font-semibold">No. Telp Cust:</span> {{ $no_telp_cust[$i] ?? '-' }}</p>
                         </div>
 
                         <div class="flex items-center justify-between">
