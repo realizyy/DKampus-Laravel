@@ -6,6 +6,7 @@ import { registerMotion, registerBottomNav } from './lib/motion';
 import { registerToast } from './lib/toast';
 import { registerPalette } from './lib/palette';
 import { registerModal } from './lib/modal';
+import { registerFavorites } from './lib/favorites';
 
 window.Alpine = Alpine;
 
@@ -15,5 +16,6 @@ registerBottomNav(Alpine);
 registerToast(Alpine);
 registerPalette(Alpine);
 registerModal();
+registerFavorites();
 
 Alpine.start();
