@@ -236,29 +236,14 @@ Route::get('/detail-makanan/{menu:nama_makanan}', function (Menu $menu) {
 })->name('detail-makanan');
 
 //Favorit Routes
-Route::get('/favorit', function (UmkmController $umkmController) {
-    $Jarak = [];
-    try {
-        if (\Illuminate\Support\Facades\Auth::user() != null) {
-            $umkmGeo = [];
-            for ($i = 0; $i < count(PromoModel::promoSpecial()); $i++) {
-                $umkmGeo[] = Data_umkm::where('id', PromoModel::promoSpecial()[$i]->data_umkm_id)->first()->id;
-            }
-            //            for ($i = 0; $i < count($umkmGeo); $i++) {
-            //                $Jarak[] = $umkmController->getDistance(Auth::user()->id, $umkmGeo[$i]);
-            //            }
-        }
-    } catch (Exception $e) {
-        $Jarak = null;
-    }
+Route::get('/favorit', function () {
+    $menus = Menu::whereIn('id', \App\Support\Favorites::ids())->with('data_umkm')->get();
+
     return view('pages.Users.Favorit', [
         'Title' => 'Favorit',
-        'PengaturanAkun' => HomeModel::pengaturanAkun(),
-        'SeputarDkampus' => HomeModel::seputarDkampus(),
-        'RekomendasiWarung' => Data_umkm::all(),
-        //        'listJarak' => $Jarak,
-        'RekomendasiMakanan' => Menu::take(5)->get(),
-        'PromoTerlarisSlider' => PromoModel::promoTerlaris(),
+        'FavoritMakanan' => $menus,
+        'FavoritWarung' => Data_umkm::whereIn('id', $menus->pluck('data_umkm_id')->unique())->get(),
+        'Rekomendasi' => Menu::with('data_umkm')->take(4)->get(),
     ]);
 });
 
