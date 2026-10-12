@@ -61,7 +61,7 @@ Route::get('/change-password', function () {
     return view('pages.Users.UbahKataSandi', [
         'Title' => 'Ubah Kata Sandi',
     ]);
-});
+})->middleware('auth');
 
 // Rekomendasi Warung page
 Route::get('/rekomendasi-warung', function () {
