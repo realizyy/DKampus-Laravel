@@ -22,8 +22,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
     <title>{{ $Title }} - Welcome & Enjoy what you need</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="/build/assets/app-c9100832.css">
-    <script type="module" src="/build/assets/app-5db491ae.js"></script>
+    @if (file_exists(public_path('build/assets/app-c9100832.css')))
+        <link rel="stylesheet" href="/build/assets/app-c9100832.css">
+    @endif
+    @if (file_exists(public_path('build/assets/app-5db491ae.js')))
+        <script type="module" src="/build/assets/app-5db491ae.js"></script>
+    @endif
 </head>
 
 <body>
