@@ -12,7 +12,7 @@
         @forelse ($PromoTerlarisSlider as $Item)
             <swiper-slide class="w-full h-full bg-white rounded-xl shadow-md mb-2 md:hidden overflow-hidden border transition-all duration-300 flex flex-col">
                 <img src="{{Storage::url($Item['Img'])}}" alt="" class="w-full h-40 object-cover">
-                <img src="{{$Item['Discount']}}" alt="" class="absolute">
+                <img src="/{{$Item['Discount']}}" alt="" class="absolute">
                 <div class="p-4">
                     <div class="tracking-wide text-l text-black font-semibold truncate">{{$Item['nama_makanan']}}</div>
                     <div class="flex items-center mt-1">
