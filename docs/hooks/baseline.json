@@ -1,0 +1,1900 @@
+{
+ "auth/confirm-password.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "password"
+  ],
+  "routes": [
+   "password.confirm"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "auth/forgot-password.blade.php": {
+  "hookIds": [
+   "email"
+  ],
+  "hookClasses": [],
+  "names": [
+   "email"
+  ],
+  "routes": [
+   "password.email"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "auth/login.blade.php": {
+  "hookIds": [
+   "email"
+  ],
+  "hookClasses": [],
+  "names": [
+   "email",
+   "password",
+   "remember"
+  ],
+  "routes": [
+   "login",
+   "password.request"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "auth/register.blade.php": {
+  "hookIds": [
+   "email"
+  ],
+  "hookClasses": [],
+  "names": [
+   "email",
+   "name",
+   "password",
+   "password_confirmation"
+  ],
+  "routes": [
+   "login",
+   "register"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\"",
+   "name=\"password_confirmation\""
+  ]
+ },
+ "auth/reset-password.blade.php": {
+  "hookIds": [
+   "email"
+  ],
+  "hookClasses": [],
+  "names": [
+   "email",
+   "password",
+   "password_confirmation",
+   "token"
+  ],
+  "routes": [
+   "password.store",
+   "token"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\"",
+   "name=\"password_confirmation\""
+  ]
+ },
+ "auth/verify-email.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [
+   "logout",
+   "verification.send"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "components/application-logo.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/auth-session-status.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/banner/carousel.blade.php": {
+  "hookIds": [
+   "banner"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "components/bannerfade/banner-fade.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "components/carousel/slider-category-desktop.blade.php": {
+  "hookIds": [
+   "category-desktop"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/carousel/slider-category.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/danger-button.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/dropdown-link.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/dropdown.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/floatingcshelp.blade.php": {
+  "hookIds": [
+   "modalBantuan"
+  ],
+  "hookClasses": [],
+  "names": [
+   "pertanyaan"
+  ],
+  "routes": [
+   "cs.help"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "components/header/courierHeader.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/header/headerForDesktop.blade.php": {
+  "hookIds": [
+   "topBarDekstop"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/header/menu.blade.php": {
+  "hookIds": [
+   "bar-menu",
+   "overlay-menu"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [
+   "logout"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "components/header/menuDesktop.blade.php": {
+  "hookIds": [
+   "bar-menu-desktop",
+   "overlay-menu-desktop"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [
+   "logout"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "components/header/search.blade.php": {
+  "hookIds": [
+   "clear-input",
+   "overlay-results",
+   "search-input"
+  ],
+  "hookClasses": [],
+  "names": [
+   "keyword"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "components/header/searchDesktop.blade.php": {
+  "hookIds": [
+   "clear-input-desktop",
+   "overlay-results-desktop",
+   "search-input-desktop"
+  ],
+  "hookClasses": [
+   "searchKeyword"
+  ],
+  "names": [
+   "value"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "components/header/topbar.blade.php": {
+  "hookIds": [
+   "topBarMobile"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/input-error.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/input-label.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/list/slider-makanan.blade.php": {
+  "hookIds": [
+   "rekomendasiMakanan"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/list/slider.blade.php": {
+  "hookIds": [
+   "rekomendasiWarung"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/list-food/slider.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/modal.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/modals/modal.blade.php": {
+  "hookIds": [
+   "modal_confirm_email",
+   "overlayDaftar"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/nav-link.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/navbar/navbar.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/navbar/navbarCourier.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [
+   "cour.history",
+   "courierorder",
+   "dashboardCourier",
+   "profile"
+  ],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/navbar/navbarDesktop.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/navbar/subnavbar-homepage.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/primary-button.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/promo-carousel/carousel.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/promo-slider/carousel.blade.php": {
+  "hookIds": [
+   "promoTerlaris"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/promo-slider/semua-promo-carousel.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/responsive-nav-link.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/scrollBehaviourr/scroll-behaviour.blade.php": {
+  "hookIds": [
+   "scrollBehaviour"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/secondary-button.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/text-input.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/avatar.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/badge.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/bottom-nav.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/button.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/card.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/chip.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/confirm.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "components/ui/empty-state.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/field.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "circle-alert"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/flash.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [
+   "data-flash"
+  ],
+  "texts": []
+ },
+ "components/ui/icon.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/input.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/kbd.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/modal.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "x"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/palette.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "search"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/rating.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "star"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/select.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "chevron-down"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/stat.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/status.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/textarea.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/toaster.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "check",
+   "info",
+   "x"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "components/ui/tooltip.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [
+   "data-tip"
+  ],
+  "texts": []
+ },
+ "components/wave-animations/wave.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "dev/ui.blade.php": {
+  "hookIds": [
+   "status"
+  ],
+  "hookClasses": [],
+  "names": [
+   "Kevin",
+   "Yanto Joseph",
+   "bike",
+   "demo-hapus",
+   "demo-konfirmasi",
+   "demo-logout",
+   "house",
+   "qr-code",
+   "store"
+  ],
+  "routes": [],
+  "dataAttrs": [
+   "data-modal-open"
+  ],
+  "texts": [
+   "belum mengambil pesanan"
+  ]
+ },
+ "layouts/FavoritLayout.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "layouts/Login&Register.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "layouts/PesananLayout.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "layouts/PromoLayout.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "layouts/Root.blade.php": {
+  "hookIds": [
+   "containerLayout"
+  ],
+  "hookClasses": [],
+  "names": [
+   "csrf-token",
+   "viewport"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "layouts/app.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "csrf-token",
+   "viewport"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "layouts/base.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "viewport"
+  ],
+  "routes": [],
+  "dataAttrs": [
+   "data-theme"
+  ],
+  "texts": []
+ },
+ "layouts/guest.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "csrf-token",
+   "viewport"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "layouts/navigation.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "content",
+   "trigger"
+  ],
+  "routes": [
+   "account",
+   "chatpage.admin",
+   "dashboard",
+   "logout",
+   "product",
+   "profile.edit",
+   "transaction",
+   "umkm"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "layouts/partials/fcm.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [
+   "register.token"
+  ],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "layouts/partials/head-assets.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "csrf-token",
+   "theme-color"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Admin/UMKM_update.blade.php": {
+  "hookIds": [
+   "edit_alamat",
+   "edit_close_time",
+   "edit_nama_umkm",
+   "edit_no_telp_umkm",
+   "edit_open_time",
+   "image-preview",
+   "image_logo_umkm",
+   "logo_umkm",
+   "preview"
+  ],
+  "hookClasses": [
+   "delete-button",
+   "delete-form"
+  ],
+  "names": [
+   "edit_alamat",
+   "edit_close_time",
+   "edit_geo",
+   "edit_link",
+   "edit_nama_umkm",
+   "edit_no_telp_umkm",
+   "edit_open_time",
+   "edit_vip",
+   "header",
+   "logo_umkm"
+  ],
+  "routes": [
+   "product",
+   "product.edit",
+   "productDestroy",
+   "umkmUpdate"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\"",
+   "name=\"edit_nama_umkm\"",
+   "name=\"edit_open_time\"",
+   "name=\"edit_vip\""
+  ]
+ },
+ "pages/Admin/account.blade.php": {
+  "hookIds": [
+   "email",
+   "id_user",
+   "modal-edit",
+   "nama_user",
+   "no_telp",
+   "restriction",
+   "role"
+  ],
+  "hookClasses": [],
+  "names": [
+   "email",
+   "header",
+   "id_user",
+   "nama_user",
+   "no_telp",
+   "restriction",
+   "role"
+  ],
+  "routes": [
+   "editUser"
+  ],
+  "dataAttrs": [
+   "data-email",
+   "data-id",
+   "data-restriction",
+   "data-role"
+  ],
+  "texts": [
+   "action=\"",
+   "name=\"nama_user\""
+  ]
+ },
+ "pages/Admin/chatpage.blade.php": {
+  "hookIds": [
+   "addNewChat",
+   "custId",
+   "ifx",
+   "list-chat",
+   "message-form",
+   "message-input",
+   "room-chat",
+   "send-btn"
+  ],
+  "hookClasses": [],
+  "names": [
+   "header"
+  ],
+  "routes": [],
+  "dataAttrs": [
+   "data-count-id",
+   "data-del-id"
+  ],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "pages/Admin/dashboard.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "header"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Admin/product.blade.php": {
+  "hookIds": [
+   "edit-image-preview",
+   "edit-preview",
+   "edit_category",
+   "edit_deskripsi",
+   "edit_harga",
+   "edit_image",
+   "edit_nama_makanan",
+   "edit_promo",
+   "edit_umkm",
+   "image-preview",
+   "modalEditProductumkm",
+   "preview",
+   "umkm"
+  ],
+  "hookClasses": [],
+  "names": [
+   "category",
+   "deskripsi",
+   "edit_category",
+   "edit_deskripsi",
+   "edit_harga",
+   "edit_image",
+   "edit_nama_makanan",
+   "edit_promo",
+   "edit_umkm",
+   "harga",
+   "header",
+   "image",
+   "nama_makanan",
+   "promo",
+   "umkm"
+  ],
+  "routes": [
+   "productDestroy",
+   "productUpdate",
+   "save.product"
+  ],
+  "dataAttrs": [
+   "data-category",
+   "data-deskripsi",
+   "data-harga",
+   "data-id",
+   "data-promo",
+   "data-umkm",
+   "data-update-url"
+  ],
+  "texts": [
+   "action=\"",
+   "name=\"edit_nama_makanan\"",
+   "name=\"edit_promo\""
+  ]
+ },
+ "pages/Admin/product_update.blade.php": {
+  "hookIds": [
+   "edit-preview",
+   "edit_category",
+   "edit_deskripsi",
+   "edit_harga",
+   "edit_image",
+   "edit_nama_makanan",
+   "edit_promo",
+   "edit_umkm"
+  ],
+  "hookClasses": [
+   "bg-gray-300",
+   "nama_umkm"
+  ],
+  "names": [
+   "edit_category",
+   "edit_deskripsi",
+   "edit_harga",
+   "edit_image",
+   "edit_nama_makanan",
+   "edit_promo",
+   "edit_umkm",
+   "header"
+  ],
+  "routes": [
+   "product",
+   "productUpdate"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\"",
+   "name=\"edit_nama_makanan\"",
+   "name=\"edit_promo\""
+  ]
+ },
+ "pages/Admin/transaction.blade.php": {
+  "hookIds": [
+   "date",
+   "jarak",
+   "modal-edit",
+   "ongkir",
+   "orderBy",
+   "orderID",
+   "payment",
+   "payment-proof-image",
+   "payment-proof-modal",
+   "status",
+   "takenBy",
+   "total",
+   "umkm"
+  ],
+  "hookClasses": [
+   "close-button",
+   "detail-button",
+   "show-proof-button",
+   "show-proof-button-driver"
+  ],
+  "names": [
+   "header"
+  ],
+  "routes": [],
+  "dataAttrs": [
+   "data-bukti",
+   "data-bukti-akhir",
+   "data-cour",
+   "data-date",
+   "data-jarak",
+   "data-ongkir",
+   "data-order-id",
+   "data-payment",
+   "data-status",
+   "data-total",
+   "data-umkm",
+   "data-user"
+  ],
+  "texts": [
+   "Jastip"
+  ]
+ },
+ "pages/Admin/umkm.blade.php": {
+  "hookIds": [
+   "alamat",
+   "autocomplete",
+   "editForm",
+   "edit_alamat",
+   "edit_close_time",
+   "edit_geo",
+   "edit_link",
+   "edit_nama_umkm",
+   "edit_no_telp_umkm",
+   "edit_open_time",
+   "geo",
+   "image-preview",
+   "link",
+   "logo_umkm",
+   "modal-edit",
+   "modalumkm",
+   "preview",
+   "umkmForm"
+  ],
+  "hookClasses": [],
+  "names": [
+   "alamat",
+   "close_time",
+   "edit_alamat",
+   "edit_close_time",
+   "edit_geo",
+   "edit_link",
+   "edit_nama_umkm",
+   "edit_no_telp_umkm",
+   "edit_open_time",
+   "edit_vip",
+   "geo",
+   "header",
+   "link",
+   "logo_umkm",
+   "nama_umkm",
+   "no_telp_umkm",
+   "open_time",
+   "user_id",
+   "vip"
+  ],
+  "routes": [
+   "umkm.save",
+   "umkmDestroy",
+   "umkmUpdate"
+  ],
+  "dataAttrs": [
+   "data-alamat",
+   "data-bs-target",
+   "data-bs-toggle",
+   "data-geo",
+   "data-id",
+   "data-link",
+   "data-vip"
+  ],
+  "texts": [
+   "action=\"",
+   "name=\"edit_nama_umkm\"",
+   "name=\"edit_open_time\"",
+   "name=\"edit_vip\""
+  ]
+ },
+ "pages/Courier/chatpage.blade.php": {
+  "hookIds": [
+   "chat-list"
+  ],
+  "hookClasses": [],
+  "names": [
+   "custId"
+  ],
+  "routes": [
+   "chatWaCour"
+  ],
+  "dataAttrs": [
+   "data-count-id",
+   "data-cust-id",
+   "data-del-id"
+  ],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "pages/Courier/chatroom.blade.php": {
+  "hookIds": [
+   "chat-messages",
+   "image-btn",
+   "image-input",
+   "message-form",
+   "message-input",
+   "send-btn"
+  ],
+  "hookClasses": [],
+  "names": [
+   "csrf-token",
+   "image",
+   "message"
+  ],
+  "routes": [
+   "chatpage",
+   "send.notification"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "pages/Courier/dashboard.blade.php": {
+  "hookIds": [
+   "bukti",
+   "cancelModal",
+   "closeCancelModal",
+   "closeModal",
+   "modalConfirmation",
+   "uploadButton"
+  ],
+  "hookClasses": [
+   "triggerCancelModal",
+   "triggerModalButton"
+  ],
+  "names": [
+   "alasan",
+   "bukti",
+   "bukti_batal",
+   "custId",
+   "total-price",
+   "total-price-cancel"
+  ],
+  "routes": [
+   "complete.orders",
+   "delete.orders"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "Pesanan yang harus diantar",
+   "action=\"",
+   "belum mengambil pesanan"
+  ]
+ },
+ "pages/Courier/orderspage.blade.php": {
+  "hookIds": [
+   "card",
+   "closeModalBtn",
+   "modalOrderDetails",
+   "orderContainer",
+   "orderDetailModal"
+  ],
+  "hookClasses": [],
+  "names": [
+   "orderId"
+  ],
+  "routes": [
+   "dashboardCourier",
+   "take.order"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "pages/Courier/profile.blade.php": {
+  "hookIds": [
+   "ubahNomorTeleponModal",
+   "ubahPasswordModal"
+  ],
+  "hookClasses": [
+   "bg-gray-300"
+  ],
+  "names": [
+   "current_password",
+   "no_telp",
+   "password",
+   "password_confirmation"
+  ],
+  "routes": [
+   "cour.profile.phone",
+   "logout",
+   "password.update"
+  ],
+  "dataAttrs": [
+   "data-modal-hide",
+   "data-modal-show"
+  ],
+  "texts": [
+   "action=\"",
+   "name=\"current_password\"",
+   "name=\"password_confirmation\""
+  ]
+ },
+ "pages/Courier/riwayat.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "custId",
+   "id"
+  ],
+  "routes": [
+   "historydetail",
+   "room.chat.courier"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "Have Any History",
+   "Jastip",
+   "UMKM tidak tersedia",
+   "action=\""
+  ]
+ },
+ "pages/Courier/riwayatdetail.blade.php": {
+  "hookIds": [],
+  "hookClasses": [
+   "bg-gray-300"
+  ],
+  "names": [
+   "custId"
+  ],
+  "routes": [
+   "cour.history",
+   "room.chat.courier"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "pages/Users/AturUlangKataSandi.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "pages/Users/CemilanPage.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Users/ChatPage.blade.php": {
+  "hookIds": [
+   "chat-list"
+  ],
+  "hookClasses": [],
+  "names": [
+   "courId"
+  ],
+  "routes": [
+   "chatWa"
+  ],
+  "dataAttrs": [
+   "data-count-id",
+   "data-cour-id",
+   "data-del-id"
+  ],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "pages/Users/ChatRoomPage.blade.php": {
+  "hookIds": [
+   "chat-messages",
+   "image-btn",
+   "image-input",
+   "message-form",
+   "message-input",
+   "send-btn"
+  ],
+  "hookClasses": [],
+  "names": [
+   "csrf-token",
+   "image",
+   "message"
+  ],
+  "routes": [
+   "send.notification"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "pages/Users/CheckoutPage.blade.php": {
+  "hookIds": [
+   "modalConfrimation",
+   "pesanButton"
+  ],
+  "hookClasses": [
+   "bg-gray-300"
+  ],
+  "names": [
+   "notesPesanan"
+  ],
+  "routes": [
+   "confirm.pay"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "pages/Users/CodeVerification.blade.php": {
+  "hookIds": [
+   "link",
+   "timer",
+   "timerSeconds",
+   "verificationInput"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Users/DaftarAlamat.blade.php": {
+  "hookIds": [
+   "autocomplete",
+   "geoMaps",
+   "linkGmaps",
+   "modal-title"
+  ],
+  "hookClasses": [],
+  "names": [
+   "address",
+   "custId",
+   "geo",
+   "id",
+   "link",
+   "namaAlamat",
+   "notes"
+  ],
+  "routes": [
+   "alamatUtama",
+   "daftar.alamat",
+   "delete.alamat"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "pages/Users/DetailMakanan.blade.php": {
+  "hookIds": [
+   "NavCheckbox",
+   "NavLikeButton",
+   "decrement",
+   "increment",
+   "navbar-detail-makanan",
+   "number"
+  ],
+  "hookClasses": [],
+  "names": [
+   "catatan",
+   "quantity"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "pages/Users/DetailWarung.blade.php": {
+  "hookIds": [
+   "CardCheckbox",
+   "CardLikeButton",
+   "NavCheckbox",
+   "NavLikeButton",
+   "navbar-detail-warung"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Users/Favorit.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Users/FavoritPage.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Users/Homepage.blade.php": {
+  "hookIds": [
+   "developmentModal",
+   "modal-title"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": [
+   "Jastip"
+  ]
+ },
+ "pages/Users/InputRegister.blade.php": {
+  "hookIds": [
+   "email",
+   "inputs",
+   "sandi",
+   "showSandi",
+   "showSandiConfirm"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Users/JastipPage.blade.php": {
+  "hookIds": [
+   "addNewAddress",
+   "alamat",
+   "alamatshow",
+   "geo",
+   "jenisJastip",
+   "link",
+   "overlayAddNewAddress",
+   "selected_address",
+   "selected_address_id",
+   "warungContainer"
+  ],
+  "hookClasses": [
+   "address-button",
+   "menuContainer",
+   "switch-button",
+   "switch-thumb",
+   "switch-track",
+   "warung"
+  ],
+  "names": [
+   "alamat",
+   "catatan",
+   "geo",
+   "jenisJastip",
+   "kuantitas[0][]",
+   "link",
+   "nama_menu[0][]",
+   "selected_address_id",
+   "warung[]"
+  ],
+  "routes": [
+   "jastip.order"
+  ],
+  "dataAttrs": [
+   "data-id",
+   "data-index",
+   "data-name"
+  ],
+  "texts": [
+   "Jastip",
+   "action=\""
+  ]
+ },
+ "pages/Users/KategoriMenu.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Users/Login.blade.php": {
+  "hookIds": [
+   "inputs",
+   "modal_confirm_email"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [
+   "register"
+  ],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Users/MinumanPage.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Users/Pay.blade.php": {
+  "hookIds": [
+   "submitOrder"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [
+   "order",
+   "send.notificationCour"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "pages/Users/Pesanan.blade.php": {
+  "hookIds": [
+   "addNewAddress",
+   "alamat",
+   "decrement",
+   "delete",
+   "deleteInput",
+   "increment",
+   "number",
+   "overlayAddNewAddress",
+   "selected_address",
+   "selected_address_id",
+   "total_harga"
+  ],
+  "hookClasses": [
+   "address-button",
+   "decrement-btn",
+   "delete-form",
+   "increment-btn",
+   "quantity-input"
+  ],
+  "names": [
+   "catatan",
+   "id",
+   "items[harga][]",
+   "items[id][]",
+   "items[quantity][]",
+   "selected_address_id"
+  ],
+  "routes": [
+   "cart.delete",
+   "checkout"
+  ],
+  "dataAttrs": [
+   "data-id",
+   "data-name"
+  ],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "pages/Users/PromoCategoryPage.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Users/PromoSemuaPage.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Users/PromoSpecialPage.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Users/Rating.blade.php": {
+  "hookIds": [],
+  "hookClasses": [
+   "bg-gray-300"
+  ],
+  "names": [
+   "review"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": [
+   "Jastip"
+  ]
+ },
+ "pages/Users/Register.blade.php": {
+  "hookIds": [
+   "daftar",
+   "email",
+   "errorMsg",
+   "formRegister",
+   "inputs",
+   "modal_error_msg",
+   "no_telp",
+   "overlayErrorMsg",
+   "submit_btn",
+   "validation_email"
+  ],
+  "hookClasses": [],
+  "names": [
+   "email",
+   "nama",
+   "no_telp",
+   "password",
+   "password_confirmation"
+  ],
+  "routes": [
+   "register"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\"",
+   "name=\"password_confirmation\""
+  ]
+ },
+ "pages/Users/RekomendasiMenuPage.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Users/RekomendasiWarungPage.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Users/SearchPage.blade.php": {
+  "hookIds": [
+   "dropdown-menu",
+   "options-menu",
+   "search-input"
+  ],
+  "hookClasses": [],
+  "names": [
+   "keyword"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "pages/Users/SemuaPage.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Users/Status.blade.php": {
+  "hookIds": [
+   "card"
+  ],
+  "hookClasses": [],
+  "names": [
+   "courId",
+   "id"
+  ],
+  "routes": [
+   "historydetail.cust",
+   "rating",
+   "room.chat",
+   "status.order"
+  ],
+  "dataAttrs": [
+   "data-id"
+  ],
+  "texts": [
+   "Jastip",
+   "action=\""
+  ]
+ },
+ "pages/Users/StatusOrder.blade.php": {
+  "hookIds": [],
+  "hookClasses": [
+   "bg-gray-300"
+  ],
+  "names": [
+   "courId"
+  ],
+  "routes": [
+   "room.chat"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "pages/Users/UbahKataSandi.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "confirmPassword",
+   "newPassword",
+   "password"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "pages/Users/UntukKamu.blade.php": {
+  "hookIds": [
+   "cardList",
+   "seeMore"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "pages/Users/payJastip.blade.php": {
+  "hookIds": [
+   "submitOrder"
+  ],
+  "hookClasses": [],
+  "names": [],
+  "routes": [
+   "order",
+   "send.notificationCour"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "pages/Users/search.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [],
+  "routes": [
+   "detail-makanan"
+  ],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "profile/edit.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "header"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "profile/partials/delete-user-form.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "confirm-user-deletion",
+   "password"
+  ],
+  "routes": [
+   "profile.destroy"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\""
+  ]
+ },
+ "profile/partials/update-password-form.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "current_password",
+   "password",
+   "password_confirmation"
+  ],
+  "routes": [
+   "password.update"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\"",
+   "name=\"current_password\"",
+   "name=\"password_confirmation\""
+  ]
+ },
+ "profile/partials/update-profile-information-form.blade.php": {
+  "hookIds": [
+   "email",
+   "nama_user"
+  ],
+  "hookClasses": [],
+  "names": [
+   "email",
+   "nama_user"
+  ],
+  "routes": [
+   "profile.update",
+   "verification.send"
+  ],
+  "dataAttrs": [],
+  "texts": [
+   "action=\"",
+   "name=\"nama_user\""
+  ]
+ },
+ "uhuy.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "viewport"
+  ],
+  "routes": [],
+  "dataAttrs": [],
+  "texts": []
+ },
+ "welcome.blade.php": {
+  "hookIds": [],
+  "hookClasses": [],
+  "names": [
+   "viewport"
+  ],
+  "routes": [
+   "login",
+   "register"
+  ],
+  "dataAttrs": [],
+  "texts": []
+ }
+}
