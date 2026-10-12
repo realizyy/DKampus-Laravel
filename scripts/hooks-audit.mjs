@@ -43,6 +43,8 @@ function auditView(path) {
     const ids = uniq([...html.matchAll(/\bid=["']([^"'{}$]+)["']/g)].map((m) => m[1]));
     const classes = uniq([...html.matchAll(/\bclass=["']([^"']*)["']/g)].flatMap((m) => m[1].split(/\s+/)).filter(Boolean));
     return {
+        _ids: ids,
+        _classes: classes,
         hookIds: ids.filter((i) => jsIds.has(i)),
         hookClasses: classes.filter((c) => jsClasses.has(c)),
         names: uniq([...html.matchAll(/\bname=["']([^"'{}$]+)["']/g)].map((m) => m[1])),
@@ -55,10 +57,11 @@ function auditView(path) {
 const [mode, label = 'baseline'] = process.argv.slice(2);
 const file = join(root, 'docs/hooks', `${label}.json`);
 const current = Object.fromEntries(views.map((v) => [relative(join(root, 'resources/views'), v), auditView(v)]));
+const strip = (o) => Object.fromEntries(Object.entries(o).filter(([k]) => !k.startsWith('_')));
 
 if (mode === 'snapshot') {
     mkdirSync(dirname(file), { recursive: true });
-    writeFileSync(file, JSON.stringify(current, null, 1) + '\n');
+    writeFileSync(file, JSON.stringify(Object.fromEntries(Object.entries(current).map(([k, v]) => [k, strip(v)])), null, 1) + '\n');
     console.log(`Snapshot ${Object.keys(current).length} view -> ${relative(root, file)}`);
 } else if (mode === 'check') {
     const base = JSON.parse(read(file));
@@ -69,7 +72,9 @@ if (mode === 'snapshot') {
         if (!current[view]) { console.log(`HILANG  view ${view}`); missing++; continue; }
         for (const [kind, list] of Object.entries(hooks)) {
             for (const item of list) {
-                if (!current[view][kind].includes(item) && !removed.includes(`${view}|${kind}|${item}`)) {
+                // id/kelas dianggap ada selama masih ada di view (walau JS-nya sudah tidak merujuk lagi)
+                const pool = kind === 'hookIds' ? current[view]._ids : kind === 'hookClasses' ? current[view]._classes : current[view][kind];
+                if (!pool.includes(item) && !removed.includes(`${view}|${kind}|${item}`)) {
                     console.log(`HILANG  ${view}  ${kind}: ${item}`);
                     missing++;
                 }
