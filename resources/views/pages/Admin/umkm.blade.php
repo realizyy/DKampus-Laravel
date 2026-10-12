@@ -1,392 +1,111 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('UMKM') }}
-        </h2>
-    </x-slot>
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <h1 class="text-2xl font-bold mb-4">UMKM yang terdaftar</h1>
+@extends('layouts.admin')
 
-                    @if ($errors->any())
-                    <div class="mb-4 rounded-md bg-red-100 p-3 text-sm text-red-700">
-                        <ul class="list-disc pl-5">
-                            @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    @endif
+@php
+    $grid = 'md:grid-cols-[minmax(0,2.8fr)_9rem_5.5rem_5rem_9.5rem]';
+    $filterUrl = fn (string $kat = '') => route('umkm', array_filter(['q' => $q, 'kategori' => $kat]));
+@endphp
 
-                    <!-- Button trigger modal -->
-                    <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" data-bs-toggle="modal" data-bs-target="#umkmModal">
-                        Tambah UMKM
-                    </button>
+@section('page-title', 'Kelola Resto')
+@section('subtitle', 'Resto yang terdaftar, jam buka, dan produknya.')
 
-                    <!-- Table for displaying UMKM data -->
-                    <div class="overflow-auto">
-                        <table class="min-w-full divide-y divide-gray-200 space-x-4">
-                            <thead>
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Nama UMKM</th>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Alamat</th>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Waktu Buka</th>
-                                    <th class="hidden" scope="col">link</th>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">No. Telp</th>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">VIP</th>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Rating</th>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($umkms as $umkm)
-                                <tr>
-                                    <td class="">{{ $umkm->nama_umkm }}</td>
-                                    <td class="">{{ $umkm->alamat }}</td>
-                                    <td class="hidden"> {{ $umkm->link }} </td>
-                                    {{-- <td><img src="{{ Storage::url($umkm->logo_umkm) }}" alt="umkm_img" width="50"></td>--}}
-                                    <td class="">{{ $umkm->open_time ? date('H:i', strtotime($umkm->open_time)) : '--:--' }} - {{ $umkm->close_time ? date('H:i', strtotime($umkm->close_time)) : '--:--' }}</td>
-                                    <td class="text-center">{{ $umkm->no_telp_umkm }}</td>
-                                    <td class="text-center">{{ $umkm->vip ? 'Ya' : 'Tidak' }}</td>
-                                    <td class="text-center">{{ $umkm->rating }}</td>
-                                    <td class="text-center">
-                                        <div class="flex justify-center space-x-2">
-                                            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" onclick="editUser(this)" data-id="{{ $umkm->id }}" data-nama_umkm="{{ $umkm->nama_umkm }}" data-alamat="{{ $umkm->alamat }}" data-open_time="{{ $umkm->open_time }}" data-close_time="{{ $umkm->close_time }}" data-no_telp_umkm="{{ $umkm->no_telp_umkm }}" data-vip="{{ $umkm->vip }}" data-link="{{ $umkm->link }}" data-geo="{{ $umkm->geo }}">
-                                                Edit
-                                            </button>
-                                            <form id="deleteForm{{ $umkm->id }}" action="{{ route('umkmDestroy', $umkm->id) }}" method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button" onclick="confirmDelete('{{ $umkm->id }}', '{{ $umkm->nama_umkm }}')">
-                                                    Hapus
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforeach
-                                @if ($umkms->isEmpty())
-                                <tr>
-                                    <td colspan="7" class="text-center">Tidak ada data UMKM</td>
-                                </tr>
-                                @endif
-                            </tbody>
-                        </table>
-                    </div>
+@section('header-actions')
+    <x-ui.button href="{{ route('umkm.create') }}" icon="plus" size="sm"><span class="hidden sm:inline">Tambah Resto</span><span class="sm:hidden">Tambah</span></x-ui.button>
+@endsection
 
-                    <!-- Pagination links -->
-                    <div class="mt-4">
-                        {{ $umkms->links() }}
-                    </div>
-                </div>
-
-                {{-- modal tambah umkm --}}
-                <div class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true" id="modalumkm">
-                    <div class="flex items end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-                            <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                <div class="sm:flex sm:items-start">
-                                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                                        <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-200" id="modal-headline">
-                                            Tambah UMKM
-                                        </h3>
-                                    </div>
-                                </div>
-                            </div>
-                            @auth
-                            <form action="{{ route('umkm.save') }}" method="POST" id="umkmForm" enctype="multipart/form-data">
-                                @csrf
-                                <input type="hidden" name="user_id" value="{{ auth()->id() }}">
-                                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                    <div class="mb-4">
-                                        <label for="nama_umkm" class="block text sm font-medium text-gray-700 dark:text-gray-200">Nama UMKM</label>
-                                        <input type="text" name="nama_umkm" id="nama_umkm" class="form-input rounded-md shadow-sm mt-1 block w-full" required>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="alamat" class="block text sm font-medium text-gray-700 dark:text-gray-200">Alamat</label>
-                                        <input type="text" id="autocomplete" name="alamat" id="alamat" class="form-input rounded-md shadow-sm mt-1 block w-full" required>
-                                        <input type="text" name="link" class="hidden" id="link">
-                                        <input type="text" name="geo" class="hidden" id="geo">
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="open_time" class="block text sm font-medium text-gray-700 dark:text-gray-200">Waktu Buka - Tutup</label>
-                                        <input type="time" name="open_time" id="open_time" class="form-input rounded-md shadow-sm mt-1 block w-full" required>
-                                        <input type="time" name="close_time" id="close_time" class="form-input rounded-md shadow-sm mt-1 block w-full" required>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="no_telp_umkm" class="block text sm font-medium text-gray-700 dark:text-gray-200">No. Telp</label>
-                                        <input type="text" name="no_telp_umkm" id="no_telp_umkm" class="form-input rounded-md shadow-sm mt-1 block w-full" required>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="logo_umkm" class="block text sm font-medium text-gray-700 dark:text-gray-200">Logo UMKM</label>
-                                        <input type="file" name="logo_umkm" id="logo_umkm" class="form-input rounded-md shadow-sm mt-1 block w-full" onchange="previewImage()" required>
-                                        <div id="image-preview" class="hidden mt-2">
-                                            <img id="preview" class="rounded-md shadow-sm" alt="Image preview" width="100">
-                                        </div>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="vip" class="block text sm font-medium text-gray-700 dark:text-gray-200">VIP</label>
-                                        <input type="radio" name="vip" id="vip" value="1" class="form-radio" required>
-                                        <label for="vip" class="mr-2 text-sm text-gray-500 dark:text-gray-200">Ya</label>
-                                        <input type="radio" name="vip" id="vip" value="0" class="form-radio" required>
-                                        <label for="vip" class="text-sm text-gray-500 dark:text-gray-200">Tidak</label>
-                                        <div class="text-sm text-gray-500 dark:text-gray-200">VIP UMKM akan mendapatkan featured dan benefit lainnya.</div>
-                                    </div>
-                                    {{-- save and cancel button --}}
-                                    <div class="mt-4">
-                                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Simpan</button>
-                                        <button type="button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onclick="document.getElementById('modalumkm').classList.add('hidden')">Batal</button>
-                                    </div>
-                                </div>
-                            </form>
-                            @endauth
-                        </div>
-                    </div>
-                </div>
-
-                {{-- modal edit umkm --}}
-                <div class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true" id="modal-edit">
-                    <div class="flex items end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-                            <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                <div class="sm:flex sm:items-start">
-                                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                                        <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-200" id="modal-headline">
-                                            Edit UMKM
-                                        </h3>
-                                    </div>
-                                </div>
-                            </div>
-                            <form action="{{ route('umkmUpdate', $umkm->id ?? '0') }}" method="POST" id="editForm" enctype="multipart/form-data">
-                                @csrf
-                                @method('PUT')
-
-                                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                    <div class="mb-4">
-                                        <label for="edit_nama_umkm" class="block text sm font-medium text-gray-700 dark:text-gray-200">Nama UMKM</label>
-                                        <input type="text" name="edit_nama_umkm" id="edit_nama_umkm" class="form-input rounded-md shadow-sm mt-1 block w-full" required>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="edit_alamat" class="block text sm font-medium text-gray-700 dark:text-gray-200">Alamat</label>
-                                        <input type="text" name="edit_link" class="hidden" id="edit_link">
-                                        <input type="text" name="edit_geo" class="hidden" id="edit_geo">
-                                        <input type="text" name="edit_alamat" id="edit_alamat" class="form-input rounded-md shadow-sm mt-1 block w-full" required>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="edit_open_time" class="block text sm font-medium text-gray-700 dark:text-gray-200">Waktu Buka - Tutup</label>
-                                        <input type="time" name="edit_open_time" id="edit_open_time" class="form-input rounded-md shadow-sm mt-1 block w-full" required>
-                                        <input type="time" name="edit_close_time" id="edit_close_time" class="form-input rounded-md shadow-sm mt-1 block w-full" required>
-                                    </div>
-                                    {{-- debug time --}}
-                                    <div class="mb-4">
-                                        <label for="edit_no_telp_umkm" class="block text sm font-medium text-gray-700 dark:text-gray-200">No. Telp</label>
-                                        <input type="text" name="edit_no_telp_umkm" id="edit_no_telp_umkm" class="form-input rounded-md shadow-sm mt-1 block w-full" required>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="logo_umkm" class="block text sm font-medium text-gray-700 dark:text-gray-200">Logo UMKM</label>
-                                        <input type="file" name="logo_umkm" id="logo_umkm" class="form-input rounded-md shadow-sm mt-1 block w-full">
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="edit_vip" class="block text sm font-medium text-gray-700 dark:text-gray-200">VIP</label>
-                                        <input type="radio" name="edit_vip" id="edit_vip" value="1" class="form-radio" required>
-                                        <label for="edit_vip" class="mr-2 text-sm text-gray-500 dark:text-gray-200">Ya</label>
-                                        <input type="radio" name="edit_vip" id="edit_vip" value="0" class="form-radio" required>
-                                        <label for="edit_vip" class="text-sm text-gray-500 dark:text-gray-200">Tidak</label>
-                                        <div class="text-sm text-gray-500 dark:text-gray-200">VIP UMKM akan mendapatkan featured dan benefit lainnya.</div>
-                                    </div>
-                                    <div class="mt-4">
-                                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Simpan</button>
-                                        <button type="button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onclick="document.getElementById('modal-edit').classList.add('hidden')">Batal</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+@section('content')
+<div class="space-y-4">
+    @if ($errors->any())
+        <div class="rounded-2xl bg-brick-50 p-4 text-sm text-brick-700 shadow-hairline" role="alert">
+            <ul class="list-disc space-y-0.5 pl-5">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
         </div>
+    @endif
+
+    {{-- Pencarian (server) + chip kategori (Figma: Semua Kategori, Aneka Nasi, …) --}}
+    <form method="GET" action="{{ route('umkm') }}" role="search" class="lg:w-[28rem]">
+        @if ($kategori !== '')<input type="hidden" name="kategori" value="{{ $kategori }}">@endif
+        <x-ui.input type="search" name="q" icon="search" :value="$q" placeholder="Cari nama atau alamat resto" aria-label="Cari resto" autocomplete="off" />
+    </form>
+    <div class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0">
+        <x-ui.chip :href="$filterUrl()" :active="$kategori === ''">Semua Kategori</x-ui.chip>
+        @foreach (\App\Models\Menu::CATEGORIES as $value => $label)
+            <x-ui.chip :href="$filterUrl($value)" :active="$kategori === $value">{{ $label }}</x-ui.chip>
+        @endforeach
     </div>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCy7Wqkn0A1tWbQf9-LnGum9UucUooaQXY&libraries=places&callback=initAutocomplete" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @if (session('error2'))
-    <script>
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-        })
 
-        Toast.fire({
-            icon: 'error',
-            title: "{{ session('error2') }}"
-        })
-    </script>
-    @endif
-    @if (session('success'))
-    <script>
-        const ToastSuccess = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-        })
+    <div class="overflow-hidden rounded-2xl bg-surface shadow-card">
+        <div class="flex items-center justify-between border-b border-line px-4 py-3 md:px-5">
+            <h2 class="font-display text-lg font-bold tracking-tight text-ink">Daftar Resto</h2>
+            <span class="font-mono text-xs text-ink-500">{{ $umkms->total() }} resto</span>
+        </div>
+        <div class="hidden gap-4 border-b border-line bg-sunken/60 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-ink-500 md:grid {{ $grid }}">
+            <span>Resto</span><span>Jam buka</span><span>Produk</span><span>Rating</span><span class="text-right">Aksi</span>
+        </div>
 
-        ToastSuccess.fire({
-            icon: 'success',
-            title: "{{ session('success') }}"
-        })
-    </script>
-    @endif
+        <ul class="divide-y divide-line">
+            @foreach ($umkms as $umkm)
+                <li class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 px-4 py-3.5 hover:bg-canvas/70 md:gap-x-4 md:px-5 {{ $grid }}">
+                    <a href="{{ route('umkmEdit', $umkm) }}" class="col-start-1 row-start-1 flex min-w-0 items-center gap-3 md:col-auto md:row-auto">
+                        <x-ui.photo :src="Storage::url($umkm->logo_umkm)" :alt="$umkm->nama_umkm" icon="store" class="size-12 shrink-0 rounded-xl" />
+                        <span class="min-w-0">
+                            <span class="flex items-center gap-2">
+                                <span class="truncate font-semibold text-ink">{{ $umkm->nama_umkm }}</span>
+                                @if ($umkm->vip)<x-ui.badge tone="brand" class="shrink-0">VIP</x-ui.badge>@endif
+                            </span>
+                            <span class="block truncate text-sm text-ink-500">{{ $umkm->alamat }}</span>
+                        </span>
+                    </a>
+                    <p class="hidden font-mono text-sm text-ink-600 md:block">{{ $umkm->open_time ? date('H:i', strtotime($umkm->open_time)) : '--:--' }} – {{ $umkm->close_time ? date('H:i', strtotime($umkm->close_time)) : '--:--' }}</p>
+                    <p class="hidden font-mono text-sm text-ink-600 md:block">{{ $umkm->menu_count }}</p>
+                    <p class="hidden items-center gap-1 font-mono text-sm text-ink-600 md:flex">@if ($umkm->rating)<x-ui.icon name="star" class="size-3.5 text-brand-500" />{{ $umkm->rating }}@else—@endif</p>
+                    <p class="col-start-1 row-start-2 pl-[3.75rem] font-mono text-xs text-ink-500 md:hidden">
+                        {{ $umkm->open_time ? date('H:i', strtotime($umkm->open_time)) : '--:--' }}–{{ $umkm->close_time ? date('H:i', strtotime($umkm->close_time)) : '--:--' }} · {{ $umkm->menu_count }} produk
+                    </p>
+                    <div class="col-start-2 row-span-2 row-start-1 flex items-center justify-end gap-1.5 md:col-auto md:row-auto md:row-span-1">
+                        <a href="{{ route('umkmEdit', $umkm) }}" class="ui-press hidden h-9 items-center gap-1 rounded-lg bg-surface px-3 text-sm font-semibold text-ink shadow-hairline hover:bg-sunken md:inline-flex" aria-label="Detail {{ $umkm->nama_umkm }}">Detail<x-ui.icon name="chevron-right" class="size-4 text-ink-400" /></a>
+                        <button type="button" data-modal-open="delete-umkm" data-nama="{{ $umkm->nama_umkm }}" data-url="{{ route('umkmDestroy', $umkm->id) }}"
+                                class="ui-press grid size-9 place-items-center rounded-lg text-ink-500 hover:bg-brick-50 hover:text-brick-700" aria-label="Hapus {{ $umkm->nama_umkm }}">
+                            <x-ui.icon name="trash-2" class="size-[18px]" />
+                        </button>
+                    </div>
+                </li>
+            @endforeach
+        </ul>
 
-    <script>
-        function previewImage() {
-            var input = document.getElementById('logo_umkm');
-            var preview = document.getElementById('preview');
-            var imagePreview = document.getElementById('image-preview');
+        @if ($umkms->isEmpty())
+            @if ($q !== '' || $kategori !== '')
+                <x-ui.empty-state icon="search" title="Resto tidak ditemukan" description="Coba kata kunci lain atau pilih Semua Kategori.">
+                    <x-ui.button :href="route('umkm')" variant="outline" size="sm">Hapus filter</x-ui.button>
+                </x-ui.empty-state>
+            @else
+                <x-ui.empty-state icon="store" title="Belum ada resto" description="Tambahkan resto pertama beserta produknya.">
+                    <x-ui.button :href="route('umkm.create')" icon="plus" size="sm">Tambah Resto</x-ui.button>
+                </x-ui.empty-state>
+            @endif
+        @endif
+    </div>
 
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                };
+    <div>{{ $umkms->links() }}</div>
+</div>
 
-                reader.readAsDataURL(input.files[0]);
-                imagePreview.classList.remove('hidden');
-            } else {
-                imagePreview.classList.add('hidden');
-            }
-        }
+{{-- Konfirmasi hapus resto (Figma: HAPUS RESTO). Action diisi JS sesuai baris --}}
+<x-ui.modal name="delete-umkm" tone="danger" title="Hapus resto ini?" description="Resto dan semua produknya dihapus permanen. Riwayat transaksi tidak ikut terhapus.">
+    <p class="rounded-xl bg-sunken px-3 py-2 text-[15px] font-semibold text-ink" id="delete-umkm-name">—</p>
+    <x-slot:actions>
+        <form method="POST" action="#" id="delete-umkm-form" class="contents">
+            @csrf
+            @method('DELETE')
+            <x-ui.button type="submit" variant="danger" block>Hapus</x-ui.button>
+        </form>
+        <x-ui.button variant="outline" data-modal-close block>Batal</x-ui.button>
+    </x-slot:actions>
+</x-ui.modal>
+@endsection
 
-        document.getElementById('umkmForm').addEventListener('submit', function(event) {
-            var inputs = this.querySelectorAll('input, textarea');
-            for (var i = 0; i < inputs.length; i++) {
-                if (inputs[i].value === '') {
-                    event.preventDefault();
-                    alert('Harap isi semua field sebelum submit!');
-                    return;
-                }
-            }
-        });
-    </script>
-    <script>
-        function confirmDelete(id, nama_umkm) {
-            var isConfirmed = confirm("Are you sure you want to delete " + id + ' ' + nama_umkm + "?");
-
-            if (isConfirmed) {
-                document.getElementById('deleteForm' + id).submit();
-            } else {
-                console.log("Deletion canceled.");
-            }
-        }
-    </script>
-    <script>
-        var autocomplete;
-
-        function initAutocomplete() {
-            var input = document.getElementById('autocomplete');
-
-            autocomplete = new google.maps.places.Autocomplete(input);
-
-            autocomplete.addListener('place_changed', function() {
-                var place = autocomplete.getPlace();
-                if (!place.geometry || !place.place_id) {
-                    alert("No details available for input: '" + place.name + "'");
-                    return;
-                }
-                var latitude = place.geometry.location.lat();
-                var longitude = place.geometry.location.lng();
-                var combinedLocation = `${latitude},${longitude}`;
-                var googleMapsLink = place.url;
-                console.log(googleMapsLink);
-                document.getElementById('link').value = googleMapsLink;
-                document.getElementById('geo').value = combinedLocation;
-            });
-        }
-    </script>
-    <script>
-        var editauto;
-        var edit;
-
-        function editUser(button) {
-            var id = button.getAttribute('data-id');
-            var nama_umkm = button.getAttribute('data-nama_umkm');
-            var alamat = button.getAttribute('data-alamat');
-            var dateOpen_Time = button.getAttribute('data-open_time'); // "2024-05-17 06:00:00"
-            var dateClose_Time = button.getAttribute('data-close_time'); // "2024-05-17 07:00:00"
-            var open_time = (dateOpen_Time || '').slice(11, 16); // "06:00"
-            var close_time = (dateClose_Time || '').slice(11, 16); // "07:00"
-            var no_telp_umkm = button.getAttribute('data-no_telp_umkm');
-            var vip = button.getAttribute('data-vip');
-            var link = button.getAttribute('data-link');
-            var geo = button.getAttribute('data-geo');
-
-            document.getElementById('edit_link').value = link;
-            document.getElementById('edit_nama_umkm').value = nama_umkm;
-            document.getElementById('edit_alamat').value = alamat;
-            document.getElementById('edit_open_time').value = open_time;
-            document.getElementById('edit_close_time').value = close_time;
-            document.getElementById('edit_no_telp_umkm').value = no_telp_umkm;
-            // Radio punya id ganda; centang yang sesuai, jangan menimpa value-nya
-            var vipRadio = document.querySelector('input[name="edit_vip"][value="' + vip + '"]');
-            if (vipRadio) {
-                vipRadio.checked = true;
-            }
-            document.getElementById('edit_geo').value = geo;
-
-            edit = document.getElementById('edit_alamat');
-            editauto = new google.maps.places.Autocomplete(edit);
-            editauto.addListener('place_changed', function() {
-                var place = editauto.getPlace();
-                console.log(place);
-                if (!place.geometry || !place.place_id) {
-                    alert("No details available for input: '" + place.name + "'");
-                    return;
-                }
-                var latitude = place.geometry.location.lat();
-                var longitude = place.geometry.location.lng();
-                var combinedLocation = `${latitude},${longitude}`;
-                var googleMapsLink = place.url;
-                console.log(googleMapsLink);
-                document.getElementById('edit_link').value = googleMapsLink;
-                document.getElementById('edit_geo').value = combinedLocation;
-            });
-
-            // Update the form action to point to the update route
-            var form = document.querySelector('#editForm');
-            form.action = '{{ route("umkmUpdate", ["id" => ":id"]) }}'.replace(':id', id);
-
-            // Show the modal
-            document.getElementById('modal-edit').classList.remove('hidden');
-        }
-    </script>
-
-    <style>
-        /* Style the "powered by Google" attribution */
-        .pac-container:after {
-            content: none !important;
-        }
-    </style>
-</x-app-layout>
+@push('js')
 <script>
-    document.querySelector('[data-bs-target="#umkmModal"]').addEventListener('click', function(event) {
-        event.preventDefault();
-        document.getElementById('modalumkm').classList.remove('hidden');
-    });
+document.getElementById('modal-delete-umkm').addEventListener('modal:opening', function (event) {
+    document.getElementById('delete-umkm-name').textContent = event.detail.nama;
+    document.getElementById('delete-umkm-form').action = event.detail.url;
+});
 </script>
+@endpush
