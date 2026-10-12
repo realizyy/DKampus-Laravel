@@ -79,4 +79,24 @@ class AddressOwnershipTest extends TestCase
         $this->actingAs($user)->post('/delete-address', ['id' => $mine->id])->assertRedirect();
         $this->assertNull($mine->fresh());
     }
+
+    public function test_address_without_a_maps_link_gets_a_search_link_from_the_text(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/daftar_alamat', ['address' => 'Jl. Tanpa Peta 5', 'namaAlamat' => 'Kost'])->assertRedirect();
+
+        $link = $user->addresses()->first()->link;
+        $this->assertStringContainsString('google.com/maps/search', $link);
+        $this->assertStringContainsString(urlencode('Jl. Tanpa Peta 5'), $link);
+    }
+
+    public function test_address_validation_errors_are_reported(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/daftar_alamat', ['address' => '', 'namaAlamat' => ''])
+            ->assertSessionHasErrors(['address', 'namaAlamat']);
+        $this->assertSame(0, $user->addresses()->count());
+    }
 }

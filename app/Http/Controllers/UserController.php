@@ -115,31 +115,32 @@ class UserController extends Controller
 
     public function daftarAlamat(Request $request)
     {
-        // dd($request->geo);
-        $userId = Auth::user()->id;
+        // Validasi di luar try/catch supaya galat tampil di form (sebelumnya ditelan lalu redirect diam-diam)
+        $request->validate([
+            'address' => 'required|string|max:500',
+            'namaAlamat' => 'required|string|max:100',
+            'link' => 'nullable|string',
+            'geo' => 'nullable|string|max:100',
+            'notes' => 'nullable|string|max:500',
+        ], [], ['address' => 'alamat lengkap', 'namaAlamat' => 'nama alamat']);
+
         try {
-            $validatedData = $request->validate([
-                'address' => 'required',
-                'link' => 'required',
-                'namaAlamat' => 'required',
-            ]);
             Addresse::create([
-                'user_id' => $userId,
+                'user_id' => Auth::id(),
                 'address' => $request->address,
-                'link' => $request->link,
+                // Tanpa Google Places, tautan peta dibuat dari teks alamat
+                'link' => $request->link ?: 'https://www.google.com/maps/search/?api=1&query='.urlencode($request->address),
                 'nama_alamat' => $request->namaAlamat,
                 'notes' => $request->notes,
                 'geo' => $request->geo,
                 'utama' => 0,
             ]);
-            return redirect()->back();
         } catch (\Exception $e) {
-            return redirect()->back();
+            return redirect()->back()->with('error2', 'Alamat belum bisa disimpan. Coba lagi.');
         }
+
+        return redirect()->back()->with('success', 'Alamat tersimpan.');
     }
-
-
-
 
     public function alamatUtama()
     {
