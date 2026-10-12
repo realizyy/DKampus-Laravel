@@ -1,177 +1,116 @@
-@extends('layouts.Root')
+@extends('layouts.courier')
+
+@section('page-title', 'Profil')
+
 @section('content')
-    @include('components.header.courierHeader')
-    <div class="bg-[#F0F3F8] flex flex-col items-center justify-center mb-48">
-        <div class="w-full h-full space-y-8 bg-white rounded-lg p-8">
-            {{-- Hasil ubah password / nomor telepon (modalnya tertutup, jadi pesan ditampilkan di sini) --}}
-            @if (session('status') === 'password-updated')
-                <div class="rounded-md bg-green-100 p-3 text-sm text-green-700">Password berhasil diubah.</div>
-            @elseif (session('status') === 'phone-updated')
-                <div class="rounded-md bg-green-100 p-3 text-sm text-green-700">Nomor telepon berhasil diubah.</div>
-            @endif
-            @if ($errors->updatePassword->any() || $errors->updatePhone->any())
-                <div class="rounded-md bg-red-100 p-3 text-sm text-red-700">
-                    <ul class="list-disc pl-5">
-                        @foreach (array_merge($errors->updatePassword->all(), $errors->updatePhone->all()) as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-            <div class="profile-section text-center">
-                <img class="w-24 h-24 rounded-full mx-auto object-cover" src="{{ asset('logoDkampus.png') }}" alt="Profil Picture">
-                <h2 class="text-2xl font-semibold mt-4">{{ Auth::user()->nama_user ?? 'null' }}</h2>
-                <p class="text-gray-600">{{ Auth::user()->email ?? 'null' }}</p>
-                <p class="text-gray-600">{{ Auth::user()->no_telp ?? 'null' }}</p>
-            </div>
+@php
+    $user = Auth::user();
+    $passwordErrors = $errors->updatePassword->all();
+    $phoneErrors = $errors->updatePhone->all();
+    $rows = [
+        ['icon' => 'key-round', 'label' => 'Ubah Kata Sandi', 'hint' => 'Ganti kata sandi akunmu', 'open' => 'password'],
+        ['icon' => 'phone', 'label' => 'Ubah Nomor Telepon', 'hint' => $user->no_telp ?? '-', 'open' => 'phone'],
+    ];
+@endphp
 
-            <div class="mt-8">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Pengaturan Akun</h3>
-                <div class="grid grid-cols-1 gap-4">
-                    <a href="#" class="bg-[#F9832A] hover:bg-[#F9832A] text-white font-bold py-2 px-4 rounded-md text-center" data-modal-show="ubahPasswordModal">
-                        Ubah Password
-                    </a>
-                    <a href="#" class="bg-[#F9832A] hover:bg-[#F9832A] text-white font-bold py-2 px-4 rounded-md text-center" data-modal-show="ubahNomorTeleponModal">
-                        Ubah Nomor Telepon
-                    </a>
-                    <a href="#" class="bg-gray-300 text-gray-500 py-2 px-4 rounded-md text-center cursor-not-allowed">
-                        Photo Profile (Segera hadir)
-                    </a>
-                </div>
-            </div>
+@if (session('status') === 'password-updated' || session('status') === 'phone-updated')
+    <div class="mb-4 flex items-center gap-2 rounded-xl bg-moss-100 p-3 text-[15px] font-semibold text-moss-700" role="status">
+        <x-ui.icon name="circle-check" class="size-5" />
+        {{ session('status') === 'password-updated' ? 'Kata sandi berhasil diubah.' : 'Nomor telepon berhasil diubah.' }}
+    </div>
+@endif
+@if ($passwordErrors || $phoneErrors)
+    <div class="mb-4 rounded-xl bg-brick-50 p-3 text-[15px] text-brick-700" role="alert">
+        <ul class="list-disc space-y-0.5 pl-5">
+            @foreach (array_merge($passwordErrors, $phoneErrors) as $error)<li>{{ $error }}</li>@endforeach
+        </ul>
+    </div>
+@endif
 
-            <div class="mt-8">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Seputar DKampus</h3>
-                <div class="grid grid-cols-1 gap-4">
-                    <a href="#" class="bg-[#F9832A] hover:bg-[#F9832A] text-white font-bold py-2 px-4 rounded-md text-center">
-                        Tentang Kami
-                    </a>
-                    <a href="#" class="bg-[#F9832A] hover:bg-[#F9832A] text-white font-bold py-2 px-4 rounded-md text-center">
-                        Hubungi Kami
-                    </a>
-                    <a href="#" class="bg-[#F9832A] hover:bg-[#F9832A] text-white font-bold py-2 px-4 rounded-md text-center">
-                        Syarat dan Ketentuan
-                    </a>
-                </div>
-            </div>
+<div class="grid items-start gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+    <x-ui.card class="flex flex-col items-center py-8 text-center" x-motion.rise>
+        <x-ui.avatar :name="$user->nama_user" size="xl" />
+        <h2 class="mt-4 font-display text-2xl font-extrabold tracking-tight text-ink">{{ $user->nama_user ?? '-' }}</h2>
+        <p class="mt-1 text-[15px] text-ink-500">{{ $user->email ?? '-' }}</p>
+        <p class="tnum font-mono text-sm text-ink-600">{{ $user->no_telp ?? '-' }}</p>
+        <x-ui.badge tone="brand" class="mt-3">Kurir DKampus</x-ui.badge>
+    </x-ui.card>
 
-            <div class="mt-8 text-center">
-                <form action="{{ route('logout') }}" method="post">
-                    @csrf
-                    <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md">
-                        Logout
+    <div class="space-y-4">
+        <section aria-labelledby="akun-title" x-motion.rise="{ delay: 0.05 }">
+            <h3 id="akun-title" class="mb-2 px-1 font-mono text-[11px] uppercase tracking-widest text-ink-500">Pengaturan Akun</h3>
+            <x-ui.card :padded="false" class="divide-y divide-line/70 overflow-hidden">
+                @foreach ($rows as $row)
+                    <button type="button" data-modal-open="{{ $row['open'] }}" class="ui-press flex w-full items-center gap-3 p-4 text-left hover:bg-sunken">
+                        <span class="grid size-10 place-items-center rounded-lg bg-brand-100 text-brand-800"><x-ui.icon :name="$row['icon']" class="size-5" /></span>
+                        <span class="min-w-0 flex-1"><span class="block font-semibold text-ink">{{ $row['label'] }}</span><span class="block truncate font-mono text-xs text-ink-500">{{ $row['hint'] }}</span></span>
+                        <x-ui.icon name="chevron-right" class="size-5 text-ink-400" />
                     </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- Modal Ubah Password --}}
-    <div id="ubahPasswordModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 bottom-0 z-50 hidden w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50">
-        <div class="relative w-full max-w-md max-h-full">
-            <div class="relative bg-white rounded-lg shadow">
-                <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" data-modal-hide="ubahPasswordModal">
-                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                    <span class="sr-only">Close modal</span>
-                </button>
-                <div class="py-6 px-6 lg:px-8">
-                    <h3 class="mb-4 text-xl font-medium text-gray-900">Ubah Password</h3>
-                    {{-- Memakai endpoint yang sudah ada (PasswordController::update, error bag "updatePassword") --}}
-                    <form class="space-y-6" method="POST" action="{{ route('password.update') }}">
-                        @csrf
-                        @method('PUT')
-                        <div class="flex flex-col space-y-1">
-                            <label for="password" class="text-sm font-medium text-gray-700">Password Lama</label>
-                            <input type="password" id="password" name="current_password" autocomplete="current-password" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div class="flex flex-col space-y-1">
-                            <label for="new-password" class="text-sm font-medium text-gray-700">Password Baru</label>
-                            <input type="password" id="new-password" name="password" autocomplete="new-password" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div class="flex flex-col space-y-1">
-                            <label for="confirm-password" class="text-sm font-medium text-gray-700">Konfirmasi Password Baru</label>
-                            <input type="password" id="confirm-password" name="password_confirmation" autocomplete="new-password" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div class="flex flex-row justify-end space-x-4">
-                            <button type="button" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-md" data-modal-hide="ubahPasswordModal">Batal</button>
-                            <button type="submit" class="bg-[#F9832A] hover:bg-[#F9832A] text-white font-semibold py-2 px-4 rounded-md">Simpan</button>
-                        </div>
-                    </form>
+                @endforeach
+                <div class="flex items-center gap-3 p-4 opacity-60" aria-disabled="true">
+                    <span class="grid size-10 place-items-center rounded-lg bg-sunken text-ink-500"><x-ui.icon name="camera" class="size-5" /></span>
+                    <span class="flex-1"><span class="block font-semibold text-ink">Foto Profil</span><span class="block font-mono text-xs text-ink-500">Segera hadir</span></span>
                 </div>
-            </div>
-        </div>
+            </x-ui.card>
+        </section>
+
+        <section aria-labelledby="seputar-title" x-motion.rise="{ delay: 0.1 }">
+            <h3 id="seputar-title" class="mb-2 px-1 font-mono text-[11px] uppercase tracking-widest text-ink-500">Seputar Dkampus</h3>
+            <x-ui.card :padded="false" class="divide-y divide-line/70 overflow-hidden">
+                @foreach ([['Tentang Kami', '/tentang-kami', 'info'], ['Syarat dan Ketentuan', '/syarat-ketentuan', 'file-text']] as [$label, $href, $icon])
+                    <a href="{{ $href }}" class="ui-press flex items-center gap-3 p-4 hover:bg-sunken">
+                        <span class="grid size-10 place-items-center rounded-lg bg-sunken text-ink-600"><x-ui.icon :name="$icon" class="size-5" /></span>
+                        <span class="flex-1 font-semibold text-ink">{{ $label }}</span>
+                        <x-ui.icon name="chevron-right" class="size-5 text-ink-400" />
+                    </a>
+                @endforeach
+            </x-ui.card>
+        </section>
+
+        <x-ui.button variant="danger-soft" icon="log-out" data-modal-open="logout" block>Logout</x-ui.button>
     </div>
+</div>
 
-    {{-- Modal Ubah Nomor Telepon --}}
-    <div id="ubahNomorTeleponModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 bottom-0 z-50 hidden w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50">
-        <div class="relative w-full max-w-md max-h-full">
-            <div class="relative bg-white rounded-lg shadow">
-                <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" data-modal-hide="ubahNomorTeleponModal">
-                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                    <span class="sr-only">Close modal</span>
-                </button>
-                <div class="py-6 px-6 lg:px-8">
-                    <h3 class="mb-4 text-xl font-medium text-gray-900">Ubah Nomor Telepon</h3>
-                    <form class="space-y-6" method="POST" action="{{ route('cour.profile.phone') }}">
-                        @csrf
-                        @method('PATCH')
-                        <div class="flex flex-col space-y-1">
-                            <label for="no-telp" class="text-sm font-medium text-gray-700">Nomor Telepon Baru</label>
-                            <input type="tel" id="no-telp" name="no_telp" value="{{ old('no_telp', Auth::user()->no_telp) }}" maxlength="13" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div class="flex flex-row justify-end space-x-4">
-                            <button type="button" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-md" data-modal-hide="ubahNomorTeleponModal">Batal</button>
-                            <button type="submit" class="bg-[#F9832A] hover:bg-[#F9832A] text-white font-semibold py-2 px-4 rounded-md">Simpan</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+<x-ui.modal name="password" size="md" title="Ubah Kata Sandi" icon="key-round">
+    <form class="space-y-4" method="POST" action="{{ route('password.update') }}">
+        @csrf
+        @method('PUT')
+        <x-ui.field label="Kata sandi lama" for="password" required>
+            <x-ui.input type="password" id="password" name="current_password" autocomplete="current-password" required />
+        </x-ui.field>
+        <x-ui.field label="Kata sandi baru" for="new-password" required>
+            <x-ui.input type="password" id="new-password" name="password" autocomplete="new-password" required />
+        </x-ui.field>
+        <x-ui.field label="Konfirmasi kata sandi baru" for="confirm-password" required>
+            <x-ui.input type="password" id="confirm-password" name="password_confirmation" autocomplete="new-password" required />
+        </x-ui.field>
+        <div class="flex flex-col gap-2 pt-1">
+            <x-ui.button type="submit" block>Simpan</x-ui.button>
+            <x-ui.button variant="outline" data-modal-close block>Batal</x-ui.button>
         </div>
-    </div>
-    @include('components.navbar.navbarCourier')
+    </form>
+</x-ui.modal>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const modalUbahPassword = document.getElementById('ubahPasswordModal');
-        const modalUbahNomorTelepon = document.getElementById('ubahNomorTeleponModal');
+<x-ui.modal name="phone" size="md" title="Ubah Nomor Telepon" icon="phone">
+    <form class="space-y-4" method="POST" action="{{ route('cour.profile.phone') }}">
+        @csrf
+        @method('PATCH')
+        <x-ui.field label="Nomor telepon baru" for="no-telp" required>
+            <x-ui.input type="tel" id="no-telp" name="no_telp" value="{{ old('no_telp', $user->no_telp) }}" maxlength="13" required />
+        </x-ui.field>
+        <div class="flex flex-col gap-2 pt-1">
+            <x-ui.button type="submit" block>Simpan</x-ui.button>
+            <x-ui.button variant="outline" data-modal-close block>Batal</x-ui.button>
+        </div>
+    </form>
+</x-ui.modal>
 
-        const modalUbahPasswordShow = Array.from(document.querySelectorAll('[data-modal-show="ubahPasswordModal"]'));
-        const modalUbahNomorTeleponShow = Array.from(document.querySelectorAll('[data-modal-show="ubahNomorTeleponModal"]'));
-
-        const modalUbahPasswordHide = Array.from(document.querySelectorAll('[data-modal-hide="ubahPasswordModal"]'));
-        const modalUbahNomorTeleponHide = Array.from(document.querySelectorAll('[data-modal-hide="ubahNomorTeleponModal"]'));
-
-        modalUbahPasswordShow.forEach((btn) => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                modalUbahPassword.classList.remove('hidden');
-                modalUbahPassword.classList.add('flex');
-            });
-        });
-
-        modalUbahNomorTeleponShow.forEach((btn) => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                modalUbahNomorTelepon.classList.remove('hidden');
-                modalUbahNomorTelepon.classList.add('flex');
-            });
-        });
-
-        modalUbahPasswordHide.forEach((btn) => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                modalUbahPassword.classList.remove('flex');
-                modalUbahPassword.classList.add('hidden');
-            });
-        });
-
-        modalUbahNomorTeleponHide.forEach((btn) => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                modalUbahNomorTelepon.classList.remove('flex');
-                modalUbahNomorTelepon.classList.add('hidden');
-            });
-        });
-    });
-</script>
+@if ($passwordErrors || $phoneErrors)
+    @push('js')
+        <script>
+            // Buka kembali modal yang formnya gagal divalidasi
+            document.addEventListener('DOMContentLoaded', function () { dkModal.open({{ $passwordErrors ? "'password'" : "'phone'" }}); });
+        </script>
+    @endpush
+@endif
 @endsection
