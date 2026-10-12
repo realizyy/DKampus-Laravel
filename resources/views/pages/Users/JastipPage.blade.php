@@ -1,334 +1,127 @@
-@extends('layouts.Root')
+@extends('layouts.customer')
+
+@php
+    $addresses = collect($AddressList ?? [])->map(fn ($a) => ['id' => $a['id'], 'name' => $a['nama_alamat'], 'address' => $a['address']])->values()->all();
+    $utama = $alamatUtama ?? null;
+@endphp
+
+@section('page-title', 'Jastip')
+@section('back', url('/'))
+@section('hide-nav', '1')
+
 @section('content')
-<header class="sticky top-0 left-0 flex justify-center w-full bg-white z-10">
-    {{-- Topbar --}}
-    @include('components.header.topbar')
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB3zz718wI8G9tqVt4YkjjRSv_YHg9yPag&libraries=places&callback=initAutocomplete" defer></script>
-</header>
-<main class="px-3 md:mx-2 md:mb-40">
-    <section class="bg-white rounded-lg shadow-md p-6 md:p-8 h-auto h-screen mb-28 overflow-y-auto">
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Dkampus Jasa Titip (Jastip)</h2>
+<form action="{{ route('jastip.order') }}" method="POST" class="mx-auto max-w-3xl space-y-5 pb-28 md:pb-0"
+      x-data="{
+          warungs: [{ name: '', items: [{ name: '', qty: 1 }] }],
+          addr: @js($utama ? ['id' => $utama->id, 'name' => $utama->nama_alamat] : ['id' => '', 'name' => 'Masukan Alamat']),
+          addItem(w) { w.items.push({ name: '', qty: 1 }) },
+          removeItem(w, i) { if (w.items.length > 1) w.items.splice(i, 1) },
+          addWarung() { this.warungs.push({ name: '', items: [{ name: '', qty: 1 }] }) },
+          removeWarung(i) { if (this.warungs.length > 1) this.warungs.splice(i, 1) },
+      }">
+    @csrf
+    <x-ui.page-header title="Dkampus Jasa Titip" subtitle="Titip beli makanan atau barang, kurir yang antar." class="hidden md:flex" />
+    <div class="md:hidden">
+        <p class="font-mono text-xs uppercase tracking-widest text-ink-500">Jastip</p>
+        <h1 class="font-display text-3xl font-extrabold leading-tight tracking-tightest text-ink">Dkampus Jasa Titip</h1>
+    </div>
 
-        <form action="{{ route('jastip.order') }}" method="POST">
-            @csrf
-            <div id="warungContainer">
-                {{-- Switch button untuk memilih jenis jastip apakah makanan/barang saja --}}
-                <div class="flex justify-between items-center mb-4">
-                    <label for="jenisJastip" class="block text-sm font-medium text-gray-700">Jenis Jastip:</label>
-                    <button type="button" role="switch" aria-checked="true" aria-labelledby="jenisJastip" class="relative inline-flex items-center cursor-pointer switch-button">
-                        <span class="mr-3 text-gray-700">Makanan</span>
-                        <input type="checkbox" name="jenisJastip" id="jenisJastip" value="makanan" checked class="sr-only">
-                        <span class="switch-track w-11 h-6 bg-[#F9832A] rounded-full p-0.5 flex items-center justify-start transition-colors duration-200 ease-in-out" aria-hidden="true">
-                            <span class="switch-thumb w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-200 ease-in-out"></span>
-                        </span>
-                        <span class="ml-3 text-gray-700">Barang</span>
-                    </button>
-                </div>
+    @if ($errors->any())
+        <div class="rounded-xl bg-brick-50 p-3 text-[15px] text-brick-700" role="alert"><ul class="list-disc space-y-0.5 pl-5">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
+    @endif
 
+    {{-- Jenis jastip --}}
+    <fieldset class="flex items-center justify-between gap-3">
+        <legend class="sr-only">Jenis Jastip</legend>
+        <span class="font-semibold text-ink-700">Jenis Jastip</span>
+        <div class="inline-flex rounded-xl bg-sunken p-1 shadow-inset">
+            @foreach (['makanan' => 'Makanan', 'barang' => 'Barang'] as $v => $label)
+                <label class="cursor-pointer">
+                    <input type="radio" name="jenisJastip" id="{{ $v === 'makanan' ? 'jenisJastip' : 'jenisJastipBarang' }}" value="{{ $v }}" class="peer sr-only" @checked(old('jenisJastip', 'makanan') === $v)>
+                    <span class="ui-press block min-w-24 rounded-lg px-4 py-2 text-center text-[15px] font-semibold text-ink-500 peer-checked:bg-surface peer-checked:text-ink peer-checked:shadow-card peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-brand-500">{{ $label }}</span>
+                </label>
+            @endforeach
+        </div>
+    </fieldset>
 
-                <div class="warung mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Warung:</label>
-                    <div class="flex item-center mb-2">
-                        <input type="text" name="warung[]" class="mt-1 p-2 w-full border rounded-md focus:ring focus:ring-opacity-50" placeholder="Nama UMKM pilihanmu" required>
-                        <button type="button" class="ml-2 bg-[#F9832A] hover:bg-[#d87525] text-white font-bold py-1 px-2 rounded-md" onclick="removeWarung(this)">-</button>
+    {{-- Warung dan menu --}}
+    <div id="warungContainer" class="space-y-4">
+        <template x-for="(w, wi) in warungs" :key="wi">
+            <x-ui.card class="warung space-y-4">
+                <div class="flex items-end gap-2">
+                    <div class="min-w-0 flex-1 space-y-1.5">
+                        <label class="block text-sm font-semibold text-ink-700" :for="'warung' + wi">Nama Warung</label>
+                        <x-ui.input ::id="'warung' + wi" name="warung[]" x-model="w.name" placeholder="Nama UMKM pilihanmu" required />
                     </div>
-
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Menu/Barang:</label>
-                    <div class="menuContainer">
-                        <div class="menu flex items-center mb-2">
-                            <input type="text" name="nama_menu[0][]" placeholder="Nama Menu/Barang" class="mt-1 p-2 w-full border rounded-md focus:ring focus:ring-opacity-50" required>
-                            <input type="number" name="kuantitas[0][]" placeholder="Jumlah" min="1" class="mt-1 p-2 ml-2 w-20 border rounded-md focus:ring focus:ring-opacity-50" required>
-                            <button type="button" class="ml-2 bg-[#F9832A] hover:bg-[#d87525] text-white font-bold py-1 px-2 rounded-md" onclick="removeMenu(this)">-</button>
+                    <x-ui.button variant="ghost" class="!px-0 size-12 shrink-0" x-show="warungs.length > 1" @click="removeWarung(wi)" aria-label="Hapus warung"><x-ui.icon name="trash-2" class="size-5" /></x-ui.button>
+                </div>
+                <div class="menuContainer space-y-2">
+                    <p class="text-sm font-semibold text-ink-700">Menu / Barang</p>
+                    <template x-for="(it, ii) in w.items" :key="ii">
+                        <div class="menu flex items-center gap-2">
+                            <input type="text" :name="'nama_menu[' + wi + '][]'" x-model="it.name" placeholder="Nama Menu/Barang" required class="block h-12 min-w-0 flex-1 rounded-xl border-0 bg-surface px-4 text-[15px] text-ink shadow-inset ring-1 ring-inset ring-line placeholder:text-ink-400 hover:ring-line-strong focus:ring-2 focus:ring-brand-600">
+                            <input type="number" :name="'kuantitas[' + wi + '][]'" x-model.number="it.qty" min="1" placeholder="Jumlah" required aria-label="Jumlah" class="tnum block h-12 w-20 rounded-xl border-0 bg-surface px-3 text-center font-mono text-[15px] text-ink shadow-inset ring-1 ring-inset ring-line hover:ring-line-strong focus:ring-2 focus:ring-brand-600">
+                            <x-ui.button variant="ghost" class="!px-0 size-12 shrink-0" x-show="w.items.length > 1" @click="removeItem(w, ii)" aria-label="Hapus menu"><x-ui.icon name="minus" class="size-5" /></x-ui.button>
                         </div>
-                    </div>
-                    <button type="button" class="mb-4 bg-[#F9832A] hover:bg-[#d87525] text-white font-bold py-2 px-4 rounded-md" onclick="addMenu(this, this.dataset.index)" data-index="0">Tambah Menu/Barang</button>
+                    </template>
+                    <x-ui.button variant="soft" size="sm" icon="plus" @click="addItem(w)">Tambah Menu</x-ui.button>
                 </div>
-            </div>
-            <button type="button" class="mb-4 bg-[#F9832A] hover:bg-[#d87525] text-white font-bold py-2 px-4 rounded-md" onclick="addWarung()">Tambah Warung</button>
+            </x-ui.card>
+        </template>
+        <x-ui.button variant="secondary" icon="plus" @click="addWarung()">Tambah Warung</x-ui.button>
+    </div>
 
-            <div class="mb-4">
-                <label for="alamat" class="block text-sm font-medium text-gray-700">Alamat Warung:</label>
-                <input type="text" id="alamat" name="alamat" class="mt-1 p-2 w-full border rounded-md focus:ring focus:ring-opacity-50">
-                <input type="text" id="geo" name="geo" class="hidden">
-                <input type="text" id="link" name="link" class="hidden">
-                <script>
-                    var autocomplete;
+    <x-ui.card class="space-y-4">
+        <x-ui.field label="Alamat Warung" for="alamat" hint="Cari alamat warung agar jarak dan ongkir akurat.">
+            <x-ui.input id="alamat" name="alamat" icon="map-pin" placeholder="Ketik untuk mencari alamat" autocomplete="off" />
+        </x-ui.field>
+        <input type="hidden" id="geo" name="geo">
+        <input type="hidden" id="link" name="link">
+        <x-ui.field label="Catatan" for="catatan"><x-ui.textarea id="catatan" name="catatan" placeholder="Opsional"></x-ui.textarea></x-ui.field>
+    </x-ui.card>
 
-                    function initAutocomplete() {
-                        var input = document.getElementById('alamat');
-                        autocomplete = new google.maps.places.Autocomplete(input);
+    {{-- Alamat tujuan + kirim --}}
+    <input type="hidden" id="selected_address_id" name="selected_address_id" :value="addr.id">
+    <div class="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur md:static md:z-auto md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
+        <div class="mx-auto flex max-w-3xl items-center gap-3">
+            <button type="button" id="alamatshow" data-modal-open="alamat-jastip" class="ui-press flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-surface p-2.5 text-left shadow-card hover:bg-sunken">
+                <span class="grid size-9 shrink-0 place-items-center rounded-lg bg-brand-100 text-brand-800"><x-ui.icon name="map-pin" class="size-[18px]" /></span>
+                <span class="min-w-0 flex-1"><span class="block font-mono text-[10px] uppercase tracking-widest text-ink-500">Diantar ke</span><span class="block truncate text-[15px] font-semibold text-ink" id="selected_address" x-text="addr.name"></span></span>
+            </button>
+            <x-ui.button type="submit" size="lg" class="shrink-0">Kirim</x-ui.button>
+        </div>
+    </div>
 
-                        autocomplete.addListener('place_changed', function() {
-                            var place = autocomplete.getPlace();
-                            if (!place.geometry || !place.place_id) {
-                                alert("No details available for input: '" + place.name + "'");
-                                return;
-                            }
-                            var latitude = place.geometry.location.lat();
-                            var longitude = place.geometry.location.lng();
-                            var combinedLocation = `${latitude},${longitude}`;
-                            console.log(combinedLocation, latitude, longitude);
-                            var googleMapsLink = place.url;
-                            console.log(googleMapsLink);
-                            document.getElementById('link').value = googleMapsLink;
-                            $('#geo').val(combinedLocation);
-                        });
-                    }
-                </script>
-                {{-- Notes info --}}
-                <span class="text-xs text-gray-500">*Masukan alamat lengkap warung yang dituju, dan jika lebih dari 1 warung tolong yang searah antar warung</span>
-            </div>
-
-            <div class="mb-6">
-                <label for="catatan" class="block text-sm font-medium text-gray-700">Catatan Tambahan:</label>
-                <textarea id="catatan" name="catatan" rows="3" class="mt-1 p-2 w-full border rounded-md focus:ring focus:ring-opacity-50"></textarea>
-                {{-- Notes info --}}
-                <span class="text-xs text-gray-500">*Catatan tambahan untuk driver, seperti menu/lokasi warung/lokasi pengantaran.</span>
-            </div>
-
-            <div class="flex justify-between items-center">
-                <a id="alamatshow" class="flex flex-row gap-3 items-center border-2 border-[#F9832A] p-3 h-12 rounded-lg">
-                    <img src="/Map.svg" alt="" class="w-6">
-                    <div id="desc" class="flex flex-row gap-2 items-center">
-                        @if ($alamatUtama !== null)
-                        <h1 class="text-[#5e5e5e] font-medium" id="selected_address">{{ $alamatUtama->nama_alamat }}</h1>
-                        <input type="text" class="hidden" id="selected_address_id" name="selected_address_id" value="{{ $alamatUtama->id }}">
-                        @else
-                        <h1 class="text-[#5e5e5e] font-medium" id="selected_address">Masukan Alamat</h1>
-                        <input type="text" class="hidden" id="selected_address_id" name="selected_address_id" value="">
-                        @endif
-                        <img src="/ArrowTop.svg" alt="">
-                    </div>
-                </a>
-                <button type="submit" class="bg-[#F9832A] hover:bg-[#d87525] text-white font-bold py-2 px-4 rounded-md">
-                    Kirim
-                </button>
-            </div>
-
-            <div id="overlayAddNewAddress" onclick="renderHideListAddress()" class="bg-black/10 transition-all duration-500 invisible opacity-0 -z-10 h-screen w-full absolute top-0 left-0"></div>
-            <div id="addNewAddress" class="w-[85%] sm:w-full md:w-[28rem] pt-5 pb-14 flex flex-col items-center gap-5 border overflow-auto fixed h-0 bg-white rounded-3xl -bottom-96 transition-all duration-500 shadow-top-for-total-harga">
-                @if ($AddressList !== null)
-                @forelse ($AddressList as $Item)
-                <div class="flex flex-row items-end gap-10 border-b-2 pb-2 w-[85%] sm:w-full md:w-[28rem]">
-                    <a class="address-button flex flex-col gap-2" onclick="renderHideListAddress()" data-id="{{ $Item['id'] }}" data-name="{{ $Item['nama_alamat'] }}">
-                        <h1 class=" font-semibold text-lg">{{ $Item['nama_alamat'] }}</h1>
-                        <div id="location" class="flex flex-row gap-2 items-center">
-                            <img src="/markLocation.svg" alt="" class="w-5">
-                            <h1 class="text-wrapper-location">{{ $Item['address'] }}</h1>
-                        </div>
-                    </a>
-                    <img src="/edit.svg" alt="" class="w-5">
-                </div>
-                @empty
-                <h1 class=" font-semibold text-lg">Silahkan Tambahkan Alamat</h1>
-                <a href="/daftar-alamat" class="btn flex items-center gap-x-2 bg-orange-500 text-white px-3 py-2 rounded-md shadow-md">
-                    <h1 class="font-bold text-white text-md">Tambah Alamat</h1>
-                </a>
-                @endforelse
-                @endif
-            </div>
-        </form>
-    </section>
-</main>
-<footer class="fixed bottom-0 left-0 w-full bg-white z-10">
-    {{-- Bottombar --}}
-    @include('components.navbar.navbar')
-</footer>
+    <x-ui.modal name="alamat-jastip" size="md" icon="map-pin" title="Alamat Pengantaran" description="Pilih alamat tujuan pesananmu.">
+        @if (count($addresses))
+            <ul class="space-y-2">
+                @foreach ($addresses as $a)
+                    <li><button type="button" class="address-button ui-press flex w-full items-start gap-3 rounded-xl p-3 text-left shadow-hairline hover:bg-sunken" data-id="{{ $a['id'] }}" data-name="{{ $a['name'] }}" @click="addr = { id: '{{ $a['id'] }}', name: @js($a['name']) }; dkModal.close('alamat-jastip')">
+                        <x-ui.icon name="map-pin" class="mt-0.5 size-5 shrink-0 text-brand-600" /><span class="min-w-0"><span class="block font-semibold text-ink">{{ $a['name'] }}</span><span class="block text-sm text-ink-500">{{ $a['address'] }}</span></span>
+                    </button></li>
+                @endforeach
+            </ul>
+        @else
+            <p class="text-[15px] text-ink-600">Silahkan tambahkan alamat dulu.</p>
+        @endif
+        <x-slot:actions><x-ui.button :href="url('/daftar-alamat')" variant="secondary" icon="plus" block>Tambah / Kelola Alamat</x-ui.button></x-slot:actions>
+    </x-ui.modal>
+</form>
 @endsection
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+@push('js')
+<x-customer.maps-script />
 <script>
-    function renderHideListAddress() {
-        const listAddNewAddress = document.getElementById("addNewAddress");
-        const overlayAddNewAddress = document.getElementById("overlayAddNewAddress");
-
-        if (listAddNewAddress && overlayAddNewAddress) {
-            listAddNewAddress.style.height = "0rem";
-            listAddNewAddress.style.bottom = "-99rem";
-
-            document.body.style.overflow = "auto";
-
-            overlayAddNewAddress.style.visibility = "invisible";
-            overlayAddNewAddress.style.opacity = "0";
-            overlayAddNewAddress.style.zIndex = "-10";
-        }
-    }
-
-    $(document).ready(function() {
-        const listAddNewAddress = document.getElementById("addNewAddress");
-        const overlayAddNewAddress = document.getElementById("overlayAddNewAddress");
-        const ToggleAddress = document.getElementById("alamatshow");
-        //disable sidebar menu and hide remove
-        let sidebar = document.querySelector('button[onclick="showMenu()"]');
-        sidebar.remove();
-
-        const state = {
-            condition: false,
-            count: 1,
-        };
-
-        function renderShowListAddress() {
-            if (state.condition) {
-                listAddNewAddress.style.height = "24rem";
-                listAddNewAddress.style.bottom = "10rem";
-
-                document.body.style.overflow = "hidden";
-
-                overlayAddNewAddress.style.visibility = "visible";
-                overlayAddNewAddress.style.opacity = "100";
-                overlayAddNewAddress.style.zIndex = "0";
-            } else {
-                renderHideListAddress();
-            }
-        }
-
-        function toggleState() {
-            state.condition = !state.condition;
-            renderShowListAddress();
-        }
-
-        if (overlayAddNewAddress && ToggleAddress) {
-            overlayAddNewAddress.addEventListener("click", toggleState);
-            ToggleAddress.addEventListener("click", toggleState);
-        }
-    });
-
-    function addMenu(button, warungIndex) {
-        const menuContainer = button.closest('.warung').querySelector('.menuContainer');
-        const newMenuInput = document.createElement('div');
-        newMenuInput.classList.add('menu', 'flex', 'items-center', 'mb-2');
-        newMenuInput.innerHTML = `
-        <input type="text" name="nama_menu[${warungIndex}][]" placeholder="Nama Menu/Barang" class="mt-1 p-2 w-full border rounded-md focus:ring focus:ring-opacity-50" required>
-        <input type="number" name="kuantitas[${warungIndex}][]" placeholder="Jumlah" min="1" class="mt-1 p-2 ml-2 w-20 border rounded-md focus:ring focus:ring-opacity-50" required>
-        <button type="button" class="ml-2 bg-[#F9832A] hover:bg-[#d87525] text-white font-bold py-1 px-2 rounded-md" onclick="removeMenu(this)">-</button>
-    `;
-        menuContainer.appendChild(newMenuInput);
-    }
-
-    function removeMenu(button) {
-        button.parentNode.remove();
-    }
-
-    let warungIndex = 1;
-
-    function removeWarung(button) {
-        const warungElement = button.parentNode.parentNode;
-        warungElement.remove();
-        warungIndex--;
-        if (warungIndex != 4) {
-            let buttonAddWarung = document.querySelector('button[onclick="addWarung()"]');
-            buttonAddWarung.disabled = false;
-            buttonAddWarung.className = 'mb-4 bg-[#F9832A] hover:bg-[#d87525] text-white font-bold py-2 px-4 rounded-md';
-        }
-    }
-
-
-    function addWarung() {
-        const warungContainer = document.getElementById('warungContainer');
-        const newWarungInput = document.createElement('div');
-        newWarungInput.classList.add('warung', 'mb-4');
-        //limit if warungIndex > 4
-        try {
-            if (warungIndex < 4) {
-                newWarungInput.innerHTML = `
-                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Warung:</label>
-                <div class="flex item-center mb-2">
-                    <input type="text" name="warung[]" class="mt-1 p-2 w-full border rounded-md focus:ring focus:ring-opacity-50" placeholder="Nama UMKM pilihanmu" required>
-                    <button type="button" class="ml-2 bg-[#F9832A] hover:bg-[#d87525] text-white font-bold py-1 px-2 rounded-md" onclick="removeWarung(this)">-</button>
-                </div>
-
-                <label class="block text-sm font-medium text-gray-700 mb-2">Menu/Barang:</label>
-                <div class="menuContainer">
-                    <div class="menu flex items-center mb-2">
-                        <input type="text" name="nama_menu[${warungIndex}][]" placeholder="Nama Menu/Barang" class="mt-1 p-2 w-full border rounded-md focus:ring focus:ring-opacity-50" required>
-                        <input type="number" name="kuantitas[${warungIndex}][]" placeholder="Jumlah" min="1" class="mt-1 p-2 ml-2 w-20 border rounded-md focus:ring focus:ring-opacity-50" required>
-                        <button type="button" class="ml-2 bg-[#F9832A] hover:bg-[#d87525] text-white font-bold py-1 px-2 rounded-md" onclick="removeMenu(this)">-</button>
-                    </div>
-                </div>
-                <button type="button" class="mb-4 bg-[#F9832A] hover:bg-[#d87525] text-white font-bold py-2 px-4 rounded-md" onclick="addMenu(this, this.dataset.index)" data-index="${warungIndex}">Tambah Menu/Barang</button>
-            `;
-                warungContainer.appendChild(newWarungInput);
-                warungIndex++;
-            } else {
-                //disable button add warung
-                let buttonAddWarung = document.querySelector('button[onclick="addWarung()"]');
-                buttonAddWarung.disabled = true;
-                buttonAddWarung.classList.add('bg-gray-300', 'cursor-not-allowed');
-                throw new Error('Limit of warung has been reached');
-            }
-        } catch (error) {}
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const addressButtons = document.querySelectorAll('.address-button');
-        const selectedAddressElement = document.getElementById('selected_address');
-        const selectedAddressIdInput = document.getElementById('selected_address_id');
-
-        addressButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const addressName = this.getAttribute('data-name');
-                const addressId = this.getAttribute('data-id');
-
-                selectedAddressElement.textContent = addressName;
-
-                selectedAddressIdInput.value = addressId;
-            });
+    // Google Places untuk alamat warung (aktif bila GOOGLE_MAPS_API_KEY terisi)
+    function initAutocomplete() {
+        var autocomplete = new google.maps.places.Autocomplete(document.getElementById('alamat'));
+        autocomplete.addListener('place_changed', function () {
+            var place = autocomplete.getPlace();
+            if (!place.geometry || !place.place_id) return;
+            document.getElementById('geo').value = place.geometry.location.lat() + ',' + place.geometry.location.lng();
+            document.getElementById('link').value = place.url || '';
         });
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const switchButton = document.querySelector('.switch-button');
-        const switchTrack = switchButton.querySelector('.switch-track');
-        const switchThumb = switchButton.querySelector('.switch-thumb');
-        const switchValue = document.getElementById('jenisJastip');
-
-        switchButton.addEventListener('click', () => {
-            const isChecked = switchButton.getAttribute('aria-checked') === 'true';
-            switchButton.setAttribute('aria-checked', !isChecked);
-
-            if (!isChecked) {
-                switchTrack.classList.add('bg-[#F9832A]');
-                switchThumb.style.transform = 'translateX(calc(100% - 1.25rem))';
-                switchValue.value = 'makanan';
-            } else {
-                switchThumb.style.transform = 'translateX(100%)';
-                switchValue.value = 'barang';
-            }
-        });
-    });
+    }
+    window.initAutocomplete = initAutocomplete;
 </script>
-<style>
-    /* Style the "powered by Google" attribution */
-    .pac-container:after {
-        content: none !important;
-    }
-
-    /* Add this to your CSS file or <style> tag */
-    .switch-button:focus .switch-track,
-    .switch-button:focus-visible .switch-track {
-        /* Style focus state */
-        box-shadow: 0 0 0 3px rgba(249, 131, 42, 0.4);
-    }
-
-    /* Ensure the address is fully visible */
-    .pac-item {
-        white-space: normal;
-        line-height: 1.5;
-    }
-
-    /* Adjust the container to allow more space for the address */
-    .pac-container {
-        max-height: 400px;
-        /* Adjust the height as needed */
-        overflow-y: auto;
-    }
-
-    /* Hide the location icon on the left side of the address suggestions */
-    .pac-item .pac-icon {
-        display: none;
-    }
-
-    /* Optional: Better spacing for address items */
-    .pac-item-query {
-        margin-bottom: 5px;
-    }
-</style>
+@endpush
