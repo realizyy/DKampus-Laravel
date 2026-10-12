@@ -1,298 +1,210 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Transaction') }}
-        </h2>
-    </x-slot>
+@extends('layouts.admin')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <div class="flex justify-between items-center mb-4">
-                        <h1 class="text-2xl font-bold">List Transaction</h1>
-                        <a href="{{ url('/spreadsheets') }}" class="text-blue-500 hover:text-blue-700">Spreadsheets</a>
-                    </div>
+@php
+    // Tiga sumber disatukan: Firebase needToDeliver (menunggu driver), Firebase onProgress (berjalan), tabel histories (riwayat)
+    $rows = collect();
+    $fromFirebase = function ($nodes, string $source) use ($rows) {
+        foreach ((array) $nodes as $d) {
+            $d = (array) $d;
+            $order = (string) \Illuminate\Support\Arr::get($d, 'orderID', '');
+            $ongkir = (int) \Illuminate\Support\Arr::get($d, 'ongkir', 0);
+            $status = (string) \Illuminate\Support\Arr::get($d, 'status', '');
+            $rows->push([
+                'order' => $order,
+                'date' => (string) \Illuminate\Support\Arr::get($d, 'timestamp', ''),
+                'user' => (string) \Illuminate\Support\Arr::get($d, 'nama_penerima', '—'),
+                'cour' => $source === 'ntd' ? 'Belum diambil' : (string) (\Illuminate\Support\Arr::get($d, 'cour_name') ?? \Illuminate\Support\Arr::get($d, 'nama_kurir') ?? '—'),
+                'umkm' => (string) (\Illuminate\Support\Arr::get($d, 'nama_umkm') ?? \Illuminate\Support\Arr::get($d, 'umkm') ?? '—'),
+                'ongkir' => $ongkir,
+                'total' => (int) \Illuminate\Support\Arr::get($d, 'total', 0) + $ongkir,
+                'jarak' => (float) \Illuminate\Support\Arr::get($d, 'jarak', 0),
+                'status' => $status,
+                'bukti' => ! empty($d['bukti']) ? Storage::url('public/payment/'.$d['bukti']) : null,
+                'bukti_akhir' => null,
+            ]);
+        }
+    };
+    $fromFirebase($dataNTD ?? [], 'ntd');
+    $fromFirebase($dataOP ?? [], 'op');
+    foreach (collect($datas ?? [])->sortByDesc('created_at') as $h) {
+        $rows->push([
+            'order' => (string) $h->order_id,
+            'date' => (string) $h->created_at,
+            'user' => (string) ($h->customer->nama_user ?? 'Akun dihapus'),
+            'cour' => (string) ($h->courier->nama_user ?? 'Akun dihapus'),
+            'umkm' => (string) (\App\Models\Data_umkm::find($h->umkm_id)->nama_umkm ?? 'Jastip'),
+            'ongkir' => (int) $h->ongkir,
+            'total' => (int) $h->harga + (int) $h->ongkir,
+            'jarak' => (float) $h->jarak,
+            'status' => (string) $h->status,
+            'bukti' => $h->bukti ? Storage::url('public/payment/'.$h->bukti) : null,
+            'bukti_akhir' => $h->bukti_akhir ? Storage::url('public/payment/driver/'.$h->bukti_akhir) : null,
+        ]);
+    }
 
-                    {{--Table data--}}
-                    <div class="overflow-auto">
-                        <table class="table w-full divide-y divide-gray-200 space-x-4">
-                            <thead>
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Transaction ID</th>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Date</th>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Total</th>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Payment</th>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Status</th>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if ($dataNTD !== null)
-                                @foreach($dataNTD as $key => $data)
-                                <tr>
-                                    <td class="uppercase">#TRX{{ucfirst(substr($data['orderID'], 0, 10))}}</td>
-                                    <td class="text-center">{{ $data['timestamp'] }}</td>
-                                    <td class="text-center">
-                                        Rp. {{number_format($data['total'] + $data['ongkir']), 0, ',', '.' }}
-                                    </td>
-                                    <td class="text-center">QRIS</td>
-                                    <td class="text-center">
-                                        @if ($data['status'] == 'completed')
-                                        <span class="text-green-400 font-bold">{{ ucfirst($data['status']) }}</span>
-                                        @elseif ($data['status'] == 'on Delivery' || $data['status'] == 'searching')
-                                        <span class="text-yellow-400 font-bold">{{ ucfirst($data['status']) }}</span>
-                                        @else
-                                        <span class="text-red-400 font-bold">{{ ucfirst($data['status']) }}</span>
-                                        @endif
-                                    <td class="text-center">
-                                        @php $total_ongkir = $data['total'] + $data['ongkir'] @endphp
-                                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline detail-button" data-order-id="{{ $data['orderID'] }}" data-date="{{ $data['timestamp'] }}" data-total="{{ $total_ongkir }}" data-payment="QRIS" data-status="{{ $data['status'] }}" data-bukti="{{ null }}" data-user="{{ $data['nama_penerima'] }}" data-cour="Not Taken Yet" data-jarak="{{ $data['jarak'] }}" data-bukti-akhir="{{ null }}">
-                                            Details
-                                        </button>
-                                    </td>
-                                </tr>
-                                @endforeach
-                                @endif
+    // Kelompok status untuk filter: berjalan / selesai / batal
+    $group = function (string $status): string {
+        $key = strtolower(trim($status));
+        return match (true) {
+            in_array($key, ['completed', 'selesai'], true) => 'done',
+            in_array($key, ['canceled', 'cancelled', 'batal', 'dibatalkan'], true) => 'cancel',
+            default => 'running',
+        };
+    };
+    $rows = $rows->map(fn ($r) => $r + ['group' => $group($r['status']), 'code' => '#TRX'.strtoupper(substr($r['order'], 0, 10))])->values();
+    $counts = $rows->countBy('group');
+    $index = $rows->map(fn ($r, $i) => ['i' => $i, 'group' => $r['group'], 'hay' => mb_strtolower($r['code'].' '.$r['user'].' '.$r['cour'].' '.$r['umkm'])]);
+    $grid = 'md:grid-cols-[8.5rem_minmax(0,1.4fr)_minmax(0,1.2fr)_9rem_8.5rem_5.5rem]';
+    $money = fn ($n) => 'Rp '.number_format($n, 0, ',', '.');
+@endphp
 
-                                @if ($dataOP !== null)
-                                @foreach($dataOP as $key => $data)
-                                <tr>
-                                    <td>#TRX{{ucfirst(substr($data['orderID'], 0, 10))}}</td>
-                                    <td class=" text-center">{{ $data['timestamp'] }}
-                                    </td>
-                                    <td class="text-center">
-                                        Rp. {{number_format($data['total'] + $data['ongkir']), 0, ',', '.' }}
-                                    </td>
-                                    <td class="text-center">QRIS</td>
-                                    <td class="text-center">
-                                        @if ($data['status'] == 'completed')
-                                        <span class="text-green-400 font-bold">{{ ucfirst($data['status']) }}</span>
-                                        @elseif ($data['status'] == 'on Delivery')
-                                        <span class="text-yellow-400 font-bold">{{ ucfirst($data['status']) }}</span>
-                                        @else
-                                        <span class="text-red-400 font-bold">{{ ucfirst($data['status']) }}</span>
-                                        @endif
-                                    <td class="text-center">
-                                        @php $total_ongkir = $data['total'] + $data['ongkir'] @endphp
-                                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline detail-button" data-order-id="{{ $data['orderID'] }}" data-date="{{ $data['timestamp'] }}" data-total="{{ $total_ongkir }}" data-payment="QRIS" data-status="{{ $data['status'] }}" data-bukti="{{ isset($data['bukti']) ? Storage::url('public/payment/' . $data['bukti']) : null }}" data-user="{{ $data['nama_penerima'] }}" data-cour="{{ null }}" data-jarak="{{ $data['jarak'] }}" data-bukti-akhir="{{ null }}">
-                                            Details
-                                        </button>
-                                    </td>
-                                </tr>
-                                @endforeach
-                                @endif
+@section('page-title', 'Transaksi')
+@section('subtitle', 'Pesanan yang menunggu driver, sedang diantar, dan riwayatnya.')
 
-                                @if ($datas !== null)
-                                @foreach($datas->sortByDesc('created_at') as $key => $data)
-                                <tr>
-                                    <td class=" uppercase">#TRX{{substr($data->order_id, 0, 10)}}
-                                    </td>
-                                    <td class=" text-center">{{ $data->created_at }}
-                                    </td>
-                                    <td class="text-center">
-                                        Rp. {{number_format($data->harga + $data->ongkir), 0, ',', '.' }}
-                                    </td>
-                                    <td class="text-center">QRIS</td>
-                                    <td class="text-center">
-                                        @if ($data->status == 'completed')
-                                        <span class="text-green-400 font-bold">{{ ucfirst($data->status) }}</span>
-                                        @elseif ($data->status == 'Pending')
-                                        <span class="text-yellow-400 font-bold">{{ ucfirst($data->status) }}</span>
-                                        @else
-                                        <span class="text-red-400 font-bold">{{ ucfirst($data->status) }}</span>
-                                        @endif
-                                    <td class="text-center">
-                                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline detail-button" data-order-id="{{ $data->order_id }}" data-date="{{ $data->created_at }}" data-total="{{ $data->harga + $data->ongkir }}" data-ongkir="{{$data->ongkir}}" data-umkm="{{\App\Models\Data_umkm::find($data->umkm_id)->nama_umkm ?? 'Jastip'}}" data-payment="QRIS" data-status="{{ $data->status }}" data-bukti="{{ Storage::url('public/payment/' . $data['bukti']) }}" data-user="{{ $data->customer->nama_user ?? 'cek' }}" data-cour="{{ $data->courier->nama_user ?? 'cek' }}" data-jarak="{{ $data->jarak }}" data-bukti-akhir="{{ Storage::url('public/payment/driver/' . $data['bukti_akhir']) }}">
-                                            Details
-                                        </button>
-                                    </td>
-                                </tr>
-                                @endforeach
-                                @endif
-                                @if ($dataNTD == null && $dataOP == null && $datas == null)
-                                <tr>
-                                    <td colspan="6" class="text-center">No data available</td>
-                                </tr>
-                                @endif
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+@section('header-actions')
+    <x-ui.button :href="url('/spreadsheets')" variant="secondary" size="sm" icon="external-link"><span class="hidden sm:inline">Buka Spreadsheet</span><span class="sm:hidden">Sheet</span></x-ui.button>
+@endsection
+
+@section('content')
+<div x-data="trxList(@js($index))" class="space-y-4">
+    <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div class="lg:w-96">
+            <x-ui.input type="search" icon="search" x-model="q" placeholder="Cari Order ID, nama, atau resto" aria-label="Cari transaksi" autocomplete="off" />
         </div>
-        {{-- modal detail transaction --}}
-        <div class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-detail" role="dialog" aria-modal="true" id="modal-edit">
-            <div class="flex items end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-                    <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <div class="sm:flex sm:items-start">
-                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                                <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-200" id="modal-headline">
-                                    Details Transaction
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label for="orderID" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Order ID</label>
-                                <p id="orderID" class="mt-1 text-sm text-gray-900 dark:text-gray-200 truncate"></p>
-                            </div>
-                            <div>
-                                <label for="date" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Date</label>
-                                <p id="date" class="mt-1 text-sm text-gray-900 dark:text-gray-200"></p>
-                            </div>
-                            <div>
-                                <label for="orderBy" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Ordered by</label>
-                                <p id="orderBy" class="mt-1 text-sm text-gray-900 dark:text-gray-200"></p>
-                            </div>
-                            <div>
-                                <label for="takenBy" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Taken by</label>
-                                <p id="takenBy" class="mt-1 text-sm text-gray-900 dark:text-gray-200"></p>
-                            </div>
-                            <div>
-                                <label for="ongkir" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Ongkir</label>
-                                <p id="ongkir" class="mt-1 text-sm text-gray-900 dark:text-gray-200"></p>
-                            </div>
-                            <div>
-                                <label for="total" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Total</label>
-                                <p id="total" class="mt-1 text-sm text-gray-900 dark:text-gray-200"></p>
-                            </div>
-                            <div>
-                                <label for="umkm" class="block text-sm font-medium text-gray-700 dark:text-gray-200">UMKM</label>
-                                <p id="umkm" class="mt-1 text-sm text-gray-900 dark:text-gray-200"></p>
-                            </div>
-                            <div>
-                                <label for="payment" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Payment</label>
-                                <p id="payment" class="mt-1 text-sm text-gray-900 dark:text-gray-200"></p>
-                            </div>
-                            <div>
-                                <label for="jarak" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Distance</label>
-                                <p id="jarak" class="mt-1 text-sm text-gray-900 dark:text-gray-200"></p>
-                            </div>
-                            <div>
-                                <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Status</label>
-                                <p id="status" class="mt-1 text-sm text-gray-900 dark:text-gray-200"></p>
-                            </div>
-                            {{-- button untuk melihat image dari bukti pembayaran transaksi --}}
-                            <div class="col-span-2">
-                                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline show-proof-button" data-bukti="">
-                                    Show Payment Proof
-                                </button>
-                                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline show-proof-button-driver" data-bukti-akhir="">
-                                    Show Payment Proof Driver
-                                </button>
-                            </div>
-                        </div>
-                        <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-                            <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline close-button">
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Modal untuk menampilkan bukti pembayaran --}}
-        <div id="payment-proof-modal" class="hidden fixed z-10 inset-0 overflow-y-auto">
-            <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-                <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                    <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <img id="payment-proof-image" src="" alt="" class="w-full">
-                    </div>
-                    <div class="bg-white dark:bg-gray-800 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" onclick="document.getElementById('payment-proof-modal').classList.add('hidden')">
-                            Close
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <div class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:px-0 lg:pb-0">
+            <x-ui.chip x-on:click="group = 'all'" ::aria-pressed="group === 'all'" ::class="group === 'all' && '!bg-ink !text-canvas'">Semua <span class="font-mono text-xs opacity-75">{{ $rows->count() }}</span></x-ui.chip>
+            <x-ui.chip x-on:click="group = 'running'" ::aria-pressed="group === 'running'" ::class="group === 'running' && '!bg-ink !text-canvas'">Berjalan <span class="font-mono text-xs opacity-75">{{ $counts->get('running', 0) }}</span></x-ui.chip>
+            <x-ui.chip x-on:click="group = 'done'" ::aria-pressed="group === 'done'" ::class="group === 'done' && '!bg-ink !text-canvas'">Selesai <span class="font-mono text-xs opacity-75">{{ $counts->get('done', 0) }}</span></x-ui.chip>
+            <x-ui.chip x-on:click="group = 'cancel'" ::aria-pressed="group === 'cancel'" ::class="group === 'cancel' && '!bg-ink !text-canvas'">Dibatalkan <span class="font-mono text-xs opacity-75">{{ $counts->get('cancel', 0) }}</span></x-ui.chip>
         </div>
     </div>
-</x-app-layout>
+
+    <div class="overflow-hidden rounded-2xl bg-surface shadow-card">
+        <div class="hidden gap-4 border-b border-line bg-sunken/60 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-ink-500 md:grid {{ $grid }}">
+            <span>Order ID</span><span>Pemesan</span><span>Resto</span><span class="text-right">Total</span><span>Status</span><span class="text-right">Aksi</span>
+        </div>
+
+        <ul class="divide-y divide-line">
+            @foreach ($rows as $i => $r)
+                <li x-show="visible({{ $i }})" class="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-4 py-3.5 hover:bg-canvas/70 md:gap-x-4 md:px-5 {{ $grid }}">
+                    <p class="col-start-1 row-start-1 font-mono text-sm font-semibold text-ink md:col-auto md:row-auto">{{ $r['code'] }}<span class="block text-xs font-normal text-ink-500 md:hidden">{{ $r['date'] }}</span></p>
+                    <div class="col-start-1 row-start-2 min-w-0 md:col-auto md:row-auto">
+                        <p class="truncate text-[15px] text-ink">{{ $r['user'] }}</p>
+                        <p class="hidden font-mono text-xs text-ink-500 md:block">{{ $r['date'] }}</p>
+                    </div>
+                    <p class="hidden truncate text-[15px] text-ink-600 md:block">{{ $r['umkm'] }}</p>
+                    <p class="tnum col-start-2 row-start-1 text-right font-mono text-sm font-semibold text-ink md:col-auto md:row-auto">{{ $money($r['total']) }}<span class="hidden text-xs font-normal text-ink-500 md:block">QRIS</span></p>
+                    <div class="col-start-2 row-start-2 text-right md:col-auto md:row-auto md:text-left"><x-ui.status :value="$r['status']" :label="ucfirst($r['status'])" /></div>
+                    <div class="max-md:contents md:col-auto md:text-right">
+                        <button type="button" data-modal-open="detail" data-order-id="{{ $r['order'] }}" data-date="{{ $r['date'] }}" data-total="{{ $r['total'] }}" data-ongkir="{{ $r['ongkir'] }}"
+                                data-umkm="{{ $r['umkm'] }}" data-payment="QRIS" data-status="{{ $r['status'] }}" data-bukti="{{ $r['bukti'] }}" data-user="{{ $r['user'] }}" data-cour="{{ $r['cour'] }}"
+                                data-jarak="{{ $r['jarak'] }}" data-bukti-akhir="{{ $r['bukti_akhir'] }}"
+                                class="detail-button ui-press inline-flex h-9 items-center justify-center gap-1 rounded-lg bg-surface px-3 text-sm font-semibold text-ink shadow-hairline hover:bg-sunken max-md:absolute max-md:inset-0 max-md:h-auto max-md:rounded-none max-md:bg-transparent max-md:text-transparent max-md:shadow-none max-md:hover:bg-transparent" aria-label="Detail transaksi {{ $r['code'] }}">
+                            Detail<x-ui.icon name="chevron-right" class="size-4 text-ink-400 max-md:hidden" />
+                        </button>
+                    </div>
+                </li>
+            @endforeach
+        </ul>
+
+        <div x-show="visibleCount === 0 && {{ $rows->count() }} > 0" x-cloak>
+            <x-ui.empty-state icon="search" title="Transaksi tidak ditemukan" description="Coba kata kunci lain atau ubah filter status." />
+        </div>
+        @if ($rows->isEmpty())
+            <x-ui.empty-state icon="receipt" title="Belum ada transaksi" description="Pesanan customer akan muncul di sini." />
+        @endif
+    </div>
+</div>
+
+{{-- Detail transaksi. Id lama dipertahankan: orderID, date, orderBy, takenBy, ongkir, total, umkm, payment, jarak, status --}}
+<x-ui.sheet name="detail" title="Detail Transaksi" description="Ringkasan pesanan dan bukti pembayaran">
+    <dl class="grid grid-cols-2 gap-x-4 gap-y-5">
+        @foreach ([
+            ['orderID', 'Order ID', 'font-mono text-sm'], ['date', 'Tanggal', 'font-mono text-sm'],
+            ['orderBy', 'Dipesan oleh', ''], ['takenBy', 'Diambil oleh', ''],
+            ['umkm', 'Resto', ''], ['payment', 'Pembayaran', ''],
+            ['ongkir', 'Ongkir', 'font-mono text-sm'], ['total', 'Total', 'font-mono text-sm font-bold'],
+            ['jarak', 'Jarak', 'font-mono text-sm'], ['status', 'Status', 'font-semibold'],
+        ] as [$id, $label, $cls])
+            <div class="min-w-0">
+                <dt class="text-xs font-semibold uppercase tracking-wider text-ink-500">{{ $label }}</dt>
+                <dd id="{{ $id }}" class="mt-1 break-words text-[15px] text-ink {{ $cls }}">—</dd>
+            </div>
+        @endforeach
+    </dl>
+
+    <x-slot:footer>
+        <div class="grid gap-2">
+            <x-ui.button variant="secondary" icon="image" class="show-proof-button" data-bukti="">Bukti Pembayaran</x-ui.button>
+            <x-ui.button variant="secondary" icon="image" class="show-proof-button-driver" data-bukti-akhir="">Bukti Pembayaran Driver</x-ui.button>
+            <x-ui.button variant="outline" data-modal-close class="close-button">Tutup</x-ui.button>
+        </div>
+    </x-slot:footer>
+</x-ui.sheet>
+
+{{-- Bukti pembayaran --}}
+<x-ui.modal name="proof" size="md" title="Bukti Pembayaran" icon="receipt">
+    <img id="payment-proof-image" src="" alt="Bukti pembayaran" class="max-h-[60dvh] w-full rounded-xl bg-sunken object-contain">
+    <x-slot:actions>
+        <x-ui.button variant="outline" data-modal-close block>Tutup</x-ui.button>
+    </x-slot:actions>
+</x-ui.modal>
+@endsection
+
+@push('js')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('modal-edit');
-        const orderIdElement = document.getElementById('orderID');
-        const dateElement = document.getElementById('date');
-        const orderByElement = document.getElementById('orderBy');
-        const takenByElement = document.getElementById('takenBy');
-        const ongkirElement = document.getElementById('ongkir');
-        const totalElement = document.getElementById('total');
-        const umkmElement = document.getElementById('umkm');
-        const paymentElement = document.getElementById('payment');
-        const statusElement = document.getElementById('status');
-        const jarakElement = document.getElementById('jarak');
-        const detailButtons = document.querySelectorAll('.detail-button');
-        const showProofButton = document.querySelector('.show-proof-button');
-        const showProofDriverButton = document.querySelector('.show-proof-button-driver');
-        const paymentProofModal = document.getElementById('payment-proof-modal');
-        const paymentProofImage = document.getElementById('payment-proof-image');
+document.addEventListener('alpine:init', () => {
+    Alpine.data('trxList', (index) => ({
+        index,
+        q: '',
+        group: 'all',
+        match(r) {
+            const q = this.q.trim().toLowerCase();
+            return (this.group === 'all' || r.group === this.group) && (q === '' || r.hay.includes(q));
+        },
+        visible(i) { return this.match(this.index[i]); },
+        get visibleCount() { return this.index.filter((r) => this.match(r)).length; },
+    }));
+});
 
-        showProofButton.addEventListener('click', function() {
-            const buktiUrl = this.getAttribute('data-bukti');
-            if (buktiUrl) {
-                paymentProofImage.src = buktiUrl;
-                paymentProofModal.classList.remove('hidden');
-            } else {
-                alert('No payment proof available.');
-            }
-        });
+(function () {
+    var byId = function (id) { return document.getElementById(id); };
+    var rupiah = function (n) { return 'Rp ' + Number(n || 0).toLocaleString('id-ID'); };
+    var proofBtn = document.querySelector('.show-proof-button');
+    var proofDriverBtn = document.querySelector('.show-proof-button-driver');
 
-        showProofDriverButton.addEventListener('click', function() {
-            const buktiUrl = this.getAttribute('data-bukti-akhir');
-            if (buktiUrl) {
-                paymentProofImage.src = buktiUrl;
-                paymentProofModal.classList.remove('hidden');
-            } else {
-                alert('No payment proof available.');
-            }
-        });
+    function setProof(button, url) {
+        button.dataset[button === proofBtn ? 'bukti' : 'buktiAkhir'] = url || '';
+        button.disabled = !url;
+        button.classList.toggle('ui-disabled', !url);
+    }
 
-        detailButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const orderId = '#TRX' + this.getAttribute('data-order-id').substring(0, 10).toUpperCase();
-                const date = this.getAttribute('data-date');
-                const user = this.getAttribute('data-user');
-                const courier = this.getAttribute('data-cour');
-                const jarak = this.getAttribute('data-jarak');
-                const ongkir = 'Rp. ' + this.getAttribute('data-ongkir').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                const total = 'Rp. ' + this.getAttribute('data-total').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                const umkm = this.getAttribute('data-umkm');
-                const payment = this.getAttribute('data-payment');
-                const status = this.getAttribute('data-status').charAt(0).toUpperCase() + this.getAttribute('data-status').slice(1);
+    // Isi panel dari baris yang diklik (menggantikan listener .detail-button lama)
+    byId('modal-detail').addEventListener('modal:opening', function (event) {
+        var d = event.detail;
+        var jarak = parseFloat(d.jarak) || 0;
+        byId('orderID').textContent = '#TRX' + String(d.orderId || '').substring(0, 10).toUpperCase();
+        byId('date').textContent = d.date || '—';
+        byId('orderBy').textContent = d.user || '—';
+        byId('takenBy').textContent = d.cour || '—';
+        byId('umkm').textContent = d.umkm || '—';
+        byId('payment').textContent = d.payment || '—';
+        byId('ongkir').textContent = rupiah(d.ongkir);
+        byId('total').textContent = rupiah(d.total);
+        byId('jarak').textContent = jarak > 1000 ? (jarak / 1000).toFixed(2).replace('.', ',') + ' km' : Math.round(jarak) + ' m';
+        byId('status').textContent = (d.status || '—').charAt(0).toUpperCase() + (d.status || '').slice(1);
+        setProof(proofBtn, d.bukti);
+        setProof(proofDriverBtn, d.buktiAkhir);
+    });
 
-                orderIdElement.textContent = orderId;
-                dateElement.textContent = date;
-                orderByElement.textContent = user;
-                takenByElement.textContent = courier;
-                ongkirElement.textContent = ongkir;
-                totalElement.textContent = total;
-                umkmElement.textContent = umkm;
-                paymentElement.textContent = payment;
-                statusElement.textContent = status;
-                orderByElement.textContent = user;
-                takenByElement.textContent = courier;
-                if (jarak > 1000) {
-                    var jarakKm = (jarak / 1000).toFixed(2);
-                    jarakElement.textContent = jarakKm + ' km';
-                } else {
-                    jarakElement.textContent = jarak + ' m';
-                }
-                showProofButton.setAttribute('data-bukti', this.getAttribute('data-bukti'));
-                showProofDriverButton.setAttribute('data-bukti-akhir', this.getAttribute('data-bukti-akhir'));
-                modal.classList.remove('hidden');
-            });
-        });
-
-        modal.querySelector('.close-button').addEventListener('click', function() {
-            modal.classList.add('hidden');
+    [proofBtn, proofDriverBtn].forEach(function (button) {
+        button.addEventListener('click', function () {
+            var url = button === proofBtn ? button.dataset.bukti : button.dataset.buktiAkhir;
+            if (!url) { DKToast.info('Bukti pembayaran belum tersedia.'); return; }
+            byId('payment-proof-image').src = url;
+            dkModal.open('proof');
         });
     });
+})();
 </script>
+@endpush
