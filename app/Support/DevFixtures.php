@@ -2,8 +2,12 @@
 
 namespace App\Support;
 
-use App\Models\history;
+use App\Models\Data_umkm;
+use App\Models\Menu;
 use App\Models\User;
+use App\Models\history;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Carbon;
 
 /**
  * Data contoh untuk pratinjau lokal (/_ui/*): menampilkan halaman tanpa menyentuh Firebase/database nyata.
@@ -166,6 +170,151 @@ class DevFixtures
         return [
             ['umkm' => 'Bakmi Jogja Piyaman, Karawaci', 'date' => '12 Juni 2024 19:04', 'status' => 'On Delivery', 'items' => '2 Mie Ayam, 1 Bakmie Ayam', 'orderId' => 'tr00000008', 'total' => 74000, 'courId' => '7'],
             ['umkm' => 'Mie Ahong - Sukabirus', 'date' => '12 Juni 2024 19:11', 'status' => 'Searching', 'items' => '1 Mie Chilli Oil', 'orderId' => 'tr00000009', 'total' => 22000, 'courId' => ''],
+        ];
+    }
+
+    // ---- Admin -------------------------------------------------------------------------
+
+    public static function adminUser(): User
+    {
+        $user = new User(['nama_user' => 'Rina Pratama', 'email' => 'rina@example.test', 'no_telp' => '081234567890', 'role' => 'admin']);
+        $user->id = 1;
+
+        return $user;
+    }
+
+    /** Daftar akun contoh (objek User belum tersimpan). */
+    public static function adminUsers(): \Illuminate\Support\Collection
+    {
+        $rows = [
+            [1, 'Rina Pratama', 'rina@example.test', '081234567890', 'admin', 0, '2023-08-14'],
+            [2, 'Abdul Aziz', 'abdulaziz@gmail.com', '089659660111', 'customer', 0, '2023-12-02'],
+            [3, 'Abdul Somad', 'abdulsomad@gmail.com', '089659660222', 'courier', 0, '2023-12-05'],
+            [4, 'Aldi Simbolon', 'alditaher@gmail.com', '089659660333', 'customer', 0, '2024-01-11'],
+            [5, 'Bayu Adji', 'bayuadji@gmail.com', '089659660444', 'customer', 0, '2024-01-19'],
+            [6, 'Benjamin Wong', 'benjaminwong@gmail.com', '089659660240', 'customer', 1, '2023-12-10'],
+            [7, 'Calvin Lim', 'calvinlim@gmail.com', '089659660555', 'courier', 1, '2024-02-03'],
+            [8, 'Charlie Saputra', 'charliesaputra@gmail.com', '089659660666', 'customer', 0, '2024-02-21'],
+            [9, 'Dahlan Mansur', 'dahlanmansur@gmail.com', '089659660777', 'courier', 0, '2024-03-08'],
+        ];
+
+        return collect($rows)->map(function ($r) {
+            $u = new User(['nama_user' => $r[1], 'email' => $r[2], 'no_telp' => $r[3], 'role' => $r[4]]);
+            $u->id = $r[0];
+            $u->restriction = $r[5];
+            $u->created_at = Carbon::parse($r[6]);
+
+            return $u;
+        });
+    }
+
+    /** @return array<int, array{0: string, 1: string, 2: string, 3: int}> nama, alamat, jam buka-tutup, jumlah produk */
+    private static function umkmRows(): array
+    {
+        return [
+            ['Ayam Bude - Sukabirus', 'Jl. Sukabirus No. 11', '09:00', '21:30', 6, 1],
+            ['Ayam Bakar Surabaya - Sukapura', 'Jl. Sukapura No. 26', '10:00', '22:00', 4, 0],
+            ['Ayam Cak Lontong - Sukabirus', 'Jl. Sukabirus No. 31', '10:00', '21:00', 5, 0],
+            ['Ayam Bakar Maknyos - Sukabirus', 'Jl. Sukabirus No. 56', '08:30', '22:00', 3, 1],
+            ['Raja Seafood - Sukabirus', 'Jl. Sukabirus No. 22', '11:00', '23:00', 8, 0],
+            ['Mie Ahong - Sukabirus', 'Jl. Sukabirus No. 8', '09:30', '20:30', 5, 0],
+            ['Kedai Teh Poci', 'Jl. Telekomunikasi No. 3', '07:00', '19:00', 7, 0],
+            ['Roti Bakar Pak Mamat', 'Jl. Radio Palasari No. 14', '16:00', '23:30', 4, 0],
+        ];
+    }
+
+    /** Daftar resto sebagai paginator (objek Data_umkm belum tersimpan). */
+    public static function adminUmkms(): LengthAwarePaginator
+    {
+        $items = collect(self::umkmRows())->map(function ($r, $i) {
+            $u = new Data_umkm(['nama_umkm' => $r[0], 'alamat' => $r[1], 'logo_umkm' => 'tidak-ada.jpg', 'no_telp_umkm' => '08123456789'.$i, 'vip' => $r[5], 'rating' => 4.0 + ($i % 5) / 10]);
+            $u->id = $i + 1;
+            $u->open_time = '2024-01-01 '.$r[2].':00';
+            $u->close_time = '2024-01-01 '.$r[3].':00';
+            $u->setAttribute('menu_count', $r[4]);
+
+            return $u;
+        });
+
+        return new LengthAwarePaginator($items, $items->count(), 10, 1, ['path' => url('/_ui/admin/umkm')]);
+    }
+
+    public static function adminUmkm(): Data_umkm
+    {
+        $u = self::adminUmkms()->first();
+        $u->link = 'https://maps.google.com/?q=Sukabirus';
+        $u->geo = '-6.9738,107.6301';
+        $u->created_at = Carbon::parse('2023-12-10');
+
+        return $u;
+    }
+
+    /** Produk contoh untuk satu resto (objek Menu belum tersimpan). */
+    public static function adminMenus(): \Illuminate\Support\Collection
+    {
+        $rows = [
+            [1, 'Ayam Bakar Signature', 'ayam & bebek', 18000, 30],
+            [2, 'Es Teh Signature', 'minuman', 5000, 0],
+            [3, 'Nasi Liwet Komplit', 'aneka nasi', 22000, 0],
+            [4, 'Ayam Geprek Level 5', 'ayam & bebek', 16000, 10],
+        ];
+
+        return collect($rows)->map(function ($r) {
+            $m = new Menu(['nama_makanan' => $r[1], 'deskripsi' => 'Menu andalan resto', 'image' => 'tidak-ada.jpg', 'harga' => $r[3], 'diskon' => $r[4], 'category' => $r[2], 'data_umkm_id' => 1]);
+            $m->id = $r[0];
+            $m->setRelation('data_umkm', self::adminUmkm());
+
+            return $m;
+        });
+    }
+
+    public static function adminMenusPaginated(): LengthAwarePaginator
+    {
+        $menus = self::adminMenus();
+
+        return new LengthAwarePaginator($menus, $menus->count(), 10, 1, ['path' => url('/_ui/admin/product')]);
+    }
+
+    /** Riwayat transaksi contoh (objek history belum tersimpan, relasi diisi manual). */
+    public static function adminHistory(): \Illuminate\Support\Collection
+    {
+        $users = self::adminUsers();
+        $rows = [
+            [21, 2, 3, 'tr00000007895675', 'completed', 50000, 3000, 1200, '2024-06-12 19:04:00'],
+            [22, 4, 9, 'tr00000007895674', 'canceled', 21000, 5000, 2600, '2024-06-10 09:30:00'],
+            [23, 5, 3, 'tr00000007895673', 'completed', 38000, 3000, 900, '2024-06-09 12:15:00'],
+        ];
+
+        return collect($rows)->map(function ($r) use ($users) {
+            $h = new history(['user_id' => $r[1], 'cour_id' => $r[2], 'umkm_id' => 0, 'item' => '[]', 'order_id' => $r[3], 'status' => $r[4], 'harga' => $r[5], 'ongkir' => $r[6], 'jarak' => $r[7]]);
+            $h->id = $r[0];
+            $h->created_at = Carbon::parse($r[8]);
+            $h->setRelation('customer', $users->firstWhere('id', $r[1]));
+            $h->setRelation('courier', $users->firstWhere('id', $r[2]));
+
+            return $h;
+        });
+    }
+
+    /** Percakapan Customer Service contoh untuk Admin/chatpage (kunci = id customer). */
+    public static function adminChats(): array
+    {
+        $today = now()->format('Y-m-d');
+        $yesterday = now()->subDay()->format('Y-m-d');
+
+        return [
+            '101' => ['name' => 'Kevin Pratama', 'messages' => [
+                ['role' => 'customer', 'msg' => 'Halo kak, pesanan saya belum sampai', 'timestamp' => "$today 10:02:00"],
+                ['role' => 'admin', 'msg' => 'Halo Kevin, kami cek dulu ke driver ya.', 'timestamp' => "$today 10:04:00"],
+                ['role' => 'customer', 'msg' => 'Baik kak, terima kasih', 'timestamp' => "$today 10:05:00"],
+            ]],
+            '102' => ['name' => 'Dinda Ayu', 'messages' => [
+                ['role' => 'customer', 'msg' => 'Bisa ganti alamat pengantaran?', 'timestamp' => "$yesterday 16:40:00"],
+                ['role' => 'admin', 'msg' => 'Bisa kak, silakan kirim alamat barunya.', 'timestamp' => "$yesterday 16:44:00"],
+            ]],
+            '103' => ['name' => 'Rizky', 'messages' => [
+                ['role' => 'customer', 'msg' => 'Terima kasih banyak!', 'timestamp' => now()->subDays(4)->format('Y-m-d').' 20:10:00'],
+            ]],
         ];
     }
 }

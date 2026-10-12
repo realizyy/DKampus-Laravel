@@ -146,6 +146,28 @@ if (app()->isLocal()) {
         };
     });
 
+    // Pratinjau halaman admin dengan data contoh: /_ui/admin/{dashboard|account|umkm|umkm-create|umkm-detail|product|product-edit|transaction|chats|profile}
+    Route::get('/_ui/admin/{page}', function (string $page) {
+        $admin = \App\Support\DevFixtures::adminUser();
+        \Illuminate\Support\Facades\Auth::setUser($admin);
+        $users = \App\Support\DevFixtures::adminUsers();
+        $umkms = request('empty') ? new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10) : \App\Support\DevFixtures::adminUmkms();
+
+        return match ($page) {
+            'dashboard' => view('pages.Admin.dashboard', ['navActive' => 'dashboard', 'data_umkm' => \App\Support\DevFixtures::adminUmkms()->items(), 'menu' => \App\Support\DevFixtures::adminMenus(), 'user' => $users, 'transaction' => \App\Support\DevFixtures::adminHistory(), 'dataNTD' => 2, 'dataOP' => 3]),
+            'account' => view('pages.Admin.account', ['navActive' => 'account', 'users' => request('empty') ? collect() : $users]),
+            'umkm' => view('pages.Admin.umkm', ['navActive' => 'umkm', 'umkms' => $umkms, 'q' => (string) request('q'), 'kategori' => (string) request('kategori')]),
+            'umkm-create' => view('pages.Admin.umkm_create', ['navActive' => 'umkm.create']),
+            'umkm-detail' => view('pages.Admin.UMKM_update', ['navActive' => 'umkmEdit', 'umkm' => \App\Support\DevFixtures::adminUmkm(), 'products' => request('empty') ? collect() : \App\Support\DevFixtures::adminMenus()]),
+            'product' => view('pages.Admin.product', ['navActive' => 'product', 'umkms' => \App\Support\DevFixtures::adminUmkms()->getCollection(), 'menus' => request('empty') ? new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10) : \App\Support\DevFixtures::adminMenusPaginated(), 'q' => '', 'kategori' => '', 'umkmId' => 0]),
+            'product-edit' => view('pages.Admin.product_update', ['navActive' => 'product.edit', 'model' => \App\Support\DevFixtures::adminMenus()->first(), 'umkm' => \App\Support\DevFixtures::adminUmkms()->getCollection()->pluck('nama_umkm', 'id')]),
+            'transaction' => view('pages.Admin.transaction', ['navActive' => 'transaction', 'Title' => 'Transactions', 'datas' => request('empty') ? null : \App\Support\DevFixtures::adminHistory(), 'dataNTD' => request('empty') ? null : ['k1' => ['orderID' => 'ntd0000001', 'timestamp' => '2024-06-12 20:00:00', 'nama_penerima' => 'Tia Antri', 'total' => 15000, 'ongkir' => 4000, 'status' => 'searching', 'jarak' => 800]], 'dataOP' => request('empty') ? null : ['k2' => ['orderID' => 'opr0000002', 'timestamp' => '2024-06-12 19:40:00', 'nama_penerima' => 'Umar Jalan', 'total' => 25000, 'ongkir' => 6000, 'status' => 'on Delivery', 'jarak' => 2400]]]),
+            'chats' => view('pages.Admin.chatpage', ['navActive' => 'chatpage.admin', 'Title' => 'Chat', 'previewChats' => request('empty') ? (object) [] : \App\Support\DevFixtures::adminChats()]),
+            'profile' => view('profile.edit', ['navActive' => 'profile.edit', 'user' => $admin]),
+            default => abort(404),
+        };
+    });
+
     // Pratinjau halaman dengan data contoh (tanpa Firebase/database): /_ui/courier/{dashboard|orders|history|history-detail|profile|chats|chat-room}
     Route::get('/_ui/courier/{page}', function (string $page) {
         \Illuminate\Support\Facades\Auth::setUser(\App\Support\DevFixtures::courierUser());
