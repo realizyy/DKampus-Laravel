@@ -1,300 +1,123 @@
-@extends('layouts.PesananLayout')
-@section('pesananContent')
-<div class="flex flex-col sm:flex-row items-center justify-center px-2">
-    <section class="bg-white rounded-lg shadow-md w-full sm:w-1/2 max-w-4xl overflow-hidden">
-        {{-- Header Section --}}
-        @if($data !== null)
-            <div class="bg-[#F9832A] text-white p-4 flex items-center justify-between">
-                <img src="{{asset('shop-white.svg')}}" alt="" class="w-10 h-10">
-                <h1 class="font-semibold text-xl sm:text-2xl">{{$namaUMKM}}</h1>
-            </div>
-        @else
-        @endif
-        {{-- Border Line --}}
-        @if ($data !== null)
-        <div class="border-b-2 border-[#F9832A] w-1/2 mx-auto my-5"></div>
-        @endif
-        {{-- List Pesanan --}}
-        <div class="flex flex-col gap-5 px-5">
-            @if($data !== null)
-            @forelse ($data as $item)
-            <form action="" method="POST">
-                <div class="flex flex-col md:flex-row justify-between items-start">
-                    <div id="contentPesanan{{ $item['id'] }}" class="shadow-md w-full md:w-full">
-                        <div class="flex flex-row md:flex-row justify-between items-center mb-2 w-full h-36">
-                            @php
-                            try{
-                                $menu = \App\Models\Menu::where('id', $item['id'])->first();
-                                $imagePath = $menu->image;
-                            } catch (\Exception $e) {
-                                $imagePath = '';
-                            }
-                            @endphp
-                            <div class="flex flex-row justify-center items-center w-full h-full">
-                                <img src="{{Storage::url($imagePath)}}" alt="" class="w-full h-24 object-cover rounded-lg">
-                            </div>
-                            <div class="flex flex-col gap-2 px-5 w-full">
-                                {{-- Nama Makanan --}}
-                                <div class="flex flex-row justify-between">
-                                    <h1 class="font-semibold text-lg">{{ $menu->nama_makanan ?? 'null' }}</h1>
+@extends('layouts.customer')
+
+@php
+    $items = collect($data ?? [])->values();
+    $menus = \App\Models\Menu::whereIn('id', $items->pluck('id'))->get()->keyBy('id');
+    $cart = $items->map(fn ($i) => [
+        'id' => $i['id'],
+        'name' => optional($menus->get($i['id']))->nama_makanan ?? ($i['nama'] ?? '-'),
+        'note' => ($i['catatan'] ?? '-') !== '-' ? $i['catatan'] : '',
+        'price' => (int) $i['harga'],
+        'orig' => (int) ($i['harga_asli'] ?? $i['harga']),
+        'qty' => (int) $i['jumlah'],
+        'img' => optional($menus->get($i['id']))->image ? \Illuminate\Support\Facades\Storage::url($menus->get($i['id'])->image) : '',
+    ])->all();
+    $utama = $alamatUtama;
+    $addresses = collect($AddressList ?? [])->map(fn ($a) => ['id' => $a['id'], 'name' => $a['nama_alamat'], 'address' => $a['address']])->values()->all();
+@endphp
+
+@section('page-title', 'Pesanan')
+
+@section('content')
+<div class="space-y-5">
+    <x-customer.order-tabs active="pesanan" />
+
+    @if ($items->isEmpty())
+        <x-ui.card class="!p-0"><x-ui.empty-state icon="shopping-bag" title="Ups, pesanan kamu kosong nih" description="Pilih menu dari warung favoritmu, lalu pesanannya muncul di sini.">
+            <x-ui.button :href="url('/')" icon-right="arrow-right">Cari makanan</x-ui.button>
+        </x-ui.empty-state></x-ui.card>
+    @else
+        <div x-data="{
+                items: @js($cart), addr: @js($utama ? ['id' => $utama->id, 'name' => $utama->nama_alamat] : ['id' => '', 'name' => 'Masukan Alamat']), removing: '',
+                get total() { return this.items.reduce((s, i) => s + i.price * i.qty, 0) },
+                rp(n) { return 'Rp ' + Number(n).toLocaleString('id-ID') },
+                async save(item, qty) {
+                    const before = item.qty; item.qty = qty;
+                    try {
+                        const r = await fetch('{{ url('/pesanan/update-quantity') }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, body: new URLSearchParams({ id: item.id, quantity: qty }) });
+                        if (!r.ok || r.redirected) throw new Error(r.status);
+                    } catch (e) { item.qty = before; window.DKToast && DKToast.error('Jumlah belum bisa diubah. Coba lagi.') }
+                },
+                minus(item) { if (item.qty <= 1) { document.getElementById('deleteInput').value = item.id; dkModal.open('hapus-item') } else this.save(item, item.qty - 1) },
+             }" class="grid items-start gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+
+            <x-ui.card :padded="false" class="overflow-hidden" x-motion.rise>
+                <div class="border-b border-line/70 p-4"><x-customer.store-banner :name="$namaUMKM" /></div>
+                <ul class="divide-y divide-line/70">
+                    <template x-for="item in items" :key="item.id">
+                        <li class="flex gap-3 p-4">
+                            <div class="relative size-20 shrink-0 overflow-hidden rounded-xl bg-sunken"><img :src="item.img" alt="" class="size-full object-cover" onerror="this.remove()"></div>
+                            <div class="flex min-w-0 flex-1 flex-col justify-between">
+                                <div>
+                                    <p class="line-clamp-1 font-display text-base font-bold leading-tight tracking-tight text-ink" x-text="item.name"></p>
+                                    <p class="line-clamp-1 text-[13px] text-ink-500" x-show="item.note" x-text="'Catatan: ' + item.note"></p>
                                 </div>
-                                {{-- Text area for catatan --}}
-                                <div class="flex flex-row justify-between">
-                                    <textarea name="catatan" id="catatan" class="w-40 h-[4vh] rounded-lg border-0" placeholder="Catatan"></textarea>
-                                </div>
-                                {{-- Harga Makanan --}}
-                                <div class="flex flex-row justify-between">
-                                    <h1 class="text-[#F9832A] font-semibold">Rp. {{ number_format($menu->harga ?? 0, 0, ',', '.') }}</h1>
-                                </div>
+                                <p class="tnum font-mono text-sm font-semibold text-brand-700"><span x-text="rp(item.price)"></span><span class="ml-1.5 text-[11px] font-normal text-ink-500 line-through" x-show="item.orig > item.price" x-text="rp(item.orig)"></span></p>
                             </div>
-                            <div id="count" class="flex flex-col gap-2 ml-3 mt-[0.2rem]">
-                                {{-- Masih belum sync sama js & db fb --}}
-                                {{-- Increment Button --}}
-                                <button id="increment" type="button" value="{{ $item['id'] }}" class="increment-btn bg-[#F9832A] text-white w-9 h-9 rounded-md">
-                                    +
-                                </button>
-                                {{-- Quantity Input --}}
-                                <input id="number" type="number" name="items[quantity][]" onchange="calculateTotal()" value="{{ $item['jumlah'] }}" class="quantity-input w-9 h-9 text-center border-2 border-[#F9832A] rounded-md" min="1" max="100" readonly>
-                                {{-- Decrement Button --}}
-                                <button id="decrement" type="button" value="{{ $item['id'] }}" class="decrement-btn bg-[#F9832A] text-white w-9 h-9 rounded-md">
-                                    -
-                                </button>
-                                {{-- Delete Button --}}
-                                <button id="delete" type="button" value="{{ $item['id'] }}" class="hidden delete bg-[#F9832A] text-white w-9 h-9 rounded-md">
-                                    <svg height="20" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1.36136 12.1029C1.36136 12.4932 1.52167 12.8675 1.80702 13.1435C2.09236 13.4195 2.47938 13.5745 2.88292 13.5745H8.96914C9.37269 13.5745 9.7597 13.4195 10.045 13.1435C10.3304 12.8675 10.4907 12.4932 10.4907 12.1029V3.2731H1.36136V12.1029ZM2.88292 4.74473H8.96914V12.1029H2.88292V4.74473ZM8.58876 1.06565L7.82798 0.329834H4.02409L3.26331 1.06565H0.600586V2.53728H11.2515V1.06565H8.58876Z" fill="#EEEEEE" />
-                                    </svg>
-                                </button>
+                            <div class="flex shrink-0 items-center self-center rounded-xl bg-surface shadow-card" role="group" aria-label="Jumlah">
+                                <button type="button" @click="minus(item)" class="ui-press decrement-btn grid size-10 place-items-center rounded-l-xl text-ink-600 hover:bg-sunken" aria-label="Kurangi"><x-ui.icon name="minus" class="size-4" /></button>
+                                <span class="tnum w-8 text-center font-mono text-[15px] font-semibold" x-text="item.qty" aria-live="polite"></span>
+                                <button type="button" @click="save(item, item.qty + 1)" class="ui-press increment-btn grid size-10 place-items-center rounded-r-xl text-brand-700 hover:bg-sunken" aria-label="Tambah"><x-ui.icon name="plus" class="size-4" /></button>
                             </div>
-                        </div>
+                        </li>
+                    </template>
+                </ul>
+            </x-ui.card>
+
+            {{-- Ringkasan + alamat + Pesan: menempel di atas bottom-nav (mobile), panel lengket (desktop) --}}
+            <form action="{{ route('checkout') }}" method="POST" id="formCheckout"
+                  class="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-20 border-t border-line bg-surface/95 p-3 backdrop-blur lg:sticky lg:top-24 lg:bottom-auto lg:z-auto lg:rounded-2xl lg:border-0 lg:bg-surface lg:p-5 lg:shadow-card">
+                @csrf
+                <input type="hidden" id="selected_address_id" name="selected_address_id" :value="addr.id">
+                <button type="button" data-modal-open="alamat" class="ui-press mb-3 flex w-full items-center gap-3 rounded-xl bg-surface p-3 text-left shadow-card hover:bg-sunken">
+                    <span class="grid size-10 shrink-0 place-items-center rounded-lg bg-brand-100 text-brand-800"><x-ui.icon name="map-pin" class="size-5" /></span>
+                    <span class="min-w-0 flex-1"><span class="block font-mono text-[11px] uppercase tracking-widest text-ink-500">Diantar ke</span><span class="block truncate font-semibold text-ink" id="selected_address" x-text="addr.name"></span></span>
+                    <x-ui.icon name="chevron-right" class="size-5 shrink-0 text-ink-400" />
+                </button>
+                <div class="flex items-center justify-between gap-4">
+                    <div>
+                        <p class="text-sm text-ink-500">Total Harga</p>
+                        <p id="total_harga" class="tnum font-display text-2xl font-extrabold tracking-tight text-ink" x-text="rp(total)"></p>
                     </div>
+                    <x-ui.button type="submit" size="lg" class="min-w-32">Pesan</x-ui.button>
                 </div>
             </form>
-            <input type="text" class="hidden" name="items[harga][]" value="{{ $item['harga'] }}">
-            <input type="text" class="hidden" name="items[id][]" value="{{ $item['id'] }}">
-            @empty
-            <h1 class="text-center font-semibold text-lg">Ups, pesanan kamu kosong nih :)</h1>
-            @endforelse
-            @else
-            <h1 class="text-center font-semibold text-lg">Ups, pesanan kamu kosong nih :)</h1>
-            @endif
+
+            {{-- Pilih alamat --}}
+            <x-ui.modal name="alamat" size="md" icon="map-pin" title="Alamat Pengantaran" description="Pilih alamat tujuan pesananmu.">
+                @if (count($addresses))
+                    <ul class="space-y-2">
+                        @foreach ($addresses as $a)
+                            <li>
+                                <button type="button" class="address-button ui-press flex w-full items-start gap-3 rounded-xl p-3 text-left shadow-hairline hover:bg-sunken" data-id="{{ $a['id'] }}" data-name="{{ $a['name'] }}"
+                                        @click="addr = { id: '{{ $a['id'] }}', name: @js($a['name']) }; dkModal.close('alamat')">
+                                    <x-ui.icon name="map-pin" class="mt-0.5 size-5 shrink-0 text-brand-600" />
+                                    <span class="min-w-0"><span class="block font-semibold text-ink">{{ $a['name'] }}</span><span class="block text-sm text-ink-500">{{ $a['address'] }}</span></span>
+                                </button>
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="text-[15px] text-ink-600">Silahkan tambahkan alamat dulu.</p>
+                @endif
+                <x-slot:actions>
+                    <x-ui.button :href="url('/daftar-alamat')" variant="secondary" icon="plus" block>Tambah / Kelola Alamat</x-ui.button>
+                </x-slot:actions>
+            </x-ui.modal>
         </div>
-    </section>
+
+        {{-- Konfirmasi hapus saat jumlah menjadi 0 --}}
+        <x-ui.modal name="hapus-item" tone="danger" title="Hapus item?" description="Apakah Anda yakin ingin menghapus menu ini dari pesanan?">
+            <x-slot:actions>
+                <x-ui.button variant="danger" block onclick="document.querySelector('.delete-form').submit()">Ya, hapus</x-ui.button>
+                <x-ui.button variant="outline" data-modal-close block>Batal</x-ui.button>
+            </x-slot:actions>
+        </x-ui.modal>
+        <form action="{{ route('cart.delete') }}" method="POST" class="delete-form hidden">
+            @csrf
+            @method('DELETE')
+            <input type="hidden" name="id" id="deleteInput">
+        </form>
+    @endif
 </div>
-
-{{-- Render List Address --}}
-<div id="overlayAddNewAddress" onclick="renderHideListAddress()" class="bg-black/10 transition-all duration-500 invisible opacity-0 -z-10 h-screen w-full absolute top-0 left-0"></div>
-
-{{-- Form Checkout --}}
-<form action="{{ route('checkout') }}" method="POST">
-    @csrf
-    <div id="addNewAddress" class="w-full pt-5 pb-14 flex flex-col items-center gap-5 border overflow-auto fixed h-0 bg-white rounded-3xl -bottom-96 transition-all duration-500 shadow-top-for-total-harga">
-        @if ($AddressList !== null)
-        @forelse ($AddressList as $Item)
-        <div class="flex flex-row items-end gap-10 border-b-2 pb-2">
-            <a class="address-button flex flex-col gap-2" onclick="renderHideListAddress()" data-id="{{ $Item['id'] }}" data-name="{{ $Item['nama_alamat'] }}">
-                <h1 class=" font-semibold text-lg">{{ $Item['nama_alamat'] }}</h1>
-                <div id="location" class="flex flex-row gap-2 items-center">
-                    <img src="/markLocation.svg" alt="" class="w-5">
-                    <h1 class="text-wrapper-location">{{ $Item['address'] }}</h1>
-                </div>
-            </a>
-            <img src="/edit.svg" alt="" class="w-5">
-        </div>
-        @empty
-        <h1 class=" font-semibold text-lg">Silahkan Tambahkan Alamat</h1>
-        <a href="/daftar-alamat" class="btn flex items-center gap-x-2 bg-orange-500 text-white px-3 py-2 rounded-md shadow-md">
-            <h1 class="font-bold text-white text-md">Tambah Alamat</h1>
-        </a>
-        @endforelse
-        @endif
-    </div>
-
-    <div id="totalAndAddress" class="w-full md:w-3/4 lg:w-1/2 mx-auto">
-        @if($data !== null)
-        @php $total = 0; @endphp
-        @foreach ($data as $item)
-        @php $total += $item['harga'] * $item['jumlah']; @endphp
-        @endforeach
-        @else
-        @php $total = 0; @endphp
-        @endif
-        <div id="content" class="fixed border-[2.5px] border-black/10 flex flex-row justify-around rounded-2xl h-48 pt-5 w-full left-0 bottom-0 bg-white shadow-top-for-total-harga">
-            <a id="alamat" class="flex flex-row gap-3 items-center border-2 border-[#F9832A] p-3 h-12 rounded-lg">
-                <img src="/Map.svg" alt="" class="w-6">
-                <div id="desc" class="flex flex-row gap-2 items-center">
-                    @if ($alamatUtama !== null)
-                    <h1 class="text-[#5e5e5e] font-medium" id="selected_address">{{ $alamatUtama->nama_alamat }}</h1>
-                    <input type="text" class="hidden" id="selected_address_id" name="selected_address_id" value="{{ $alamatUtama->id }}">
-                    @else
-                    <h1 class="text-[#5e5e5e] font-medium" id="selected_address">Masukan Alamat</h1>
-                    <input type="text" class="hidden" id="selected_address_id" name="selected_address_id" value="">
-                    @endif
-                    <img src="/ArrowTop.svg" alt="">
-                </div>
-            </a>
-            <div id="totalHarga" class="flex flex-row gap-5">
-                <div id="descTotalHarga" class="text-center">
-                    <h1>Total Harga</h1>
-                    <p id="total_harga" class=" font-semibold border-b-2 border-[#F9832A]">Rp. {{ number_format($total, 0, ',', '.') }}</p>
-                </div>
-                <div id="buttonTotalHarga">
-                    <button type="submit" class="bg-[#F9832A] h-10 w-24 text-white font-semibold rounded-xl">
-                        Pesan
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</form>
-
-<form action="{{ route('cart.delete') }}" method="POST" class="delete-form hidden">
-    @csrf
-    @method('DELETE')
-    <input type="text" class="hidden" name="id" id="deleteInput">
-</form>
-
 @endsection
-
-@push('js')
-<script>
-    $(document).ready(function() {
-
-        console.log("ready!");
-        // for favorite menus button
-        $(document).on("click", '#like', function(e) {
-            e.preventDefault();
-
-            // Get the menuId from some source, for example, a data attribute on the element
-            const menuId = $(this).val();
-
-            // Make an AJAX request
-            $.ajax({
-                type: "POST",
-                url: '/favoritStore/' + menuId,
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    menuId: menuId
-                },
-                success: function(response) {
-
-                },
-                error: function(error) {
-
-                }
-            });
-        });
-
-
-        $(document).ready(function() {
-            // Increment Button
-            $(".increment-btn").click(function() {
-                let quantityInput = $(this).siblings('.quantity-input');
-                let newValue = parseInt(quantityInput.val()) + 1;
-
-                $.ajax({
-                    type: "POST",
-                    url: "/pesanan/update-quantity",
-                    data: {
-                        id: $(this).val(),
-                        quantity: newValue,
-                        _token: "{{ csrf_token() }}"
-                    },
-                    success: function(response) {
-                        quantityInput.val(newValue);
-                        calculateTotal();
-                    },
-                    error: function(error) {
-                        alert('Terjadi kesalahan. Silakan coba lagi.');
-                    }
-                });
-            });
-
-            // Quantity Input
-            $(".quantity-input").on('input', function() {
-                $.ajax({
-                    type: "POST",
-                    url: "/pesanan/update-quantity",
-                    data: {
-                        id: $(this).siblings('.increment-btn').val(),
-                        quantity: $(this).val(),
-                        _token: "{{ csrf_token() }}"
-                    },
-                    success: function(response) {
-                        // Handle success
-                    },
-                    error: function(error) {
-                        alert('Terjadi kesalahan. Silakan coba lagi.');
-                    }
-                });
-                calculateTotal()
-            });
-
-            // Decrement Button
-            $(".decrement-btn").click(function() {
-                let quantityInput = $(this).siblings('.quantity-input');
-                let newValue = parseInt(quantityInput.val()) - 1;
-
-                if (newValue == 0) {
-                    Swal.fire({
-                        title: 'Konfirmasi',
-                        text: 'Apakah Anda yakin ingin menghapus?',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Ya, hapus!',
-                    }).then((result) => {
-                        const cartId = $(this).val();
-                        console.log(cartId)
-                        $("#deleteInput").val(cartId);
-                        if (result.isConfirmed) {
-                            const form = $('.delete-form');
-                            console.log(form)
-                            form.submit();
-                        }
-                    });
-                } else {
-                    quantityInput.val(newValue);
-                    $.ajax({
-                        type: "POST",
-                        url: "/pesanan/update-quantity",
-                        data: {
-                            id: $(this).val(),
-                            quantity: newValue,
-                            _token: "{{ csrf_token() }}"
-                        },
-                        success: function(response) {
-                            quantityInput.val(newValue);
-                            calculateTotal();
-                        },
-                        error: function(error) {
-                            alert('Terjadi kesalahan. Silakan coba lagi.');
-                        }
-                    });
-                    calculateTotal();
-                }
-            });
-        });
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const addressButtons = document.querySelectorAll('.address-button');
-        const selectedAddressElement = document.getElementById('selected_address');
-        const selectedAddressIdInput = document.getElementById('selected_address_id');
-
-        addressButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const addressName = this.getAttribute('data-name');
-                const addressId = this.getAttribute('data-id');
-
-                // Update the selected address display
-                selectedAddressElement.textContent = addressName;
-
-                // Set the hidden input value
-                selectedAddressIdInput.value = addressId;
-            });
-        });
-    });
-</script>
-@endpush
