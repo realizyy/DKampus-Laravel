@@ -165,6 +165,11 @@ Route::redirect('/promo/makanan', '/promo/category/makanan');
 Route::redirect('/promo/minuman', '/promo/category/minuman');
 Route::redirect('/promo/cemilan', '/promo/category/cemilan');
 
+// Galeri komponen UI (hanya lingkungan lokal)
+if (app()->isLocal()) {
+    Route::view('/_ui', 'dev.ui');
+}
+
 // Detail Routes
 Route::get('/detail-warung/{umkm:nama_umkm}', function (Data_umkm $umkm) {
     return view('pages.Users.DetailWarung', [
