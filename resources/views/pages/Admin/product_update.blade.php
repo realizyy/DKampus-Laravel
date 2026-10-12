@@ -1,103 +1,66 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Product') }}
-        </h2>
-    </x-slot>
+@extends('layouts.admin')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <h1 class="text-2xl font-bold mb-4">Form Edit Menu</h1>
+@section('page-title', 'Edit Produk')
+@section('subtitle', $model->nama_makanan)
+@section('back', route('product'))
 
-                    @if ($errors->any())
-                    <div class="mb-4 rounded-md bg-red-100 p-3 text-sm text-red-700">
-                        <ul class="list-disc pl-5">
-                            @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    @endif
+@section('content')
+<section class="mx-auto max-w-2xl rounded-2xl bg-surface p-5 shadow-card md:p-6" aria-labelledby="edit-title">
+    <h2 id="edit-title" class="font-display text-xl font-bold tracking-tight text-ink">Form Edit Menu</h2>
 
-                    @if (session('success'))
-                    <div class="mb-4 rounded-md bg-green-100 p-3 text-sm text-green-700">{{ session('success') }}</div>
-                    @endif
-
-                    {{-- Nama field (edit_*) mengikuti MenuController::update --}}
-                    <form action="{{ route('productUpdate', $model->id) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                        @csrf
-                        @method('PUT')
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="edit_umkm">Nama UMKM:</label>
-                                <select name="edit_umkm" id="edit_umkm" class="w-full px-3 py-2 border rounded-md nama_umkm text-black">
-                                    @foreach ($umkm as $id => $nama)
-                                    <option value="{{ $id }}" @selected(old('edit_umkm', $model->data_umkm_id) == $id)>{{ $nama }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label for="edit_nama_makanan">Nama Makanan:</label>
-                                <input type="text" name="edit_nama_makanan" id="edit_nama_makanan" value="{{ old('edit_nama_makanan', $model->nama_makanan) }}" class="text-black w-full rounded-md" required>
-                            </div>
-                            <div>
-                                <label for="edit_deskripsi">Deskripsi:</label>
-                                <textarea name="edit_deskripsi" id="edit_deskripsi" class="text-black w-full rounded-md" required>{{ old('edit_deskripsi', $model->deskripsi) }}</textarea>
-                            </div>
-                            <div>
-                                <label for="edit_harga">Harga:</label>
-                                <input type="number" name="edit_harga" id="edit_harga" value="{{ old('edit_harga', $model->harga) }}" min="0" class="text-black w-full rounded-md" required>
-                            </div>
-                            <div>
-                                <label for="edit_promo">Diskon (%):</label>
-                                <input type="number" name="edit_promo" id="edit_promo" value="{{ old('edit_promo', $model->diskon) }}" min="0" max="100" step="any" class="text-black w-full rounded-md">
-                            </div>
-                            <div>
-                                <label for="edit_category">Kategori:</label>
-                                <select name="edit_category" id="edit_category" class="w-full px-3 py-2 border rounded-md text-black" required>
-                                    <option value="">-- Pilih kategori --</option>
-                                    @foreach (['minuman' => 'Minuman', 'jajanan' => 'Jajanan', 'aneka nasi' => 'Aneka Nasi', 'ayam & bebek' => 'Ayam & Bebek', 'cepat saji' => 'Cepat Saji', 'roti' => 'Roti', 'bakso & soto' => 'Bakso & Soto', 'bakmie' => 'Bakmie', 'mie' => 'Mie', 'sate' => 'Sate'] as $value => $label)
-                                    <option value="{{ $value }}" @selected(old('edit_category', $model->category) === $value)>{{ $label }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="md:col-span-2">
-                                <label for="edit_image">Image Makanan:</label>
-                                <input type="file" name="edit_image" id="edit_image" class="w-full" accept="image/*" onchange="previewEditImage()">
-                                <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ingin mengganti gambar.</p>
-                                <div class="mt-2">
-                                    <h2 class="text-sm font-semibold">Gambar saat ini / pratinjau:</h2>
-                                    <img id="edit-preview" src="{{ Storage::url($model->image) }}" alt="Preview" class="mx-2 mt-1 max-w-xs">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-2">
-                            <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                                Simpan
-                            </button>
-                            <a href="{{ route('product') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">Batal</a>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    @if ($errors->any())
+        <div class="mt-4 rounded-xl bg-brick-50 p-3 text-sm text-brick-700 shadow-hairline" role="alert">
+            <ul class="list-disc space-y-0.5 pl-5">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
         </div>
-    </div>
+    @endif
 
-    <script>
-        function previewEditImage() {
-            var input = document.getElementById('edit_image');
-            var preview = document.getElementById('edit-preview');
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-    </script>
-</x-app-layout>
+    {{-- Nama field (edit_*) mengikuti MenuController::update --}}
+    <form action="{{ route('productUpdate', $model->id) }}" method="POST" enctype="multipart/form-data" class="mt-5 space-y-5">
+        @csrf
+        @method('PUT')
+
+        <x-ui.field label="Gambar Produk" for="edit_image">
+            <x-ui.image-input name="edit_image" id="edit_image" label="Pilih gambar produk" icon="utensils" :current="$model->image ? Storage::url($model->image) : null" hint="Biarkan kosong untuk memakai gambar lama" />
+        </x-ui.field>
+
+        <x-ui.field label="Nama UMKM" for="edit_umkm" required :error="$errors->first('edit_umkm')">
+            <x-ui.select name="edit_umkm" id="edit_umkm" required>
+                @foreach ($umkm as $id => $nama)
+                    <option value="{{ $id }}" @selected(old('edit_umkm', $model->data_umkm_id) == $id)>{{ $nama }}</option>
+                @endforeach
+            </x-ui.select>
+        </x-ui.field>
+
+        <x-ui.field label="Nama Makanan" for="edit_nama_makanan" required :error="$errors->first('edit_nama_makanan')">
+            <x-ui.input type="text" name="edit_nama_makanan" id="edit_nama_makanan" :value="old('edit_nama_makanan', $model->nama_makanan)" required :error="$errors->has('edit_nama_makanan')" />
+        </x-ui.field>
+
+        <x-ui.field label="Deskripsi" for="edit_deskripsi" required :error="$errors->first('edit_deskripsi')">
+            <x-ui.textarea name="edit_deskripsi" id="edit_deskripsi" rows="4" required :error="$errors->has('edit_deskripsi')">{{ old('edit_deskripsi', $model->deskripsi) }}</x-ui.textarea>
+        </x-ui.field>
+
+        <div class="grid grid-cols-2 gap-3">
+            <x-ui.field label="Harga (Rp)" for="edit_harga" required :error="$errors->first('edit_harga')">
+                <x-ui.input type="number" name="edit_harga" id="edit_harga" :value="old('edit_harga', $model->harga)" min="0" step="500" required inputmode="numeric" class="font-mono" :error="$errors->has('edit_harga')" />
+            </x-ui.field>
+            <x-ui.field label="Diskon (%)" for="edit_promo" :error="$errors->first('edit_promo')">
+                <x-ui.input type="number" name="edit_promo" id="edit_promo" :value="old('edit_promo', $model->diskon)" min="0" max="100" step="any" inputmode="decimal" class="font-mono" :error="$errors->has('edit_promo')" />
+            </x-ui.field>
+        </div>
+
+        <x-ui.field label="Kategori" for="edit_category" required :error="$errors->first('edit_category')">
+            <x-ui.select name="edit_category" id="edit_category" required>
+                <option value="">Pilih kategori</option>
+                @foreach (\App\Models\Menu::CATEGORIES as $value => $label)
+                    <option value="{{ $value }}" @selected(old('edit_category', $model->category) === $value)>{{ $label }}</option>
+                @endforeach
+            </x-ui.select>
+        </x-ui.field>
+
+        <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <x-ui.button :href="route('product')" variant="outline">Batal</x-ui.button>
+            <x-ui.button type="submit">Simpan</x-ui.button>
+        </div>
+    </form>
+</section>
+@endsection
