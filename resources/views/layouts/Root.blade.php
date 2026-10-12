@@ -165,9 +165,13 @@
         };
         firebase.initializeApp(firebaseConfigGlobal);
 
-        const messaging = firebase.messaging();
+        // Push messaging butuh secure context (https/localhost) dan Service Worker
+        const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null;
 
         function requestNotificationPermission() {
+            if (!messaging) {
+                return;
+            }
             messaging.requestPermission()
                 .then(function() {
                     console.log('Notification permission granted.');
@@ -206,17 +210,19 @@
         requestNotificationPermission();
 
         // Handle incoming messages
-        messaging.onMessage(function(payload) {
-            console.log('Message received. ', payload);
-            // Customize notification here
-            const notificationTitle = payload.notification.title;
-            const notificationOptions = {
-                body: payload.notification.body,
-                icon: payload.notification.icon
-            };
+        if (messaging) {
+            messaging.onMessage(function(payload) {
+                console.log('Message received. ', payload);
+                // Customize notification here
+                const notificationTitle = payload.notification.title;
+                const notificationOptions = {
+                    body: payload.notification.body,
+                    icon: payload.notification.icon
+                };
 
-            new Notification(notificationTitle, notificationOptions);
-        });
+                new Notification(notificationTitle, notificationOptions);
+            });
+        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
