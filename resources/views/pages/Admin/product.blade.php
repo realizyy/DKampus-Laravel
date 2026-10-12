@@ -1,327 +1,95 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Product') }}
-        </h2>
-    </x-slot>
+@extends('layouts.admin')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <h1 class="text-2xl font-bold mb-4">List Product UMKM</h1>
+@php
+    $grid = 'md:grid-cols-[minmax(0,2.6fr)_9rem_11rem_6.5rem]';
+    $filtered = $q !== '' || $kategori !== '' || $umkmId > 0;
+@endphp
 
-                    @if ($errors->any())
-                    <div class="mb-4 rounded-md bg-red-100 p-3 text-sm text-red-700">
-                        <ul class="list-disc pl-5">
-                            @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    @endif
+@section('page-title', 'Produk')
+@section('subtitle', 'Semua menu dari seluruh resto.')
 
-                    <!-- Button trigger modal -->
-                    <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="document.getElementById('modalProductumkm').classList.remove('hidden')">
-                        Tambah Product
-                    </button>
+@section('header-actions')
+    <x-ui.button icon="plus" size="sm" data-modal-open="add-product"><span class="hidden sm:inline">Tambah Produk</span><span class="sm:hidden">Tambah</span></x-ui.button>
+@endsection
 
-                    <!-- Table for displaying UMKM data -->
-                    <div class="overflow-x-auto sm:overflow-visible">
-                        <table class="min-w-full divide-y divide-gray-200 space-x-4">
-                            <thead>
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Nama UMKM</th>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Nama Makanan</th>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Deskripsi</th>
-                                    {{-- <th scope="col" class="px-6 py-3 tracking-wider">Image Makanan</th>--}}
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Harga</th>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Diskon</th>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Kategori</th>
-                                    <th scope="col" class="px-6 py-3 tracking-wider">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($menus as $menu)
-                                <tr>
-                                    {{--<td>{{ $umkms[$menu->data_umkm_id-1]->nama_umkm }}</td>--}} {{--Ini bug atau gatau kenapa data umkm id + 1, jadi di - 1 ya wwkkwkwkw--}}
-                                    <td>{{ \App\Models\Data_umkm::where('id', $menu->data_umkm_id)->first()->nama_umkm }}</td>
-                                    <td>{{ $menu->nama_makanan }}</td>
-                                    <td>{{ $menu->deskripsi }}</td>
-                                    {{-- <td><img src="{{ Storage::url($menu->image) }}" alt="img" class="mx-2 max-w-xs"></td>--}}
-                                    <td class="text-center" title="Harga Diskon: Rp. {{ number_format($menu->harga * (1 - $menu->diskon/100), 0, ',', '.') }}">
-                                        Rp. {{ number_format($menu->harga, 0, ',', '.') }}
-                                    </td>
-                                    <td class="text-center">{{ $menu->diskon }}%</td>
-                                    <td class="text-center">{{ ucfirst($menu->category ?? 'Tidak ada kategori') }}</td>
-                                    <td class="text-center whitespace-nowrap">
-                                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2" onclick="editProduct(this)" data-id="{{ $menu->id }}" data-umkm="{{ $menu->data_umkm_id }}" data-nama_makanan="{{ $menu->nama_makanan }}" data-deskripsi="{{ $menu->deskripsi }}" data-harga="{{ $menu->harga }}" data-promo="{{ $menu->diskon }}" data-update-url="{{ route('productUpdate', $menu->id) }}" data-category="{{ $menu->category }}">
-                                            Edit
-                                        </button>
-                                        <form action="{{ route('productDestroy', $menu->id) }}" method="post" class="inline">
-                                            @csrf
-                                            @method('delete')
-                                            <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Hapus</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                @endforeach
-                                @if($menus->isEmpty())
-                                <tr>
-                                    <td colspan="7" class="text-center">Tidak ada data</td>
-                                </tr>
-                                @endif
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Pagination links -->
-                    <div class="mt-4">
-                        {{ $menus->links() }}
-                    </div>
-                </div>
-
-                {{-- modal tambah product umkm --}}
-                <div class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true" id="modalProductumkm">
-                    <div class="flex items end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-                            <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                <div class="sm:flex sm:items-start">
-                                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                                        <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-200 mb-5" id="modal-headline">
-                                            Tambah Product
-                                        </h3>
-                                    </div>
-                                </div>
-
-                                <form action="{{ route('save.product') }}" method="POST" enctype="multipart/form-data">
-                                    @csrf
-                                    <div class="mb-4">
-                                        <label for="umkm" class="block text-sm font-medium text-gray-700 dark:text-gray-200">UMKM</label>
-                                        <select name="umkm" id="umkm" class="form-select mt-1 block w-full">
-                                            @foreach($umkms as $umkm)
-                                            <option value="{{ $umkm->id }}">{{ $umkm->nama_umkm }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="nama_makanan" class="block text sm font-medium text-gray-700 dark:text-gray-200">Nama Makanan</label>
-                                        <input type="text" name="nama_makanan" id="nama_makanan" class="form-input mt-1 block w-full" required>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="deskripsi" class="block text sm font-medium text-gray-700 dark:text-gray-200">Deskripsi</label>
-                                        <textarea name="deskripsi" id="deskripsi" class="form-textarea mt-1 block w-full" required></textarea>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="image" class="block text sm font-medium text-gray-700 dark:text-gray-200">Image Makanan</label>
-                                        <input type="file" name="image" id="image" class="form-input mt-1 block w-full" onchange="previewImage()" required>
-                                    </div>
-                                    <div class="mb-4 hidden" id="image-preview">
-                                        <img src="" alt="Image Preview" id="preview" class="max-w-xs">
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="harga" class="block text sm font-medium text-gray-700 dark:text-gray-200">Harga</label>
-                                        <input type="number" name="harga" id="harga" class="form-input mt-1 block w-full" required>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="promo" class="block text sm font-medium text-gray-700 dark:text-gray-200">Promo</label>
-                                        <input type="text" name="promo" id="promo" class="form-input mt-1 block w-full">
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="category" class="block text sm font-medium text-gray-700 dark:text-gray-200">Kategori</label>
-                                        <select name="category" id="category" class="form-select mt-1 block w-full">
-                                            <option value="minuman">Minuman</option>
-                                            <option value="jajanan">Jajanan</option>
-                                            <option value="aneka nasi">Aneka Nasi</option>
-                                            <option value="ayam & bebek">Ayam & Bebek</option>
-                                            <option value="cepat saji">Cepat Saji</option>
-                                            <option value="roti">Roti</option>
-                                            <option value="bakso & soto">Bakso & Soto</option>
-                                            <option value="bakmie">Bakmie</option>
-                                            <option value="mie">Mie</option>
-                                            <option value="sate">Sate</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-4 mt-4">
-                                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Tambah</button>
-                                        <button type="button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onclick="document.getElementById('modalProductumkm').classList.add('hidden')">Batal</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- modal edit product umkm --}}
-                <div class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true" id="modalEditProductumkm">
-                    <div class="flex items end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-                            <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                <div class="sm:flex sm:items-start">
-                                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                                        <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-200" id="modal-headline">
-                                            Edit Product
-                                        </h3>
-                                    </div>
-                                </div>
-                                <form action="{{ route('productUpdate', ['id' => 0]) }}" method="post" enctype="multipart/form-data">
-                                    @csrf
-                                    @method('PUT')
-                                    <div class="mb-4 mt-4">
-                                        <label for="edit_umkm" class="block text-sm font-medium text-gray-700 dark:text-gray-200">UMKM</label>
-                                        <select name="edit_umkm" id="edit_umkm" class="form-select mt-1 block w-full">
-                                            @foreach($umkms as $umkm)
-                                            <option value="{{ $umkm->id }}">{{ $umkm->nama_umkm }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="edit_nama_makanan" class="block text sm font-medium text-gray-700 dark:text-gray-200">Nama Makanan</label>
-                                        <input type="text" name="edit_nama_makanan" id="edit_nama_makanan" class="form-input mt-1 block w-full" required>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="edit_deskripsi" class="block text sm font-medium text-gray-700 dark:text-gray-200">Deskripsi</label>
-                                        <textarea name="edit_deskripsi" id="edit_deskripsi" class="form-textarea mt-1 block w-full" required></textarea>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="edit_image" class="block text sm font-medium text-gray-700 dark:text-gray-200">Image Makanan</label>
-                                        <input type="file" name="edit_image" id="edit_image" class="form-input mt-1 block w-full" accept="image/*" onchange="previewImage('edit_image', 'edit-preview', 'edit-image-preview')">
-                                    </div>
-                                    <div class="mb-4 hidden" id="edit-image-preview">
-                                        <img src="" alt="Image Preview" id="edit-preview" class="max-w-xs">
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="edit_harga" class="block text sm font-medium text-gray-700 dark:text-gray-200">Harga</label>
-                                        <input type="number" name="edit_harga" id="edit_harga" class="form-input mt-1 block w-full" required>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="edit_promo" class="block text sm font-medium text-gray-700 dark:text-gray-200">Diskon (%)</label>
-                                        <input type="number" name="edit_promo" id="edit_promo" class="form-input mt-1 block w-full" min="0" max="100" step="any">
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="edit_category" class="block text sm font-medium text-gray-700 dark:text-gray-200">Kategori</label>
-                                        <select name="edit_category" id="edit_category" class="form-select mt-1 block w-full" required>
-                                            <option value="">-- Pilih kategori --</option>
-                                            <option value="minuman">Minuman</option>
-                                            <option value="jajanan">Jajanan</option>
-                                            <option value="aneka nasi">Aneka Nasi</option>
-                                            <option value="ayam & bebek">Ayam & Bebek</option>
-                                            <option value="cepat saji">Cepat Saji</option>
-                                            <option value="roti">Roti</option>
-                                            <option value="bakso & soto">Bakso & Soto</option>
-                                            <option value="bakmie">Bakmie</option>
-                                            <option value="mie">Mie</option>
-                                            <option value="sate">Sate</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-4">
-                                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Simpan</button>
-                                        <button type="button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onclick="document.getElementById('modalEditProductumkm').classList.add('hidden')">Batal</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+@section('content')
+<div class="space-y-4">
+    @if ($errors->any())
+        <div class="rounded-2xl bg-brick-50 p-4 text-sm text-brick-700 shadow-hairline" role="alert">
+            <ul class="list-disc space-y-0.5 pl-5">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
         </div>
+    @endif
+
+    {{-- Pencarian + filter (server). Perubahan pilihan langsung menerapkan filter --}}
+    <form method="GET" action="{{ route('product') }}" role="search" class="grid gap-3 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
+        <x-ui.input type="search" name="q" icon="search" :value="$q" placeholder="Cari nama makanan" aria-label="Cari produk" autocomplete="off" />
+        <x-ui.select name="umkm" id="filter-umkm" aria-label="Filter resto" onchange="this.form.requestSubmit()">
+            <option value="">Semua resto</option>
+            @foreach ($umkms as $umkm)<option value="{{ $umkm->id }}" @selected($umkmId === $umkm->id)>{{ $umkm->nama_umkm }}</option>@endforeach
+        </x-ui.select>
+        <x-ui.select name="kategori" id="filter-kategori" aria-label="Filter kategori" onchange="this.form.requestSubmit()">
+            <option value="">Semua kategori</option>
+            @foreach (\App\Models\Menu::CATEGORIES as $value => $label)<option value="{{ $value }}" @selected($kategori === $value)>{{ $label }}</option>@endforeach
+        </x-ui.select>
+        <x-ui.button type="submit" variant="secondary" class="md:h-12">Terapkan</x-ui.button>
+    </form>
+
+    <div class="overflow-hidden rounded-2xl bg-surface shadow-card">
+        <div class="flex items-center justify-between border-b border-line px-4 py-3 md:px-5">
+            <h2 class="font-display text-lg font-bold tracking-tight text-ink">Daftar Produk</h2>
+            <span class="font-mono text-xs text-ink-500">{{ $menus->total() }} produk</span>
+        </div>
+        <div class="hidden gap-4 border-b border-line bg-sunken/60 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-ink-500 md:grid {{ $grid }}">
+            <span>Produk</span><span>Kategori</span><span>Harga</span><span class="text-right">Aksi</span>
+        </div>
+
+        <ul class="divide-y divide-line">
+            @foreach ($menus as $menu)
+                @php($final = $menu->harga * (1 - ((float) $menu->diskon) / 100))
+                <li class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-4 py-3.5 hover:bg-canvas/70 md:gap-x-4 md:px-5 {{ $grid }}">
+                    <div class="col-start-1 row-start-1 flex min-w-0 items-center gap-3 md:col-auto md:row-auto">
+                        <x-ui.photo :src="Storage::url($menu->image)" :alt="$menu->nama_makanan" class="size-14 shrink-0 rounded-xl" />
+                        <div class="min-w-0">
+                            <p class="truncate font-semibold text-ink">{{ $menu->nama_makanan }}</p>
+                            <p class="truncate text-sm text-ink-500" title="{{ $menu->deskripsi }}">{{ $menu->data_umkm->nama_umkm ?? 'Resto dihapus' }}</p>
+                        </div>
+                    </div>
+                    <p class="hidden text-sm text-ink-600 md:block">{{ \App\Models\Menu::CATEGORIES[$menu->category] ?? ($menu->category ?: '—') }}</p>
+                    <p class="tnum col-start-1 row-start-2 flex flex-wrap items-center gap-x-2 pl-[4.25rem] font-mono text-sm text-ink md:col-auto md:row-auto md:pl-0" title="Harga setelah diskon">
+                        Rp {{ number_format($final, 0, ',', '.') }}
+                        @if ($menu->diskon > 0)
+                            <span class="text-xs text-ink-400 line-through">{{ number_format($menu->harga, 0, ',', '.') }}</span>
+                            <x-ui.badge tone="brand">{{ rtrim(rtrim(number_format($menu->diskon, 2, ',', ''), '0'), ',') }}%</x-ui.badge>
+                        @endif
+                        <span class="text-xs text-ink-500 md:hidden">· {{ \App\Models\Menu::CATEGORIES[$menu->category] ?? ($menu->category ?: '—') }}</span>
+                    </p>
+                    <div class="col-start-2 row-span-2 row-start-1 flex items-center justify-end gap-1 md:col-auto md:row-auto md:row-span-1">
+                        <button type="button" data-modal-open="edit-product" data-id="{{ $menu->id }}" data-umkm="{{ $menu->data_umkm_id }}" data-nama_makanan="{{ $menu->nama_makanan }}"
+                                data-deskripsi="{{ $menu->deskripsi }}" data-harga="{{ $menu->harga }}" data-promo="{{ $menu->diskon }}" data-category="{{ $menu->category }}"
+                                data-update-url="{{ route('productUpdate', $menu->id) }}" data-image="{{ Storage::url($menu->image) }}"
+                                class="ui-press grid size-9 place-items-center rounded-lg text-ink-500 hover:bg-sunken hover:text-ink" aria-label="Edit {{ $menu->nama_makanan }}"><x-ui.icon name="pencil" class="size-[18px]" /></button>
+                        <button type="button" data-modal-open="delete-product" data-nama="{{ $menu->nama_makanan }}" data-url="{{ route('productDestroy', $menu->id) }}"
+                                class="ui-press grid size-9 place-items-center rounded-lg text-ink-500 hover:bg-brick-50 hover:text-brick-700" aria-label="Hapus {{ $menu->nama_makanan }}"><x-ui.icon name="trash-2" class="size-[18px]" /></button>
+                    </div>
+                </li>
+            @endforeach
+        </ul>
+
+        @if ($menus->isEmpty())
+            @if ($filtered)
+                <x-ui.empty-state icon="search" title="Produk tidak ditemukan" description="Coba kata kunci lain atau longgarkan filter resto dan kategori.">
+                    <x-ui.button :href="route('product')" variant="outline" size="sm">Hapus filter</x-ui.button>
+                </x-ui.empty-state>
+            @else
+                <x-ui.empty-state icon="utensils" title="Belum ada produk" description="Tambahkan menu untuk salah satu resto.">
+                    <x-ui.button size="sm" icon="plus" data-modal-open="add-product">Tambah Produk</x-ui.button>
+                </x-ui.empty-state>
+            @endif
+        @endif
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @if (session('error2'))
-    <script>
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-        })
+    <div>{{ $menus->links() }}</div>
+</div>
 
-        Toast.fire({
-            icon: 'error',
-            title: "{{ session('error2') }}"
-        })
-    </script>
-    @endif
-    @if (session('success'))
-    <script>
-        const ToastSuccess = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-        })
-
-        ToastSuccess.fire({
-            icon: 'success',
-            title: "{{ session('success') }}"
-        })
-    </script>
-    @endif
-
-    <script>
-        // Default untuk modal "tambah"; modal "edit" memakai id edit_*
-        function previewImage(inputId = 'image', previewId = 'preview', containerId = 'image-preview') {
-            var input = document.getElementById(inputId);
-            var preview = document.getElementById(previewId);
-            var imagePreview = document.getElementById(containerId);
-
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    imagePreview.classList.remove('hidden');
-                };
-
-                reader.readAsDataURL(input.files[0]);
-            } else {
-                imagePreview.classList.add('hidden');
-            }
-        }
-    </script>
-    <script>
-        function editProduct(button) {
-            // Get data from data-* attributes
-            var id = button.getAttribute('data-id');
-            var umkm = button.getAttribute('data-umkm');
-            var nama_makanan = button.getAttribute('data-nama_makanan');
-            var deskripsi = button.getAttribute('data-deskripsi');
-            var harga = button.getAttribute('data-harga');
-            var promo = button.getAttribute('data-promo');
-            var category = button.getAttribute('data-category');
-
-            // Fill the form in the modal with the data
-            document.getElementById('edit_umkm').value = umkm;
-            document.getElementById('edit_nama_makanan').value = nama_makanan;
-            document.getElementById('edit_deskripsi').value = deskripsi;
-            document.getElementById('edit_harga').value = harga;
-            document.getElementById('edit_promo').value = promo;
-            document.getElementById('edit_category').value = category;
-
-            // Update the form action to point to the update route
-            var form = document.querySelector('#modalEditProductumkm form');
-            form.action = button.getAttribute('data-update-url');
-
-            // Reset pratinjau gambar dari edit sebelumnya
-            document.getElementById('edit_image').value = '';
-            document.getElementById('edit-image-preview').classList.add('hidden');
-
-            // Show the modal
-            document.getElementById('modalEditProductumkm').classList.remove('hidden');
-        }
-    </script>
-</x-app-layout>
+@include('pages.Admin.partials.product-modals', ['umkms' => $umkms])
+@endsection
