@@ -63,18 +63,20 @@
                     <form action="{{ route('editUser') }}" method="POST">
                         @csrf
                         @method('POST')
-                        <input type="text" name="id_user" value="{{ $user->id }}" class="hidden">
+                        {{-- Diisi oleh editUser() sesuai baris yang diklik --}}
+                        <input type="hidden" name="id_user" id="id_user" value="">
+                        {{-- Hanya role & restriction yang disimpan (AdminController::editUser) --}}
                         <div class="mb-4 mt-4">
                             <label for="nama_user" class="block text-gray-700 dark:text-gray-200 text-sm font-bold mb-2">Name</label>
-                            <input type="text" name="nama_user" id="nama_user" class="block w-full" value="{{ $user->nama_user }}">
+                            <input type="text" name="nama_user" id="nama_user" class="block w-full bg-gray-100 text-gray-500" value="" readonly>
                         </div>
                         <div class="mb-4">
                             <label for="email" class="block text-gray-700 dark:text-gray-200 text-sm font-bold mb-2">Email</label>
-                            <input type="email" name="email" id="email" class="block w-full" value="{{ $user->email }}">
+                            <input type="email" name="email" id="email" class="block w-full bg-gray-100 text-gray-500" value="" readonly>
                         </div>
                         <div class="mb-4">
                             <label for="no_telp" class="block text-gray-700 dark:text-gray-200 text-sm font-bold mb-2">No. Telp</label>
-                            <input type="text" name="no_telp" id="no_telp" class="block w-full" value="{{ $user->no_telp }}">
+                            <input type="text" name="no_telp" id="no_telp" class="block w-full bg-gray-100 text-gray-500" value="" readonly>
                         </div>
                         <div class="mb-4">
                             <label for="role" class="block text-gray-700 dark:text-gray-200 text-sm font-bold mb-2">Role</label>
@@ -116,6 +118,7 @@
         var restriction = button.getAttribute('data-restriction');
 
         // Fill the form in the modal with the data
+        document.getElementById('id_user').value = id;
         document.getElementById('nama_user').value = name;
         document.getElementById('email').value = email;
         document.getElementById('no_telp').value = phone;
