@@ -268,12 +268,6 @@ class HomeModel
             'Desc' => 'Syarat dan ketentuan adalah peraturan yang harus diikuti oleh pengguna kami',
             'Url' => '/syarat-ketentuan'
         ],
-        [
-            'Icon' => 'ulasan.svg',
-            'Title' => 'Beri Kami Ulasan',
-            'Desc' => 'Bagikan pendapat Anda dengan memberikan ulasan.',
-            'Url' => '/beri-ulasan'
-        ],
     ];
 
     public static function carouselData(){
