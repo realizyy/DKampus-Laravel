@@ -4,7 +4,7 @@
     Varian Figma: tone success (Konfirmasi), danger (Hapus/Logout), brand.
     Event "modal:opening" (detail = dataset pemicu) memungkinkan halaman mengisi isi modal dari tombol yang diklik.
 --}}
-@props(['name', 'title' => null, 'description' => null, 'tone' => 'brand', 'icon' => null, 'dismissible' => true])
+@props(['name', 'title' => null, 'description' => null, 'tone' => 'brand', 'icon' => null, 'dismissible' => true, 'size' => 'sm'])
 @php
     $tones = [
         'success' => ['bg-moss-100 text-moss-700', 'circle-check'],
@@ -13,9 +13,10 @@
         'neutral' => ['bg-sunken text-ink-600', 'info'],
     ];
     [$toneClass, $defaultIcon] = $tones[$tone] ?? $tones['brand'];
+    $width = $size === 'md' ? 'w-[min(28rem,calc(100vw-2rem))]' : 'w-[min(21.5rem,calc(100vw-2rem))]';
 @endphp
 <dialog id="modal-{{ $name }}" class="d-modal" aria-labelledby="modal-{{ $name }}-title" {{ $attributes }}>
-    <div class="d-modal-box w-[min(21.5rem,calc(100vw-2rem))] max-w-none rounded-2xl bg-surface p-5 shadow-pop">
+    <div class="d-modal-box {{ $width }} max-h-[calc(100dvh-2rem)] max-w-none overflow-y-auto rounded-2xl bg-surface p-5 shadow-pop">
         <div class="flex items-start justify-between gap-3">
             <span class="grid size-11 place-items-center rounded-full {{ $toneClass }}">
                 <x-ui.icon :name="$icon ?? $defaultIcon" class="size-5" />
