@@ -63,7 +63,7 @@
     </div>
 
     <div class="border-[0.2rem] border-[#F9832A]/50 w-full col-span-2 h-80 rounded-xl overflow-hidden">
-        <img src="./bigFood.jpg" alt="" class="w-full h-full object-cover">
+        <img src="/bigFood.jpg" alt="" class="w-full h-full object-cover">
     </div>
 
     <div class="border-[0.2rem] shadow-sm w-full flex flex-col justify-around col-span-2 h-[21rem] overflow-hidden rounded-xl">
@@ -86,7 +86,7 @@
 
                  {{-- Header Card --}}
                  <div id="headerCard" class="w-96">
-                     <img src="{{$Item['Discount']}}" alt="" class="absolute">
+                     <img src="/{{$Item['Discount']}}" alt="" class="absolute">
                          <img src="{{Storage::url($Item['Img'])}}" alt="" class="w-full h-[8rem] object-cover">
                  </div>
 
@@ -103,7 +103,7 @@
                      <div id="desc" class="flex flex-col gap-0.5">
                          <h1 class="font-semibold text-lg text-wrapper-promo-terlaris">{{$Item['nama_makanan']}}</h1>
                          <div id="ratings" class="w-max overflow-x-scroll flex flex-row items-center gap-1.5">
-                         <img src="Iconly/Bold/Star.svg" alt="">
+                         <img src="/Iconly/Bold/Star.svg" alt="">
                          <h1>{{$Item['Ratings']}}</h1>
                          </div>
                      </div>
@@ -134,7 +134,7 @@
 
                      {{-- Header Card --}}
                      <div id="headerCard" class="w-96">
-                         <img src="{{$Item['Discount']}}" alt="" class="absolute">
+                         <img src="/{{$Item['Discount']}}" alt="" class="absolute">
                          <img src="{{Storage::url($Item['Img'])}}" alt="" class="w-full h-[8rem] object-cover">
                      </div>
 
@@ -151,7 +151,7 @@
                          <div id="desc" class="flex flex-col gap-0.5">
                              <h1 class="font-semibold text-lg text-wrapper-promo-terlaris">{{$Item['nama_makanan']}}</h1>
                              <div id="ratings" class="w-max overflow-x-scroll flex flex-row items-center gap-1.5">
-                             <img src="Iconly/Bold/Star.svg" alt="">
+                             <img src="/Iconly/Bold/Star.svg" alt="">
                              <h1>{{$Item['Ratings']}}</h1>
                              </div>
                          </div>
@@ -219,7 +219,7 @@
                 <div class="flex flex-col gap-3">
                     @forelse ($FooterPart3KeamananDanPrivasi as $part3KeamananDanPrivasi)
                     <div class="flex flex-row items-center gap-1">
-                        <img src="{{$part3KeamananDanPrivasi['img']}}" alt="" class="w-5">
+                        <img src="/{{ ltrim($part3KeamananDanPrivasi['img'], '/') }}" alt="" class="w-5">
                         <a href="{{$part3KeamananDanPrivasi['url']}}">
                             {{$part3KeamananDanPrivasi['title']}}
                         </a>
@@ -234,7 +234,7 @@
                 <div class="flex flex-row items-center gap-2">
                 @forelse ($FooterPart3IkutiKami as $part3IkutiKami)
                 <a href="{{$part3IkutiKami['url']}}">
-                    <img src="{{$part3IkutiKami['img']}}" alt="" class="w-8">
+                    <img src="/{{ ltrim($part3IkutiKami['img'], '/') }}" alt="" class="w-8">
                 </a>
                 @empty
 
@@ -243,7 +243,7 @@
             </div>
         </div>
         <div id="part4" class="flex flex-col justify-center items-center gap-5 mx-auto">
-            <img src="logoFooter.svg" alt="" class="w-[15vw]">
+            <img src="/logoFooter.svg" alt="" class="w-[15vw]">
             <h1 class="font-semibold text-center">© 2021 - 2023,Dkampus Indonesia</h1>
         </div>
     </footer>
