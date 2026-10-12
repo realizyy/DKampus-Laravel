@@ -1,68 +1,56 @@
-@extends('layouts.Root')
+@extends('layouts.courier')
+
+@section('page-title', 'Status Order')
+@section('back', route('cour.history'))
+
 @section('content')
-    <header class="sticky top-0 left-0 flex justify-center w-full bg-white z-10 shadow-md py-8">
-        <a href="{{ route('cour.history') }}" class="absolute top-5 left-5 flex items-center gap-x-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#F9832A" class="bi bi-arrow-left" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M10.354 1.646a.5.5 0 0 1 0 .708L5.707 7l4.647 4.646a.5.5 0 0 1-.708.708l-5-5a.5.5 0 0 1 0-.708l5-5a.5.5 0 0 1 .708 0z" />
-            </svg>
-            <h1 class="font-bold text-black text-xl mb-1">Status Order</h1>
-        </a>
-    </header>
-
-    <main class="px-4 sm:px-6 py-4">
-        <div class="flex flex-col items-center justify-start gap-1">
-            <p class="font-bold text-[#F9832A] text-lg sm:text-xl">{{ ucfirst($status) }}</p>
-            <p class="text-gray-400 text-xs">
-                <span class="text-[#F9832A]">{{ optional($created_at)->format('Y-m-d H:i:s') }}</span>
-            </p>
+@php
+    $orderId = '#TRX'.strtoupper(substr($id, 0, 10));
+    $rp = fn ($n) => 'Rp '.number_format((int) $n, 0, ',', '.');
+@endphp
+<div class="grid items-start gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+    <x-ui.card class="space-y-5" x-motion.rise>
+        <div class="flex items-start justify-between gap-3">
+            <div>
+                <x-ui.status :value="$status" :label="ucfirst($status)" />
+                <p class="tnum mt-2 font-mono text-sm text-ink-500">{{ optional($created_at)->format('Y-m-d H:i:s') }}</p>
+            </div>
+            <div class="text-right">
+                <p class="font-mono text-[11px] uppercase tracking-widest text-ink-500">Order ID</p>
+                <p class="font-mono text-sm font-semibold uppercase text-ink">{{ $orderId }}</p>
+            </div>
         </div>
-        <div class="w-full h-px bg-gray-300 my-3"></div>
 
-        <div class="flex justify-between items-center gap-3 p-2">
-            <div class="flex items-center">
-                <img src="{{ asset('Avatar/Large.svg') }}" alt="" class="w-10 h-10 sm:w-14 sm:h-14 rounded-full object-cover bg-gray-300">
-                <div class="flex flex-col gap-1 mx-2">
-                    <h1 class="font-bold text-black text-sm sm:text-base">{{ $cust_name }}</h1>
+        <div class="flex items-center gap-3 rounded-xl bg-sunken p-3">
+            <span class="grid size-10 place-items-center rounded-lg bg-brand-100 text-brand-800"><x-ui.icon name="store" class="size-5" /></span>
+            <p class="font-display text-lg font-bold tracking-tight text-ink">{{ $umkm }}</p>
+        </div>
+
+        <dl class="space-y-2.5 text-[15px]">
+            <div class="flex items-center justify-between"><dt class="text-ink-600">Pembayaran</dt><dd><img src="{{ asset('qris.svg') }}" alt="QRIS" class="h-8 w-auto"></dd></div>
+            <div class="flex justify-between"><dt class="text-ink-600">Subtotal</dt><dd class="tnum font-mono text-ink">{{ $rp($total) }}</dd></div>
+            <div class="flex justify-between"><dt class="text-ink-600">Ongkir</dt><dd class="tnum font-mono text-ink">{{ $rp($ongkir) }}</dd></div>
+            <div class="flex justify-between border-t border-line pt-2.5 text-base font-semibold"><dt class="text-ink">Total</dt><dd class="tnum font-mono text-ink">Rp {{ number_format($total + $ongkir, 0, ',', '.') }}</dd></div>
+        </dl>
+    </x-ui.card>
+
+    <div class="space-y-4">
+        <x-ui.card class="flex items-center justify-between gap-3" x-motion.rise="{ delay: 0.06 }">
+            <div class="flex min-w-0 items-center gap-3">
+                <x-ui.avatar :name="$cust_name" size="lg" />
+                <div class="min-w-0">
+                    <p class="font-mono text-[11px] uppercase tracking-widest text-ink-500">Pelanggan</p>
+                    <p class="truncate font-display text-lg font-bold tracking-tight text-ink">{{ $cust_name }}</p>
                 </div>
             </div>
             <form action="{{ route('room.chat.courier') }}" method="POST">
                 @csrf
-                <button type="submit" class="w-7 sm:w-6">
-                    <img src="/bubbleChat.svg" alt="Chat Icon" class="w-full">
-                </button>
                 <input type="hidden" value="{{ $custId }}" name="custId">
+                <x-ui.button type="submit" variant="secondary" class="!px-0 size-11" aria-label="Chat pelanggan"><x-ui.icon name="message-circle" class="size-5" /></x-ui.button>
             </form>
-        </div>
+        </x-ui.card>
 
-        <div class="w-full h-px bg-gray-300 my-3"></div>
-        <div class="grid grid-cols-2 gap-2">
-            <div class="flex items-center gap-x-2">
-                <img src="{{ asset('shop-orange.svg') }}" alt="" class="w-4 h-4 sm:w-6 sm:h-6">
-                <p class="font-bold text-black text-sm sm:text-base">{{ $umkm }}</p>
-            </div>
-            <div class="text-right">
-                <p class="text-black text-sm sm:text-base"> Order ID:</p>
-                <p class="text-black font-bold text-right uppercase text-sm sm:text-base">#TRX{{ strtoupper(substr($id, 0, 10)) }}</p>
-            </div>
-
-            <p class="text-black text-sm sm:text-base">Pembayaran</p>
-            <img src="{{ asset('qris.svg') }}" alt="" class="w-8 h-8 sm:w-10 sm:h-10 ml-auto">
-
-            <p class="text-black text-sm sm:text-base">Subtotal</p>
-            <p class="text-black text-right text-sm sm:text-base">Rp {{ number_format($total, 0, ',', '.') }}</p>
-
-            <p class="text-black text-sm sm:text-base">Ongkir</p>
-            <p class="text-black text-right text-sm sm:text-base">Rp {{ number_format($ongkir, 0, ',', '.') }} </p>
-
-            <p class="text-black text-sm sm:text-base">Total</p>
-            <p class="text-black text-right text-sm sm:text-base">Rp {{ number_format($total + $ongkir, 0, ',', '.') }}</p>
-        </div>
-        <div class="w-full h-px bg-gray-300 my-3"></div>
-
-        <div class="flex justify-center items-center mt-4">
-            <a href="{{ route('cour.history') }}" class="bg-[#F9832A] hover:bg-[#d87525] text-white font-bold py-2 px-4 rounded-md text-sm sm:text-base">
-                Kembali ke Status Order
-            </a>
-        </div>
-    </main>
+        <x-ui.button :href="route('cour.history')" icon="arrow-left" variant="secondary" block>Kembali ke Status Order</x-ui.button>
+    </div>
+</div>
 @endsection
