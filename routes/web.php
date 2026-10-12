@@ -19,6 +19,7 @@ use App\Http\Controllers\UmkmController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UntukKamuController;
 use App\Http\Controllers\CsController;
@@ -261,9 +262,17 @@ Route::get('/favorit', function (UmkmController $umkmController) {
 // Login & Register Routes
 Route::get('/masuk', [UserController::class, 'login']);
 Route::get('/daftar', [UserController::class, 'register']);
-Route::get('/input-registrasi', [UserController::class, 'input_register']);
-Route::get('/code-verification', [UserController::class, 'code_verification']);
-Route::get('/atur-ulang-kata-sandi', [UserController::class, 'atur_ulang_kata_sandi']);
+// Alamat lama dari prototipe statis -> alur nyata
+Route::redirect('/input-registrasi', '/daftar');
+Route::redirect('/code-verification', '/verifikasi-akun');
+Route::get('/akun-berhasil', [PageController::class, 'accountCreated'])->name('account.created');
+Route::get('/kata-sandi-berhasil', [PageController::class, 'passwordReset'])->name('reset.done');
+
+// Onboarding dan halaman Seputar Dkampus
+Route::get('/mulai', [PageController::class, 'onboarding'])->name('onboarding');
+Route::get('/tentang-kami', [PageController::class, 'about'])->name('about');
+Route::get('/syarat-ketentuan', [PageController::class, 'terms'])->name('terms');
+Route::get('/kebijakan-privasi', [PageController::class, 'privacy'])->name('privacy');
 
 //customer Routes
 Route::middleware(['check.customer.role'])->group(
