@@ -257,15 +257,15 @@ class UmkmController extends Controller
      */
     public function destroy($id)
     {
+        $umkm = Data_umkm::findOrFail($id);
+
         try {
-            $umkm = Data_umkm::find($id);
-            Data_umkm::findOrFail($umkm->id)->delete();
+            $umkm->delete();
             Storage::delete($umkm->nama_umkm . '/' . $umkm->logo_umkm);
-            session()->flash('success', 'Umkm ' . $umkm->nama_umkm . ' Berhasil Dihapus');
-            return redirect()->back();
+            return redirect()->route('umkm')->with('success', 'Resto ' . $umkm->nama_umkm . ' berhasil dihapus.');
         } catch (\Exception $e) {
-            session()->flash('error2', 'Umkm ' . $umkm->nama_umkm . ' Gagal Dihapus');
-            return redirect()->back()->with('error2', 'Error');
+            report($e);
+            return redirect()->back()->with('error2', 'Resto ' . $umkm->nama_umkm . ' gagal dihapus.');
         }
     }
 }
