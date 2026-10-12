@@ -399,7 +399,9 @@ class CourierController extends Controller
     public function waCour(Request $request)
     {
         $custId = $request->input('custId');
-        $wa = User::find($custId)->no_telp;
+        $customer = User::find($custId);
+        abort_if($customer === null, 404);
+        $wa = (string) $customer->no_telp;
         if (substr($wa, 0, 2) === '08') {
             $convertedNumber = '+62' . substr($wa, 1);
         } else {
