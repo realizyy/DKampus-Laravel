@@ -22,7 +22,7 @@
         <h1 class="mt-1 font-display text-3xl font-extrabold tracking-tightest">UI Kit</h1>
         <p class="mt-2 text-sm text-ink-500">Semua komponen × state. Hanya tersedia di lingkungan lokal.</p>
         <nav class="mt-6 hidden flex-col gap-1 text-sm font-semibold text-ink-600 md:flex" aria-label="Bagian">
-            @foreach (['Warna', 'Tipografi', 'Tombol', 'Form', 'Status', 'Kartu', 'Modal & toast', 'Navigasi', 'Lain-lain'] as $s)
+            @foreach (['Warna', 'Tipografi', 'Tombol', 'Form', 'Status', 'Kartu', 'Modal & toast', 'Input lanjutan', 'Panel samping', 'Navigasi', 'Lain-lain'] as $s)
                 <a href="#{{ \Illuminate\Support\Str::slug($s) }}" class="ui-press rounded-lg px-2.5 py-1.5 hover:bg-sunken hover:text-ink">{{ $s }}</a>
             @endforeach
         </nav>
@@ -139,6 +139,44 @@
             </x-ui.modal>
         </section>
 
+        <section id="input-lanjutan" class="space-y-4" x-motion.rise.inview>
+            <h2 class="font-display text-2xl font-bold tracking-tight">Input lanjutan</h2>
+            <x-ui.card class="grid gap-5 sm:grid-cols-2">
+                <x-ui.field label="Kata sandi (tampil/sembunyi)" for="p1"><x-ui.password id="p1" name="demo_password" value="rahasia123" /></x-ui.field>
+                <x-ui.field label="Kata sandi salah" for="p2" error="Kata sandi minimal 8 karakter."><x-ui.password id="p2" name="demo_password2" :error="true" /></x-ui.field>
+                <x-ui.field label="Kode OTP (6 digit, tempel didukung)" class="sm:col-span-2"><x-ui.otp name="demo_otp" :autosubmit="false" /></x-ui.field>
+                <x-ui.field label="Bukti pembayaran (pilih file)" for="f1"><x-ui.file-input name="demo_file" id="f1" /></x-ui.field>
+                <x-ui.field label="Rating (klik atau panah kiri/kanan)"><x-ui.star-input name="demo_rating" :value="3" /></x-ui.field>
+                <x-ui.field label="Gambar resto (pratinjau)" for="i1" class="sm:col-span-2"><x-ui.image-input name="demo_image" id="i1" label="Pilih gambar resto" icon="store" /></x-ui.field>
+            </x-ui.card>
+            <div class="grid gap-3 sm:grid-cols-3">
+                <x-ui.photo src="/tidak-ada.jpg" alt="Gambar gagal dimuat tampil sebagai ikon" icon="utensils" class="aspect-[4/3] rounded-2xl" />
+                <x-ui.photo src="/tidak-ada.jpg" alt="" icon="store" :grayscale="true" class="aspect-[4/3] rounded-2xl" />
+                <x-ui.card class="flex items-center justify-center"><x-ui.avatar name="Rina Pratama" size="xl" /></x-ui.card>
+            </div>
+        </section>
+
+        <section id="panel-samping" class="space-y-4" x-motion.rise.inview>
+            <h2 class="font-display text-2xl font-bold tracking-tight">Panel samping & paginasi</h2>
+            <x-ui.card class="flex flex-wrap items-center gap-3">
+                <x-ui.button data-modal-open="demo-sheet" icon="users">Buka panel (slide-over / bottom sheet)</x-ui.button>
+            </x-ui.card>
+            <x-ui.sheet name="demo-sheet" title="Detail Akun" description="Informasi akun dan pengaturan role">
+                <div class="space-y-4">
+                    <x-ui.field label="Nama Lengkap" for="s1"><x-ui.input id="s1" value="Benjamin Wong" readonly /></x-ui.field>
+                    <x-ui.field label="Role" for="s2"><x-ui.select id="s2"><option>Customer</option><option>Driver</option></x-ui.select></x-ui.field>
+                </div>
+                <x-slot:footer>
+                    <div class="flex flex-col gap-2">
+                        <x-ui.button block data-modal-close>Simpan</x-ui.button>
+                        <x-ui.button variant="danger-soft" icon="trash-2" block>Hapus Akun</x-ui.button>
+                    </div>
+                </x-slot:footer>
+            </x-ui.sheet>
+            @php($demoPages = new \Illuminate\Pagination\LengthAwarePaginator(range(1, 10), 47, 10, 3, ['path' => url('/_ui')]))
+            <x-ui.card>{{ $demoPages->links() }}</x-ui.card>
+        </section>
+
         <section id="navigasi" class="space-y-4" x-motion.rise.inview>
             <h2 class="font-display text-2xl font-bold tracking-tight">Navigasi</h2>
             <p class="text-sm text-ink-500">Bottom-nav tetap menempel di bawah layar (mobile). Bump oranye menandai tab aktif.</p>
@@ -158,5 +196,7 @@
     ['label' => 'Tombol', 'href' => '#tombol', 'hint' => 'variants'],
     ['label' => 'Form', 'href' => '#form', 'hint' => 'input, select'],
     ['label' => 'Modal & toast', 'href' => '#modal-toast', 'hint' => 'dialog'],
+    ['label' => 'Input lanjutan', 'href' => '#input-lanjutan', 'hint' => 'password, otp, gambar'],
+    ['label' => 'Panel samping', 'href' => '#panel-samping', 'hint' => 'sheet, paginasi'],
 ]" />
 @endsection
