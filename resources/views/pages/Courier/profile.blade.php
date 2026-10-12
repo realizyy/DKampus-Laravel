@@ -129,7 +129,6 @@
         </div>
     </div>
     @include('components.navbar.navbarCourier')
-@endsection
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -175,3 +174,4 @@
         });
     });
 </script>
+@endsection
