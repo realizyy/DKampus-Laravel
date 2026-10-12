@@ -1,8 +1,105 @@
+/* Font self-host (variabel). Hanya subset yang dipakai halaman yang diunduh browser. */
+@import '@fontsource-variable/bricolage-grotesque/wght.css';
+@import '@fontsource-variable/source-sans-3/wght.css';
+@import '@fontsource-variable/geist-mono/wght.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-.swiper {
-    width: 100px;
-    height: 300px;
+@layer base {
+    :root {
+        color-scheme: light;
+    }
+
+    /* Kanvas krem di <html> supaya lapisan noise (body::before) tampil di atasnya, di bawah konten */
+    html {
+        background-color: theme('colors.canvas');
+        -webkit-text-size-adjust: 100%;
+        text-rendering: optimizeLegibility;
+    }
+
+    body {
+        @apply font-sans text-ink antialiased;
+        font-feature-settings: 'tnum' 0, 'kern' 1;
+    }
+
+    /* Tekstur halus: noise SVG 3.5%, mati bila pengguna meminta kontras lebih */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        opacity: 0.035;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    }
+
+    @media (prefers-contrast: more) {
+        body::before {
+            display: none;
+        }
+    }
+
+    ::selection {
+        background-color: theme('colors.brand.200');
+        color: theme('colors.ink.DEFAULT');
+    }
+
+    /* Fokus keyboard yang konsisten untuk semua elemen interaktif (specificity rendah: mudah ditimpa) */
+    :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+        outline: 2px solid theme('colors.brand.500');
+        outline-offset: 2px;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+
+    /* Angka bertabel untuk harga/ongkir/Order ID */
+    .tnum {
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+@layer components {
+    /* Umpan balik tekan: skala turun halus, ease-out 150ms */
+    .ui-press {
+        transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1), background-color 150ms ease-out,
+            border-color 150ms ease-out, color 150ms ease-out, box-shadow 150ms ease-out, opacity 150ms ease-out;
+    }
+    .ui-press:active:not(:disabled):not([aria-disabled='true']) {
+        transform: scale(0.97);
+    }
+
+    .ui-disabled,
+    .ui-press:disabled,
+    .ui-press[aria-disabled='true'] {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* Elemen x-motion tersembunyi sampai Alpine menganimasikannya (failsafe bila JS tidak jalan) */
+    .js [x-motion]:not([data-motion-done]) {
+        opacity: 0;
+    }
+    .motion-failsafe [x-motion] {
+        opacity: 1 !important;
+    }
+}
+
+/* Hormati preferensi pengguna: matikan animasi dan transisi */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+    .ui-press:active:not(:disabled) {
+        transform: none;
+    }
 }
