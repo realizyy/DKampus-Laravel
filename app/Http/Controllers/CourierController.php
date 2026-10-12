@@ -194,14 +194,14 @@ class CourierController extends Controller
             $database = app('firebase.database');
             $cust_name = $database->getReference('chats/' . $custId . '-' . $courId . '/cust_name')->getValue();
             $refKey = $database->getReference('chats/' . $custId . '-' . $courId)->getChildKeys();
-            // dd($date);
+            $date = null;
             foreach ($refKey as $key) {
                 $date = $database->getReference('chats/' . $custId . '-' . $courId . '/' . $key . '/msgs/timestamp')->getValue();
                 if ($date != null) {
                     break;
                 }
             }
-            $wa = User::find($custId)->no_telp;
+            $wa = (string) optional(User::find($custId))->no_telp;
             if (substr($wa, 0, 2) === '08') {
                 $convertedNumber = '+62' . substr($wa, 1);
             } else {
