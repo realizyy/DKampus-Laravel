@@ -215,22 +215,42 @@ class MenuController extends Controller
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
+            'edit_umkm' => 'required|exists:data_umkms,id',
             'edit_nama_makanan' => 'required|string',
             'edit_deskripsi' => 'required|string',
-            'edit_harga' => 'required|numeric',
-            'edit_promo' => 'nullable|string',
+            'edit_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'edit_harga' => 'required|numeric|min:0',
+            // "promo" di form = persentase diskon (kolom menus.diskon)
+            'edit_promo' => 'nullable|numeric|min:0|max:100',
             'edit_category' => 'required|string',
+        ], [], [
+            'edit_umkm' => 'UMKM',
+            'edit_nama_makanan' => 'nama makanan',
+            'edit_deskripsi' => 'deskripsi',
+            'edit_image' => 'gambar',
+            'edit_harga' => 'harga',
+            'edit_promo' => 'diskon',
+            'edit_category' => 'kategori',
         ]);
 
         $menu = Menu::findOrFail($id);
 
-        $menu->update([
+        $data = [
+            'data_umkm_id' => $validatedData['edit_umkm'],
             'nama_makanan' => $validatedData['edit_nama_makanan'],
             'deskripsi' => $validatedData['edit_deskripsi'],
             'harga' => $validatedData['edit_harga'],
-            'promo' => $validatedData['edit_promo'],
+            'diskon' => $validatedData['edit_promo'] ?? 0,
             'category' => $validatedData['edit_category'],
-        ]);
+        ];
+
+        // Gambar opsional: kalau tidak diunggah, gambar lama dipertahankan
+        if ($request->hasFile('edit_image')) {
+            $umkm = Data_umkm::findOrFail($validatedData['edit_umkm']);
+            $data['image'] = $request->file('edit_image')->storePublicly('public/' . $umkm->nama_umkm);
+        }
+
+        $menu->update($data);
 
         return redirect()->back()->with('success', 'Menu item updated successfully.');
     }

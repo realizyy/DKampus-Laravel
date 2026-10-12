@@ -11,6 +11,16 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <h1 class="text-2xl font-bold mb-4">List Product UMKM</h1>
 
+                    @if ($errors->any())
+                    <div class="mb-4 rounded-md bg-red-100 p-3 text-sm text-red-700">
+                        <ul class="list-disc pl-5">
+                            @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+
                     <!-- Button trigger modal -->
                     <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="document.getElementById('modalProductumkm').classList.remove('hidden')">
                         Tambah Product
@@ -45,7 +55,7 @@
                                     <td class="text-center">{{ $menu->diskon }}%</td>
                                     <td class="text-center">{{ ucfirst($menu->category ?? 'Tidak ada kategori') }}</td>
                                     <td class="text-center whitespace-nowrap">
-                                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2" onclick="editProduct(this)" data-id="{{ $menu->id }}" data-umkm="{{ $menu->data_umkm_id }}" data-nama_makanan="{{ $menu->nama_makanan }}" data-deskripsi="{{ $menu->deskripsi }}" data-harga="{{ $menu->harga }}" data-promo="{{ $menu->diskon }} " data-category="{{ $menu->category }}">
+                                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2" onclick="editProduct(this)" data-id="{{ $menu->id }}" data-umkm="{{ $menu->data_umkm_id }}" data-nama_makanan="{{ $menu->nama_makanan }}" data-deskripsi="{{ $menu->deskripsi }}" data-harga="{{ $menu->harga }}" data-promo="{{ $menu->diskon }}" data-update-url="{{ route('productUpdate', $menu->id) }}" data-category="{{ $menu->category }}">
                                             Edit
                                         </button>
                                         <form action="{{ route('productDestroy', $menu->id) }}" method="post" class="inline">
@@ -158,7 +168,7 @@
                                         </h3>
                                     </div>
                                 </div>
-                                <form action="{{ route('productUpdate', ['id' => $menu->id ?? '0']) }}" method="post" enctype="multipart/form-data">
+                                <form action="{{ route('productUpdate', ['id' => 0]) }}" method="post" enctype="multipart/form-data">
                                     @csrf
                                     @method('PUT')
                                     <div class="mb-4 mt-4">
@@ -179,7 +189,7 @@
                                     </div>
                                     <div class="mb-4">
                                         <label for="edit_image" class="block text sm font-medium text-gray-700 dark:text-gray-200">Image Makanan</label>
-                                        <input type="file" name="edit_image" id="edit_image" class="form-input mt-1 block w-full" onchange="previewImage()">
+                                        <input type="file" name="edit_image" id="edit_image" class="form-input mt-1 block w-full" accept="image/*" onchange="previewImage('edit_image', 'edit-preview', 'edit-image-preview')">
                                     </div>
                                     <div class="mb-4 hidden" id="edit-image-preview">
                                         <img src="" alt="Image Preview" id="edit-preview" class="max-w-xs">
@@ -189,12 +199,13 @@
                                         <input type="number" name="edit_harga" id="edit_harga" class="form-input mt-1 block w-full" required>
                                     </div>
                                     <div class="mb-4">
-                                        <label for="edit_promo" class="block text sm font-medium text-gray-700 dark:text-gray-200">Promo</label>
-                                        <input type="text" name="edit_promo" id="edit_promo" class="form-input mt-1 block w-full">
+                                        <label for="edit_promo" class="block text sm font-medium text-gray-700 dark:text-gray-200">Diskon (%)</label>
+                                        <input type="number" name="edit_promo" id="edit_promo" class="form-input mt-1 block w-full" min="0" max="100" step="any">
                                     </div>
                                     <div class="mb-4">
                                         <label for="edit_category" class="block text sm font-medium text-gray-700 dark:text-gray-200">Kategori</label>
-                                        <select name="edit_category" id="edit_category" class="form-select mt-1 block w-full">
+                                        <select name="edit_category" id="edit_category" class="form-select mt-1 block w-full" required>
+                                            <option value="">-- Pilih kategori --</option>
                                             <option value="minuman">Minuman</option>
                                             <option value="jajanan">Jajanan</option>
                                             <option value="aneka nasi">Aneka Nasi</option>
@@ -263,10 +274,11 @@
     @endif
 
     <script>
-        function previewImage() {
-            var input = document.getElementById('image');
-            var preview = document.getElementById('preview');
-            var imagePreview = document.getElementById('image-preview');
+        // Default untuk modal "tambah"; modal "edit" memakai id edit_*
+        function previewImage(inputId = 'image', previewId = 'preview', containerId = 'image-preview') {
+            var input = document.getElementById(inputId);
+            var preview = document.getElementById(previewId);
+            var imagePreview = document.getElementById(containerId);
 
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
@@ -302,16 +314,14 @@
 
             // Update the form action to point to the update route
             var form = document.querySelector('#modalEditProductumkm form');
-            // form.action = '/product/update/' + id;
+            form.action = button.getAttribute('data-update-url');
+
+            // Reset pratinjau gambar dari edit sebelumnya
+            document.getElementById('edit_image').value = '';
+            document.getElementById('edit-image-preview').classList.add('hidden');
 
             // Show the modal
             document.getElementById('modalEditProductumkm').classList.remove('hidden');
         }
-    </script>
-    <script>
-        document.querySelector('[data-bs-target="#modalProductumkm"]').addEventListener('click', function() {
-            event.preventDefault();
-            document.getElementById('modalProductumkm').classList.remove('hidden');
-        });
     </script>
 </x-app-layout>
