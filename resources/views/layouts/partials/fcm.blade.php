@@ -30,7 +30,8 @@
             })
             .catch(function(err) {
                 if (Notification.permission === 'denied') {
-                    alert('Notification permission denied. You can allow notifications from your browser settings.');
+                    // Jangan alert(): dialog modal memblokir halaman di setiap pemuatan bagi yang sudah menolak izin
+                    console.info('Notifikasi diblokir. Izinkan lewat pengaturan situs di browser untuk menerima notifikasi order.');
                 } else if (Notification.permission === 'default') {
                     console.log('User dismissed the notification permission request.');
                 }
