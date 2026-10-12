@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('deskripsi');
             $table->string('image');
             $table->integer('harga');
-            $table->int("promo");
+            $table->integer("promo");
             $table->string('kategori');
             $table->decimal('rating');            
             $table->timestamps();
