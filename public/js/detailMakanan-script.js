@@ -2,13 +2,13 @@
 
 document.addEventListener('scroll',function(){
     const navbarDetailMakanan = document.getElementById('navbar-detail-makanan')
-    const titleDetail = document.getElementById('titleDetail');
+    const titleDetail = document.getElementById('titleDetail'); // opsional: tidak selalu ada di view
     const scrolled = window.scrollY;
     if(scrolled > 100 && scrolled < 150){
         navbarDetailMakanan.style.marginTop = "0rem";
         navbarDetailMakanan.classList.add('backdrop-blur')
-        titleDetail.classList.add('visible')
-        titleDetail.classList.remove('invisible')
+        titleDetail?.classList.add('visible')
+        titleDetail?.classList.remove('invisible')
     } else if (scrolled > 400){
         navbarDetailMakanan.style.marginTop = "0";
         navbarDetailMakanan.classList.remove('backdrop-blur')
@@ -19,7 +19,7 @@ document.addEventListener('scroll',function(){
         navbarDetailMakanan.classList.remove('bg-[#F9832A]')
     } else if (scrolled < 100){
         navbarDetailMakanan.style.marginTop = "2.5rem";
-        titleDetail.classList.add('invisible')
+        titleDetail?.classList.add('invisible')
         navbarDetailMakanan.classList.remove('bg-[#F9832A]')
         navbarDetailMakanan.classList.remove('backdrop-blur')
     }
@@ -73,5 +73,9 @@ function toggleState(){
     state.condition = !state.condition;
     render()
 }
-document.getElementById('buttonLike').addEventListener('click',toggleState);
-render()
+// Tombol like sudah tidak ada di view (bagian Favorit dikomentari)
+const buttonLike = document.getElementById('buttonLike');
+if (buttonLike) {
+    buttonLike.addEventListener('click',toggleState);
+    render()
+}
