@@ -347,53 +347,40 @@ class CourierController extends Controller
 
     public function history()
     {
-        try {
-            $courId = Auth::user()->id;
-            $data = User::find($courId)->courHistory;
-            foreach ($data as $history) {
-                $dataCustId[] = $history->user_id;
-                $dataCourId[] = $history->cour_id;
-                $namaUmkm[] = $history->umkm_id == 0 ? 'Jastip' : Data_umkm::find($history->umkm_id)->nama_umkm;
-            }
-            return view('pages/Courier/riwayat', [
-                'Title' => 'History',
-                'data' => $data,
-                'nama_umkm' => $namaUmkm,
-            ]);
-        } catch (Exception $e) {
-            return view('pages/Courier/riwayat', [
-                'Title' => 'History',
-                'data' => null,
-            ]);
-        }
+        $data = Auth::user()->courHistory()->orderByDesc('created_at')->get();
+        $namaUmkm = Data_umkm::whereIn('id', $data->pluck('umkm_id')->filter()->unique())->pluck('nama_umkm', 'id');
+
+        return view('pages/Courier/riwayat', [
+            'Title' => 'History',
+            'data' => $data,
+            'nama_umkm' => $namaUmkm,
+        ]);
     }
 
-    public function detailHistory()
+    public function detailHistory(Request $request)
     {
-        try {
-            $custId = request()->custId;
-            $id = request()->id;
-            $cust_name = User::find($custId)->nama_user;
-            $courId = Auth::user()->id;
-            $data = User::find($courId)->courHistory;
-            foreach ($data as $history) {
-                if ($history->cour_id == $courId && $history->user_id == $custId && $history->id == $id) {
-                    $nama_umkm = $history->umkm_id == 0 ? 'Jastip' : Data_umkm::find($history->umkm_id)->nama_umkm;
-                    return view('pages/Courier/riwayatdetail', [
-                        'Title' => 'Detail history' . ' | #TRX' . strtoupper(substr($history->order_id, 0, 10)),
-                        'cust_name' => $cust_name,
-                        'status' => $history->status,
-                        'custId' => $custId,
-                        'umkm' => $nama_umkm,
-                        'id' => $history->order_id,
-                        'total' => $history->harga,
-                        'ongkir' => $history->ongkir,
-                    ]);
-                }
-            }
-        } catch (Exception $e) {
-            return redirect()->back()->with('error2', 'Error');
-        }
+        $history = history::where('id', $request->id)
+            ->where('cour_id', Auth::id())
+            ->where('user_id', $request->custId)
+            ->first();
+
+        abort_if($history === null, 404);
+
+        $namaUmkm = $history->umkm_id == 0
+            ? 'Jastip'
+            : (optional(Data_umkm::find($history->umkm_id))->nama_umkm ?? 'UMKM tidak tersedia');
+
+        return view('pages/Courier/riwayatdetail', [
+            'Title' => 'Detail history' . ' | #TRX' . strtoupper(substr($history->order_id, 0, 10)),
+            'cust_name' => optional(User::find($history->user_id))->nama_user ?? 'Pelanggan tidak ditemukan',
+            'status' => $history->status,
+            'custId' => $history->user_id,
+            'umkm' => $namaUmkm,
+            'id' => $history->order_id,
+            'total' => $history->harga,
+            'ongkir' => $history->ongkir,
+            'created_at' => $history->created_at,
+        ]);
     }
 
     public function waCour(Request $request)

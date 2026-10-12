@@ -13,14 +13,14 @@
         <div class="flex flex-col items-center justify-start gap-1">
             <p class="font-bold text-[#F9832A] text-lg sm:text-xl">{{ ucfirst($status) }}</p>
             <p class="text-gray-400 text-xs">
-                <a href="#" class="text-[#F9832A]">2024-12-12 12:12:12</a>
+                <span class="text-[#F9832A]">{{ optional($created_at)->format('Y-m-d H:i:s') }}</span>
             </p>
         </div>
         <div class="w-full h-px bg-gray-300 my-3"></div>
 
         <div class="flex justify-between items-center gap-3 p-2">
             <div class="flex items-center">
-                <img src="{{ asset('images/ProfilePicture.png') }}" alt="" class="w-10 h-10 sm:w-14 sm:h-14 rounded-full object-cover bg-gray-300">
+                <img src="{{ asset('Avatar/Large.svg') }}" alt="" class="w-10 h-10 sm:w-14 sm:h-14 rounded-full object-cover bg-gray-300">
                 <div class="flex flex-col gap-1 mx-2">
                     <h1 class="font-bold text-black text-sm sm:text-base">{{ $cust_name }}</h1>
                 </div>
