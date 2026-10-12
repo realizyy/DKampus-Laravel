@@ -1,210 +1,113 @@
-@extends('layouts.Root')
-@section('content')
-<style>
-    /* Style the "powered by Google" attribution */
-    .pac-container:after {
-        content: none !important;
-    }
+@extends('layouts.customer')
 
-    /* Add this to your CSS file or <style> tag */
-    .switch-button:focus .switch-track,
-    .switch-button:focus-visible .switch-track {
-        /* Style focus state */
-        box-shadow: 0 0 0 3px rgba(249, 131, 42, 0.4);
-    }
+@section('page-title', 'Daftar Alamat')
+@section('back', url('/'))
+@section('hide-nav', '1')
 
-    /* Ensure the address is fully visible */
-    .pac-item {
-        white-space: normal;
-        line-height: 1.5;
-    }
-
-    /* Adjust the container to allow more space for the address */
-    .pac-container {
-        max-height: 400px;
-        /* Adjust the height as needed */
-        overflow-y: auto;
-    }
-
-    /* Hide the location icon on the left side of the address suggestions */
-    .pac-item .pac-icon {
-        display: none;
-    }
-
-    /* Optional: Better spacing for address items */
-    .pac-item-query {
-        margin-bottom: 5px;
-    }
-</style>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB3zz718wI8G9tqVt4YkjjRSv_YHg9yPag&libraries=places&callback=initAutocomplete" defer></script>
-<header class="sticky top-0 left-0 flex justify-center w-full bg-white z-10 shadow-md py-8">
-    <a href="{{'/'}}" class="absolute top-5 left-5 flex items-center gap-x-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#F9832A" class="bi bi-arrow-left" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M10.354 1.646a.5.5 0 0 1 0 .708L5.707 7l4.647 4.646a.5.5 0 0 1-.708.708l-5-5a.5.5 0 0 1 0-.708l5-5a.5.5 0 0 1 .708 0z" />
-        </svg>
-        <h1 class="font-bold text-black text-xl">Daftar Alamat</h1>
-    </a>
-    <div class="absolute top-3 right-5">
-        <a href="#" id="tambahAlamat" class="flex items-center gap-x-2 bg-orange-500 text-white px-3 py-2 rounded-md shadow-md" onclick="event.preventDefault(); openModalAddAddress('tambahAlamatModal', 'Tambah Alamat');">
-            <h1 class="font-bold text-white text-md">Tambah Alamat</h1>
-        </a>
-    </div>
-</header>
-<main class="flex flex-col w-full h-full">
-    @foreach($alamatUser as $key => $alamat)
-    <div class="flex flex-col w-full h-auto px-1 py-3">
-        <div class="flex flex-col w-full h-auto bg-white rounded-md shadow-md p-5">
-            <div id="openModalViewDetails{{$key}}">
-                @if ($alamat['utama'] == 1)
-                <p class="flex items-center gap-x-2 bg-orange-500 text-white m-2 px-1 py-1 mr-5 rounded-md shadow-md">Alamat Utama</p>
-                @endif
-                <p class="font-bold text-black text-l">{{$alamat['nama_alamat']}}</p>
-                <p class="font-normal text-black text-md">{{$alamat['address']}}</p>
-            </div>
-            {{-- <a href="#" id="openModal{{$key}}" class="text-blue-700" onclick="event.preventDefault(); openModalAddAddress('tambahAlamatModal', 'Edit Alamat');">Edit</a>--}}
-            <form action="{{ route('alamatUtama') }}" method="POST">
-                @csrf
-                <button type="submit" class="flex items-center gap-x-2 bg-orange-500 text-white px-3 py-2 rounded-md shadow-md mt-5">
-                    <h2 class="text-white text-md">Set As Default</h2>
-                    <input type="text" class="hidden" value="{{ $alamat['id'] }}" name="id">
-                    <input type="text" class="hidden" value="{{ $alamat['user_id'] }}" name="custId">
-                </button>
-            </form>
-
-        </div>
-    </div>
-    @endforeach
-    @foreach($alamatUser as $key => $alamat)
-    <!-- Modal view alamat-->
-    <div class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true" id="modal{{$key}}">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                {{$alamat['nama_alamat']}}
-                            </h3>
-                            <div class="mt-2">
-                                <p class="text-sm text-gray-500">
-                                    {{$alamat['address']}}
-                                </p>
-                                <a href="{{$alamat['link']}}" class="text-blue-500" target="_blank">View on Google Maps</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-500 text-base font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="closeModalViewDetails{{$key}}">
-                        Close
-                    </button>
-                    {{-- Delete alamat --}}
-                    <form action="{{ route('delete.alamat') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-danger mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-500 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                            Delete
-                        </button>
-                        <input type="text" class="hidden" value="{{ $alamat['id'] }}" name="id">
-                        <input type="text" class="hidden" value="{{ $alamat['user_id'] }}" name="custId">
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-        document.getElementById('openModalViewDetails{{$key}}').addEventListener('click', function(event) {
-            event.preventDefault();
-            document.getElementById('modal{{$key}}').classList.remove('hidden');
-        });
-        document.getElementById('closeModalViewDetails{{$key}}').addEventListener('click', function(event) {
-            event.preventDefault();
-            document.getElementById('modal{{$key}}').classList.add('hidden');
-        });
-    </script>
-    @endforeach
-    <!-- Modal tambah alamat-->
-    <div id="tambahAlamatModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                Tambah Alamat
-                            </h3>
-                            <div class="mt-2">
-                                <form action="{{ route('daftar.alamat') }}" method="POST">
-                                    @csrf
-                                    <div class="mb-3">
-                                        <label for="namaAlamat" class="form-label text-gray-700">Nama</label>
-                                        <input type="text" class="form-control border border-gray-300 rounded p-2 w-full" id="namaAlamat" name="namaAlamat">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="alamatLengkap" class="form-label text-gray-700">Alamat Lengkap</label>
-                                        <input id="autocomplete" placeholder="" class="form-control border border-gray-300 rounded p-2 w-full" type="text" name="address">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="alamatLengkap" class="form-label text-gray-700">Catatan</label>
-                                        <textarea id="autocomplete" placeholder="Tuliskan Alamat Lengkap Jika tidak terdaftar" class="form-control border border-gray-300 rounded p-2 w-full" type="text" name="notes"></textarea>
-                                    </div>
-                                    <div class="mb-3 hidden">
-                                        <input type="text" class="form-control border border-gray-300 rounded p-2 w-full" id="linkGmaps" name="link">
-                                        <input type="text" class="form-control border border-gray-300 rounded p-2 w-full" id="geoMaps" name="geo">
-                                    </div>
-                                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                                        <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-500 text-base font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" onclick="closeModalAddAddress('tambahAlamatModal')">
-                                            Close
-                                        </button>
-                                        <button type="submit" class="btn btn-primary mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-500 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                                            Save
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-    <script>
-        function openModalAddAddress(modalId, title) {
-            document.getElementById(modalId).classList.remove('hidden');
-            document.getElementById(modalId).querySelector('#modal-title').textContent = title;
-        }
-
-        function closeModalAddAddress(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
-    </script>
-    <script>
-        var autocomplete;
-
-        function initAutocomplete() {
-            var input = document.getElementById('autocomplete');
-            autocomplete = new google.maps.places.Autocomplete(input);
-
-            autocomplete.addListener('place_changed', function() {
-                var place = autocomplete.getPlace();
-                if (!place.geometry || !place.place_id) {
-                    alert("No details available for input: '" + place.name + "'");
-                    return;
-                }
-                var latitude = place.geometry.location.lat();
-                var longitude = place.geometry.location.lng();
-                var combinedLocation = `${latitude},${longitude}`;
-                console.log(combinedLocation, latitude, longitude);
-                var googleMapsLink = place.url;
-                console.log(googleMapsLink);
-                document.getElementById('linkGmaps').value = googleMapsLink;
-                $('#geoMaps').val(combinedLocation);
-            });
-        }
-    </script>
-</main>
+@section('header-actions')
+    <x-ui.button size="sm" icon="plus" id="tambahAlamat" data-modal-open="tambah-alamat">Tambah</x-ui.button>
 @endsection
+
+@section('content')
+<div class="mx-auto max-w-3xl space-y-5">
+    <x-ui.page-header title="Daftar Alamat" subtitle="Atur alamat tujuan pengantaran pesananmu." class="hidden md:flex">
+        <x-ui.button icon="plus" data-modal-open="tambah-alamat">Tambah Alamat</x-ui.button>
+    </x-ui.page-header>
+
+    @if ($errors->any())
+        <div class="rounded-xl bg-brick-50 p-3 text-[15px] text-brick-700" role="alert"><ul class="list-disc space-y-0.5 pl-5">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
+    @endif
+
+    @if ($alamatUser->isEmpty())
+        <x-ui.card class="!p-0"><x-ui.empty-state icon="map-pin" title="Belum ada alamat" description="Tambahkan alamat agar pesananmu bisa diantar."><x-ui.button icon="plus" data-modal-open="tambah-alamat">Tambah Alamat</x-ui.button></x-ui.empty-state></x-ui.card>
+    @else
+        <ul class="grid gap-3 md:grid-cols-2" x-motion.rise.stagger>
+            @foreach ($alamatUser as $key => $alamat)
+                <li class="flex flex-col rounded-2xl bg-surface p-4 shadow-card">
+                    <div id="openModalViewDetails{{ $key }}" class="flex-1 space-y-1">
+                        <div class="flex items-start justify-between gap-2">
+                            <h2 class="font-display text-lg font-bold tracking-tight text-ink">{{ $alamat['nama_alamat'] }}</h2>
+                            @if ($alamat['utama'] == 1)<x-ui.badge tone="brand" dot>Alamat Utama</x-ui.badge>@endif
+                        </div>
+                        <p class="text-[15px] leading-snug text-ink-600">{{ $alamat['address'] }}</p>
+                        @if (! empty($alamat['notes']))<p class="text-sm text-ink-500">Catatan: {{ $alamat['notes'] }}</p>@endif
+                    </div>
+                    <div class="mt-4 flex flex-wrap items-center gap-2 border-t border-line/70 pt-3">
+                        @if ($alamat['utama'] != 1)
+                            <form action="{{ route('alamatUtama') }}" method="POST">
+                                @csrf
+                                <input type="hidden" value="{{ $alamat['id'] }}" name="id">
+                                <input type="hidden" value="{{ $alamat['user_id'] }}" name="custId">
+                                <x-ui.button type="submit" size="sm" variant="soft">Set As Default</x-ui.button>
+                            </form>
+                        @endif
+                        @if (! empty($alamat['link']))
+                            <x-ui.button :href="$alamat['link']" target="_blank" rel="noopener" size="sm" variant="ghost" icon="external-link">Lihat di Maps</x-ui.button>
+                        @endif
+                        <x-ui.button size="sm" variant="danger-soft" icon="trash-2" class="ml-auto" data-modal-open="hapus-alamat" data-alamat-id="{{ $alamat['id'] }}" data-alamat-user="{{ $alamat['user_id'] }}" data-alamat-nama="{{ $alamat['nama_alamat'] }}">Hapus</x-ui.button>
+                    </div>
+                </li>
+            @endforeach
+        </ul>
+    @endif
+</div>
+
+{{-- Tambah alamat --}}
+<x-ui.modal name="tambah-alamat" size="md" icon="map-pin" title="Tambah Alamat" description="Cari alamat lengkap atau tulis manual.">
+    <form action="{{ route('daftar.alamat') }}" method="POST" class="space-y-4" id="tambahAlamatModal">
+        @csrf
+        <x-ui.field label="Nama" for="namaAlamat" hint="Mis. Kost Pondok Eden" required><x-ui.input id="namaAlamat" name="namaAlamat" :value="old('namaAlamat')" required /></x-ui.field>
+        <x-ui.field label="Alamat Lengkap" for="autocomplete" required><x-ui.input id="autocomplete" name="address" :value="old('address')" icon="search" placeholder="Ketik untuk mencari alamat" autocomplete="off" required /></x-ui.field>
+        <x-ui.field label="Catatan" for="notes" hint="Tuliskan alamat lengkap jika tidak terdaftar"><x-ui.textarea id="notes" name="notes" placeholder="Opsional">{{ old('notes') }}</x-ui.textarea></x-ui.field>
+        <input type="hidden" id="linkGmaps" name="link">
+        <input type="hidden" id="geoMaps" name="geo">
+        <div class="flex flex-col gap-2 pt-1">
+            <x-ui.button type="submit" block>Simpan</x-ui.button>
+            <x-ui.button variant="outline" data-modal-close block>Tutup</x-ui.button>
+        </div>
+    </form>
+</x-ui.modal>
+
+{{-- Hapus alamat (modal di luar form; form dikirim dari tombol) --}}
+<x-ui.modal name="hapus-alamat" tone="danger" title="Hapus alamat?" description="Alamat ini akan dihapus dari daftarmu.">
+    <p id="hapus-alamat-nama" class="rounded-xl bg-sunken p-3 text-center font-semibold text-ink"></p>
+    <x-slot:actions>
+        <x-ui.button variant="danger" block onclick="document.getElementById('formHapusAlamat').submit()">Hapus</x-ui.button>
+        <x-ui.button variant="outline" data-modal-close block>Batal</x-ui.button>
+    </x-slot:actions>
+</x-ui.modal>
+<form id="formHapusAlamat" action="{{ route('delete.alamat') }}" method="POST" class="hidden">
+    @csrf
+    <input type="hidden" name="id" id="hapusAlamatId">
+    <input type="hidden" name="custId" id="hapusAlamatUser">
+</form>
+@endsection
+
+@push('js')
+<x-customer.maps-script />
+<script>
+    // Isi modal hapus dari tombol yang diklik
+    document.getElementById('modal-hapus-alamat').addEventListener('modal:opening', function (event) {
+        var d = event.detail || {};
+        document.getElementById('hapusAlamatId').value = d.alamatId || '';
+        document.getElementById('hapusAlamatUser').value = d.alamatUser || '';
+        document.getElementById('hapus-alamat-nama').textContent = d.alamatNama || '';
+    });
+    @if ($errors->any())
+        document.addEventListener('DOMContentLoaded', function () { dkModal.open('tambah-alamat'); });
+    @endif
+
+    // Google Places Autocomplete (aktif bila GOOGLE_MAPS_API_KEY terisi)
+    function initAutocomplete() {
+        var input = document.getElementById('autocomplete');
+        var autocomplete = new google.maps.places.Autocomplete(input);
+        autocomplete.addListener('place_changed', function () {
+            var place = autocomplete.getPlace();
+            if (!place.geometry || !place.place_id) return;
+            document.getElementById('linkGmaps').value = place.url || '';
+            document.getElementById('geoMaps').value = place.geometry.location.lat() + ',' + place.geometry.location.lng();
+        });
+    }
+    window.initAutocomplete = initAutocomplete;
+</script>
+@endpush
