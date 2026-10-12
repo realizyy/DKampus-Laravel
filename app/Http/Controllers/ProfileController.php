@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Exception;
 
@@ -66,6 +67,9 @@ class ProfileController extends Controller
             $request->session()->regenerateToken();
 
             return Redirect::to('/');
+        } catch (ValidationException $e) {
+            // Biarkan sampai ke form (error bag "userDeletion"), jangan diganti "Error" generik
+            throw $e;
         } catch (Exception $e) {
             return redirect()->back()->with('error2', 'Error');
         }
