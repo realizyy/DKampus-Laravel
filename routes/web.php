@@ -229,7 +229,9 @@ Route::get('/detail-makanan/{menu:nama_makanan}', function (Menu $menu) {
         'umkm_nama' => Data_umkm::where('id', $menu->data_umkm_id)->first()->nama_umkm,
         'nama_makanan' => $menu->nama_makanan,
         'rating' => $menu->rating,
-        'harga' => number_format($menu->harga, 0, ',', '.'),
+        'hargaAsli' => $menu->harga,
+        'diskon' => $menu->diskon,
+        'harga' => number_format((float) $menu->diskon > 0 ? round($menu->harga * (1 - $menu->diskon / 100)) : $menu->harga, 0, ',', '.'),
         'deskripsi' => $menu->deskripsi,
         'CardFood' => Menu::where('data_umkm_id', $menu->data_umkm_id)->get(),
     ]);
