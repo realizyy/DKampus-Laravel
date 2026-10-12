@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\EmailOtp;
 use App\Providers\RouteServiceProvider;
+use App\Services\OtpService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,11 +25,21 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request, OtpService $otp): RedirectResponse
     {
         $request->authenticate();
 
         $request->session()->regenerate();
+
+        // Akun baru yang belum memasukkan kode verifikasi diarahkan ke halaman Verifikasi Akun
+        $user = Auth::user();
+        if ($user->email_verified_at === null && $otp->hasPendingRegistration($user->email)) {
+            Auth::guard('web')->logout();
+            $request->session()->put('otp.email', $user->email);
+            $request->session()->put('otp.purpose', EmailOtp::PURPOSE_REGISTER);
+
+            return redirect()->route('otp.show')->with('status', 'Verifikasi email kamu dulu sebelum masuk.');
+        }
 
         if (Auth::user()->role == 'admin') {
             return redirect()->route('dashboard');
