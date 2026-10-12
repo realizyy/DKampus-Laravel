@@ -170,6 +170,18 @@ Route::redirect('/promo/cemilan', '/promo/category/cemilan');
 if (app()->isLocal()) {
     Route::view('/_ui', 'dev.ui');
 
+    // Pratinjau halaman auth dengan data contoh: /_ui/auth/{otp|otp-reset|reset-request|reset-new|success}
+    Route::get('/_ui/auth/{page}', function (string $page) {
+        return match ($page) {
+            'otp' => view('auth.otp-verify', ['Title' => 'Verifikasi Akun', 'email' => 'contoh@gmail.com', 'purpose' => 'register', 'resendIn' => 59]),
+            'otp-error' => view('auth.otp-verify', ['Title' => 'Verifikasi Akun', 'email' => 'contoh@gmail.com', 'purpose' => 'register', 'resendIn' => 0])->withErrors(['code' => 'Kode yang kamu masukkan salah.']),
+            'reset-request' => view('auth.reset-request', ['Title' => 'Atur Ulang Kata Sandi']),
+            'reset-new' => view('auth.reset-new', ['Title' => 'Kata Sandi Baru']),
+            'success' => view('auth.success', ['Title' => 'Akun Berhasil Dibuat', 'heading' => 'Akun Berhasil Dibuat', 'message' => 'Selamat! Anda telah berhasil membuat akun baru. Ingat, jangan bagikan informasi akun ini kepada siapa pun, ya!', 'cta' => 'Masuk']),
+            default => abort(404),
+        };
+    });
+
     // Pratinjau halaman dengan data contoh (tanpa Firebase/database): /_ui/courier/{dashboard|orders|history|history-detail|profile|chats|chat-room}
     Route::get('/_ui/courier/{page}', function (string $page) {
         \Illuminate\Support\Facades\Auth::setUser(\App\Support\DevFixtures::courierUser());
