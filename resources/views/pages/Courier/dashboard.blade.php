@@ -1,284 +1,107 @@
-@extends('layouts.Root')
+@extends('layouts.courier')
+
+@section('page-title', 'Beranda')
+
+@section('header-actions')
+    <x-ui.tooltip text="Chat" position="bottom">
+        <a href="{{ route('chatpage') }}" aria-label="Chat" class="ui-press grid size-11 place-items-center rounded-xl text-brand-700 shadow-hairline hover:bg-brand-50">
+            <x-ui.icon name="message-circle" class="size-[22px]" />
+        </a>
+    </x-ui.tooltip>
+@endsection
+
 @section('content')
-@include('components.header.courierHeader')
-{{-- Main content --}}
-<main class="bg-[#F0F3F8] w-full h-screen mx-auto py-6 px-4 sm:px-6 lg:px-8 overflow-y-auto mb-[100]">
-    <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-2">
-            @if($orders != null)
-            <h1 class="text-xl font-bold text-[#F9832A]">Pesanan yang harus diantar</h1>
-            @endif
-            <div class="flex flex-col gap-2">
-                @if ($orders != null)
-                <?php $i = 0; ?>
-                @foreach ($orders as $order => $item)
-                <div class="bg-white rounded-lg shadow-md overflow-hidden mb-4">
-                    <div class="p-4">
-                        {{-- logo shop and the name of umkms--}}
-                        <div class="flex items-center gap-2">
-                            <img src="{{ asset('shop-orange.svg') }}" alt="" class="w-10 h-10 rounded-full">
-                            <h1 class="text-lg font-semibold text-gray-700">{{ $item['nama_umkm'] }}</h1>
-                        </div>
+@php
+    $orders = $orders ?? [];
+    $count = count($orders);
+    $sum = fn ($key) => collect($orders)->sum(fn ($o) => (int) ($o[$key] ?? 0));
+    $rp = fn ($n) => 'Rp '.number_format((int) $n, 0, ',', '.');
+@endphp
 
-                        {{-- information of orders --}}
-                        <div class="text-sm text-gray-600 mb-2">
-                            <p><span class="font-semibold">Alamat UMKM:</span> <a href="{{ $item['umkm_link_address'] }}" class="text-[#F9832A] hover:underline">{{ $item['umkm_address'] }}</a></p>
-                            <p><span class="font-semibold">No. Telp UMKM:</span> {{ $no_telp_umkm[$i] }}</p>
-                        </div>
-
-                        <h3 class="text-md font-semibold text-gray-700 mb-2">Pesanan:</h3>
-                        <ul class="list-disc list-inside text-sm text-gray-600 mb-2">
-                            @foreach ($item['orders'] as $order)
-                            @if ($order['catatan'] != "-")
-                            <li>{{ $order['jumlah'] }} ({{ $order['nama'] }}) - {{ $order['catatan'] }}</li>
-                            @else
-                            <li>{{ $order['jumlah'] }} ({{ $order['nama'] }})</li>
-                            @endif
-                            @endforeach
-                        </ul>
-                        <div class="text-sm text-gray-600 mb-4">
-                            <p><span class="font-semibold">Nama Penerima:</span> {{ $item['nama_penerima'] }}</p>
-                            <p><span class="font-semibold">Alamat Penerima:</span> <a href="{{ $item['cust_link_address'] }}" class="text-[#F9832A] hover:underline">{{ $item['cust_address'] }}</a></p>
-                            {{-- @if ($item['notesAlamat'] != "-")--}}
-                            {{-- <p><span class="font-semibold">Catatan Alamat:</span> {{ $item['notesAlamat'] }}</p>--}}
-                            {{-- @endif--}}
-                            <p><span class="font-semibold">No. Telp Cust:</span> {{ $no_telp_cust[$i] ?? '-' }}</p>
-                        </div>
-
-                        <div class="flex items-center justify-between">
-                            <div class="text-sm text-gray-600">
-                                <p><span class="font-semibold">Ongkir:</span> Rp. {{ number_format($item['total'], 0, ',', '.') }}</p>
-                                <p><span class="font-semibold">Total Ongkir:</span> Rp. {{ number_format($item['ongkir'], 0, ',', '.') }}</p>
-                            </div>
-
-                            <div class="flex flex-row gap-2">
-                                {{-- {{ route('complete.orders') }} --}}
-                                <div>
-                                    <button type="submit" class="triggerModalButton bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full text-sm">
-                                        Selesaikan
-                                    </button>
-                                    <input type="hidden" value="{{ $custId[$i] }}" name="custId">
-                                </div>
-                                <div>
-                                    <button type="submit" class="triggerCancelModal bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full text-sm">
-                                        Batalkan
-                                    </button>
-                                    <input type="hidden" value="{{ $custId[$i] }}" name="custId">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <?php $i++ ?>
-                @endforeach
-                @endif
-                @if($orders == null)
-                <h1 class="text-xl font-bold text-black">Ups, kamu belum mengambil pesanan</h1>
-                @endif
-            </div>
-                {{--<a href="{{ route('courierorder') }}" class="text-blue-500 mb-25">Lihat semua pesanan</a>--}}
-        </div>
-    </div>
-    {{-- Cancel Order Modal --}}
-    @if($orders != null)
-        <div id="cancelModal" class="hidden fixed z-10 inset-0 overflow-y-auto flex items-center justify-center">
-            <div class="flex items-center justify-center h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <div class="sm:flex sm:items-start">
-                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                                <h3 class="text-lg font-medium leading-6 text-gray-900" id="modal-headline">
-                                    Batalkan Pesanan
-                                </h3>
-                                <div class="mt-2">
-                                    <p class="text-sm text-gray-500">
-                                        Apakah kamu yakin ingin membatalkan pesanan ini?
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <form action="{{ route('delete.orders') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <div class="bg-white overflow-hidden mb-2 mx-2">
-                            <div class="p-4">
-                                <label for="alasan" class="block text-sm font-medium text-gray-700">Alasan Pembatalan</label>
-                                <div class="mt-1">
-                                    <textarea name="alasan" id="alasan" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Alasan pembatalan" required></textarea>
-                                </div>
-                            </div>
-                            <div class="p-4">
-                                <label for="total-price" class="block text-sm font-medium text-gray-700">Total Harga</label>
-                                <div class="mt-1">
-                                    <input type="number" name="total-price-cancel" id="total-price-cancel" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Rp. 30.000" required>
-                                    <span class="text-xs text-gray-500">*Total harga menu yang kamu keluarakan (isi 0 jika belum membeli menu)</span>
-                                </div>
-                            </div>
-                            <div class="p-4">
-                                <label for="bukti_batal" class="block text sm font-medium text-gray-700">Bukti Pembatalan</label>
-                                <div class="mt-1">
-                                    <input type="file" name="bukti_batal" id="bukti_batal" class="w-full h-12 border-2 border-[#F9832A] rounded-xl" style="display: none;" accept=".jpg, .jpeg, .png" required>
-                                    <button type="button" id="uploadButton_batal" class="w-full h-12 bg-[#F9832A] text-white font-bold rounded-xl mt-2">Pilih File</button>
-                                    <span id="fileName_batal" class="text-sm text-gray-500"></span>
-                                </div>
-                                <div class="mt-1">
-                                    <span class="text-xs text-gray-500">*Unggah bukti pembatalan pesanan</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button type="submit" id="confirmCancel" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#F9832A] text-base font-medium text-white hover:bg-[#F9832A] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
-                                Batalkan
-                            </button>
-                            <input type="hidden" value="{{ $custId[0] }}" name="custId">
-                            <button type="button" id="closeCancelModal" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm">
-                                Batal
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+@if ($count === 0)
+    <x-ui.card class="!p-0 md:mx-auto md:max-w-xl">
+        <x-ui.empty-state icon="package" title="Ups, kamu belum mengambil pesanan" description="Ambil orderan dari daftar, lalu pesanan yang sedang kamu antar tampil di sini.">
+            <x-ui.button :href="route('courierorder')" icon-right="arrow-right">Lihat daftar orderan</x-ui.button>
+        </x-ui.empty-state>
+    </x-ui.card>
+@else
+    <section class="space-y-5">
+        <div class="flex items-end justify-between gap-3">
+            <h2 class="font-display text-2xl font-extrabold tracking-tightest text-ink">Pesanan yang harus diantar</h2>
+            <x-ui.badge tone="brand" class="tnum font-mono">{{ $count }} aktif</x-ui.badge>
         </div>
 
-        {{-- Modal selesaikan pesanan --}}
-        <div class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true" id="modalConfirmation">
-            <div class="flex items-center justify-center h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <div class="sm:flex sm:items-start">
-                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                                <h3 class="text-lg font-medium leading-6 text-gray-900" id="modal-headline">
-                                    Selesaikan Pesanan
-                                </h3>
-                                <div class="mt-2">
-                                    <p class="text-sm text-gray-500">
-                                        Apakah kamu yakin ingin menyelesaikan pesanan ini?
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {{-- List Pesanan --}}
-                    <div class="bg-white overflow-hidden mb-2 mx-2">
-                        <div class="px-4">
-                            <h3 class="text-md font-semibold text-gray-700 mb-2">Pesanan:</h3>
-                            <ul class="list-disc list-inside text-sm text-gray-600 mb-2">
-                                @foreach ($item['orders'] as $order)
-                                    @if ($order['catatan'] != "-")
-                                        <li>{{ $order['jumlah'] }} ({{ $order['nama'] }}) - {{ $order['catatan'] }}</li>
-                                    @else
-                                        <li>{{ $order['jumlah'] }} ({{ $order['nama'] }})</li>
-                                    @endif
-                                @endforeach
-                            </ul>
-                            <div class="flex items center justify-between">
-                                <div class="text-sm text-gray-600">
-                                    {{-- <p><span class="font-semibold">Subtotal:</span> Rp. 25.000</p>--}}
-                                    <p><span class="font-semibold">Total Ongkir:</span>Rp. {{ number_format($item['total'] + $item['ongkir'], 0, ',', '.') }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {{-- input from courier : proof-payment(img) and total-price of orders --}}
-                    <form action="{{ route('complete.orders') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <div class="bg-white overflow-hidden mb-2 mx-2">
-                            <div class="p-4">
-                                <label for="total-price" class="block text-sm font-medium text-gray-700">Total Harga</label>
-                                <div class="mt-1">
-                                    <input type="number" name="total-price" id="total-price" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Rp. 30.000" required>
-                                    <span class="text-xs text-gray-500">*Total harga menu yang kamu keluarakan</span>
-                                </div>
-                            </div>
-                            <div class="p-4">
-                                <label for="proof-payment" class="block text-sm font-medium text-gray-700">Bukti Pembayaran</label>
-                                <div class="mt-1">
-                                    <input type="file" name="bukti" id="bukti" class="w-full h-12 border-2 border-[#F9832A] rounded-xl" style="display: none;" accept=".jpg, .jpeg, .png" required>
-                                    <button type="button" id="uploadButton" class="w-full h-12 bg-[#F9832A] text-white font-bold rounded-xl mt-2">Pilih File</button>
-                                    <span id="fileName" class="text-sm text-gray-500"></span>
-                                </div>
-                                <div class="mt-1">
-                                    <span class="text-xs text-gray-500">*Unggah bukti pembayaran mengirimkan pesanan</span>
-                                </div>
-                            </div>
-                        </div>
-                        {{-- button selesaikan --}}
-                        <div class="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#F9832A] text-base font-medium text-white hover:bg-[#F9832A] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
-                                Selesaikan
-                            </button>
-                            <input type="hidden" value="{{ $custId[0] }}" name="custId">
-                            <button type="button" id="closeModal" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm">
-                                Batal
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        {{-- Metadata ringkas (hanya desktop): hitungan order, subtotal, dan ongkir --}}
+        <div class="hidden gap-3 md:grid md:grid-cols-3" x-motion.rise.stagger>
+            <x-ui.stat label="Order aktif" :value="$count" meta="sedang diantar" icon="bike" />
+            <x-ui.stat label="Subtotal" :value="$rp($sum('total'))" meta="uang talangan menu" icon="receipt" />
+            <x-ui.stat label="Ongkir" :value="$rp($sum('ongkir'))" meta="penghasilan antar" icon="wallet" />
         </div>
-    @endif
-</main>
-@include('components.navbar.navbarCourier')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Modal & tombol ini hanya dirender kalau kurir punya pesanan aktif
-        var modal = document.getElementById('modalConfirmation');
-        var cancelModal = document.getElementById('cancelModal');
-        if (!modal || !cancelModal) {
-            return;
-        }
 
-        // Isi custId modal dari order yang diklik (tiap kartu punya input custId sendiri),
-        // bukan selalu order pertama.
-        function setModalCustomer(targetModal, trigger) {
-            var source = trigger.parentElement.querySelector('input[name="custId"]');
-            var target = targetModal.querySelector('input[name="custId"]');
-            if (source && target) {
-                target.value = source.value;
-            }
-        }
+        <div class="grid gap-4 lg:grid-cols-2">
+            @foreach ($orders as $i => $item)
+                <x-courier.order-card :item="$item" :cust-id="$custId[$i]" :phone-umkm="$no_telp_umkm[$i] ?? '-'" :phone-cust="$no_telp_cust[$i] ?? '-'" />
+            @endforeach
+        </div>
+    </section>
 
-        document.querySelectorAll('.triggerModalButton').forEach(function(triggerButton) {
-            triggerButton.addEventListener('click', function() {
-                setModalCustomer(modal, triggerButton);
-                modal.classList.remove('hidden');
+    {{-- Modal Selesaikan Pesanan (Figma): ringkasan + total + bukti pembayaran --}}
+    <x-ui.modal name="complete" size="md" tone="success" title="Selesaikan Pesanan" description="Apakah kamu yakin ingin menyelesaikan pesanan ini?">
+        <form action="{{ route('complete.orders') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+            @csrf
+            <input type="hidden" name="custId" value="">
+            <div data-slot="summary"></div>
+            <x-ui.field label="Total" for="total-price" hint="*Total harga menu yang kamu keluarkan" required>
+                <x-ui.input type="number" name="total-price" id="total-price" min="0" placeholder="Rp 30.000" required />
+            </x-ui.field>
+            <x-ui.field label="Bukti Pembayaran" hint="*Unggah bukti pembayaran mengirimkan pesanan" required>
+                <x-ui.file-input name="bukti" id="bukti" required />
+            </x-ui.field>
+            <div class="flex flex-col gap-2 pt-1">
+                <x-ui.button type="submit" variant="success" block>Selesaikan</x-ui.button>
+                <x-ui.button variant="outline" data-modal-close block>Batal</x-ui.button>
+            </div>
+        </form>
+    </x-ui.modal>
+
+    {{-- Modal Batalkan Pesanan --}}
+    <x-ui.modal name="cancel" size="md" tone="danger" icon="triangle-alert" title="Batalkan Pesanan" description="Apakah kamu yakin ingin membatalkan pesanan ini?">
+        <form action="{{ route('delete.orders') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+            @csrf
+            <input type="hidden" name="custId" value="">
+            <div data-slot="summary"></div>
+            <x-ui.field label="Alasan Pembatalan" for="alasan" required>
+                <x-ui.textarea name="alasan" id="alasan" placeholder="Alasan pembatalan" required></x-ui.textarea>
+            </x-ui.field>
+            <x-ui.field label="Total Harga" for="total-price-cancel" hint="*Total harga menu yang kamu keluarkan (isi 0 jika belum membeli menu)" required>
+                <x-ui.input type="number" name="total-price-cancel" id="total-price-cancel" min="0" placeholder="Rp 30.000" required />
+            </x-ui.field>
+            <x-ui.field label="Bukti Pembatalan" hint="*Unggah bukti pembatalan pesanan" required>
+                <x-ui.file-input name="bukti_batal" id="bukti_batal" required />
+            </x-ui.field>
+            <div class="flex flex-col gap-2 pt-1">
+                <x-ui.button type="submit" variant="danger" block>Batalkan Pesanan</x-ui.button>
+                <x-ui.button variant="outline" data-modal-close block>Kembali</x-ui.button>
+            </div>
+        </form>
+    </x-ui.modal>
+
+    @push('js')
+    <script>
+        // Isi modal dari kartu yang diklik: custId + ringkasan order (bukan selalu order terakhir/pertama)
+        ['complete', 'cancel'].forEach(function (name) {
+            var dialog = document.getElementById('modal-' + name);
+            if (!dialog) return;
+            dialog.addEventListener('modal:opening', function (event) {
+                var detail = event.detail || {};
+                dialog.querySelector('input[name="custId"]').value = detail.custId || '';
+                var slot = dialog.querySelector('[data-slot="summary"]');
+                var template = detail.summary ? document.querySelector(detail.summary) : null;
+                slot.replaceChildren();
+                if (template) slot.appendChild(template.content.cloneNode(true));
             });
         });
-        document.getElementById('closeModal').addEventListener('click', function() {
-            modal.classList.add('hidden');
-        });
-
-        document.querySelectorAll('.triggerCancelModal').forEach(function(triggerButton) {
-            triggerButton.addEventListener('click', function() {
-                setModalCustomer(cancelModal, triggerButton);
-                cancelModal.classList.remove('hidden');
-            });
-        });
-        document.getElementById('closeCancelModal').addEventListener('click', function() {
-            cancelModal.classList.add('hidden');
-        });
-
-        // Tombol "Pilih File" membuka input file dan menampilkan nama file
-        [['uploadButton', 'bukti', 'fileName'], ['uploadButton_batal', 'bukti_batal', 'fileName_batal']].forEach(function(ids) {
-            var uploadButton = document.getElementById(ids[0]);
-            var fileInput = document.getElementById(ids[1]);
-            var fileNameDisplay = document.getElementById(ids[2]);
-            if (!uploadButton || !fileInput || !fileNameDisplay) {
-                return;
-            }
-            uploadButton.addEventListener('click', function() {
-                fileInput.click();
-            });
-            fileInput.addEventListener('change', function() {
-                if (fileInput.files.length > 0) {
-                    fileNameDisplay.textContent = fileInput.files[0].name;
-                }
-            });
-        });
-    });
-</script>
+    </script>
+    @endpush
+@endif
 @endsection
