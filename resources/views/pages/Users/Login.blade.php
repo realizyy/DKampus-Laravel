@@ -1,56 +1,38 @@
-@extends('layouts.Login&Register')
-@section('loginregister-content')
-    {!! Form::open([
-    'route' => 'login',
-    'method' => 'POST',
-    'class' => 'w-[27rem] sm:w-[27rem] h-[33rem] border-2 flex flex-col py-10 mx-auto my-10 rounded-2xl text-[#5E5E5E]',
-    ]) !!}
+@extends('layouts.auth')
 
-    {{-- Title --}}
-    <h1 class="font-semibold text-xl text-center mb-10 text-black">Masuk</h1>
+@section('back', url('/'))
 
-    {{-- Inputs Box --}}
-    <div id="inputs" class="flex flex-col gap-5 mx-5">
+@section('content')
+<h1 class="font-display text-4xl font-extrabold tracking-tightest text-ink">Masuk</h1>
+<p class="mt-2 text-[15px] text-ink-500">Pesan makanan dari warung sekitar kampus.</p>
 
-        {{-- Email Input --}}
-        <div class="flex flex-col gap-3 mx-auto w-full sm:w-96">
-            <label for="email">Masukan Email Anda</label>
-            {!! Form::email('email', '', [
-            'class' =>
-            'rounded-2xl border-2 transition-all duration-100 border-[#5e5e5e]/30 focus:border-[#F9832A] focus:ring-[#F9832A] w-full h-[3.4rem] placeholder:text-[#5e5e5e]/50',
-            'placeholder' => 'email@gmail.com',
-            ]) !!}
+<form method="POST" action="{{ route('login') }}" class="mt-8 space-y-5" novalidate>
+    @csrf
+    @if (session('success'))
+        <div class="flex items-center gap-2 rounded-xl bg-moss-100 p-3 text-[15px] font-semibold text-moss-700" role="status"><x-ui.icon name="circle-check" class="size-5" />{{ session('success') }}</div>
+    @endif
+    @if (session('status'))
+        <div class="rounded-xl bg-teal-100 p-3 text-[15px] font-semibold text-teal-700" role="status">{{ session('status') }}</div>
+    @endif
+    @if (session('error'))
+        <div class="rounded-xl bg-brick-50 p-3 text-[15px] text-brick-700" role="alert">{{ session('error') }}</div>
+    @endif
+
+    <x-ui.field label="Email" for="email" :error="$errors->first('email')">
+        <x-ui.input type="email" id="email" name="email" :value="old('email')" placeholder="Masukkan email" icon="mail" autocomplete="email" :error="$errors->has('email')" required autofocus />
+    </x-ui.field>
+
+    <x-ui.field label="Kata Sandi" for="password" :error="$errors->first('password')">
+        <x-ui.password id="password" name="password" placeholder="Masukkan kata sandi" autocomplete="current-password" :error="$errors->has('password')" required />
+        <div class="pt-1 text-right">
+            <a href="{{ route('reset.request') }}" class="text-sm font-semibold text-brand-700 underline underline-offset-2 hover:text-brand-800">Lupa Kata Sandi?</a>
         </div>
+    </x-ui.field>
 
-        {{-- Password Input --}}
-        <div class="flex flex-col gap-3 mx-auto w-full sm:w-96">
-            <label for="sandi">Kata Sandi</label>
-            {!! Form::password('password', [
-            'class' =>
-            'rounded-2xl border-2 transition-all duration-100 border-[#5e5e5e]/30 focus:border-[#F9832A] focus:ring-[#F9832A] w-full h-[3.4rem] placeholder:text-[#5e5e5e]/50 placeholder:',
-            'placeholder' => '********',
-            ]) !!}
-            <a href="/atur-ulang-kata-sandi" class="ml-auto text-[#F9832A] font-medium">Lupa kata sandi?</a>
-        </div>
+    <x-ui.button type="submit" size="lg" block>Masuk</x-ui.button>
+</form>
 
-        {{-- Submit & Daftar --}}
-        <div id="submitAndDaftar" class="flex flex-col gap-3.5 mt-3 mx-auto w-full sm:w-96 items-center">
-            <button type="submit" class="bg-[#F9832A] w-full h-[3.4rem] rounded-2xl text-white font-semibold text-lg">Masuk</button>
-            <button type="button" onclick="window.location.href='{{ route('register') }}'" class="bg-white border-2 border-[#F9832A] w-full flex justify-center items-center h-[3.4rem] rounded-2xl text-[#F9832A] font-semibold text-lg">Daftar</button>
-        </div>
-        {{-- Modal salah email atau password --}}
-        @if (session('error'))
-            <div id="modal_confirm_email" class="flex flex-col absolute visible opacity-100 transition-all z-99 rounded-xl justify-center gap-3 py-5 items-center scale-100 mx-auto border w-full sm:w-[26.8rem] h-[9rem] bg-white">
-                <p>{{ session('error') }}</p>
-                <button onclick="hideModal(event)" class="bg-[#F9832A] w-24 h-10 rounded-2xl text-white font-semibold text-lg">Oke</button>
-            </div>
-        @endif
-        @if($errors->any())
-            <div id="modal_confirm_email" class="flex flex-col absolute visible opacity-100 transition-all z-99 rounded-xl justify-center gap-3 py-5 items-center scale-100 mx-auto border w-full sm:w-[26.8rem] h-[9rem] bg-white">
-                <p>{{ $errors->first() }}</p>
-                <button onclick="hideModal(event)" class="bg-[#F9832A] w-24 h-10 rounded-2xl text-white font-semibold text-lg">Oke</button>
-            </div>
-        @endif
-    </div>
-    {!! Form::close() !!}
+<p class="mt-8 text-center text-[15px] text-ink-600">
+    Belum mempunyai akun? <a href="{{ route('register') }}" class="font-semibold text-brand-700 underline underline-offset-2 hover:text-brand-800">Daftar</a>
+</p>
 @endsection
