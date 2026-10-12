@@ -19,7 +19,7 @@
     <div class="w-full h-px bg-gray-300 my-3"></div>
     <div class="flex justify-between items-center gap-3 p-2">
         <div class="flex items-center">
-            <img src="{{ asset('images/ProfilePicture.png') }}" alt="" class="w-10 h-10 sm:w-14 sm:h-14 rounded-full object-cover bg-gray-300">
+            <img src="{{ asset('Avatar/Large.svg') }}" alt="" class="w-10 h-10 sm:w-14 sm:h-14 rounded-full object-cover bg-gray-300">
             <div class="flex flex-col gap-1 mx-2">
                 <h1 class="font-bold text-black text-sm sm:text-base">{{ $nama_driver }}</h1>
             </div>
