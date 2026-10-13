@@ -176,10 +176,19 @@ class AdminPagesTest extends TestCase
         $this->actingAs($this->admin())->get('/admin/umkm/create')
             ->assertOk()
             ->assertSee('Informasi Resto')
-            ->assertSee('id="autocomplete"', false)
+            ->assertSee('name="alamat"', false)
             ->assertSee('id="geo"', false)
             ->assertSee('id="link"', false)
             ->assertSee('name="logo_umkm"', false);
+    }
+
+    public function test_the_create_umkm_wizard_does_not_load_google_maps(): void
+    {
+        // Alamat dan koordinat diisi manual; Places Autocomplete tidak dipakai lagi di Tambah Resto
+        $this->actingAs($this->admin())->get('/admin/umkm/create')
+            ->assertOk()
+            ->assertDontSee('maps.googleapis.com', false)
+            ->assertDontSee('data-places', false);
     }
 
     public function test_admin_can_create_an_umkm_with_its_first_products(): void
@@ -213,6 +222,33 @@ class AdminPagesTest extends TestCase
 
         $this->assertSame(0, Data_umkm::count());
         $this->assertSame(0, Menu::count());
+    }
+
+    public function test_manually_typed_coordinates_are_checked_and_normalised(): void
+    {
+        Storage::fake('public');
+        Storage::fake('local');
+        $admin = $this->admin();
+
+        foreach (['Jl. Sukabirus', '-6.97', '-6.97;107.63', '91x,107.63'] as $bad) {
+            $this->actingAs($admin)->post('/admin/umkm-save', $this->umkmPayload(['geo' => $bad]))->assertSessionHasErrors('geo');
+        }
+        $this->assertSame(0, Data_umkm::count());
+
+        $this->actingAs($admin)->post('/admin/umkm-save', $this->umkmPayload(['geo' => ' -6.9738 , 107.6301 ']))->assertSessionHasNoErrors();
+
+        $this->assertSame('-6.9738,107.6301', Data_umkm::firstOrFail()->geo);
+    }
+
+    public function test_the_maps_link_is_optional_but_must_be_a_url(): void
+    {
+        Storage::fake('public');
+        Storage::fake('local');
+
+        $this->actingAs($this->admin())->post('/admin/umkm-save', $this->umkmPayload(['link' => 'bukan url']))->assertSessionHasErrors('link');
+
+        $this->actingAs($this->admin())->post('/admin/umkm-save', $this->umkmPayload(['link' => 'https://maps.app.goo.gl/abc123']))->assertSessionHasNoErrors();
+        $this->assertSame('https://maps.app.goo.gl/abc123', Data_umkm::firstOrFail()->link);
     }
 
     public function test_creating_an_umkm_requires_at_least_one_product(): void
