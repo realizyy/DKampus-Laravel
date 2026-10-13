@@ -228,7 +228,7 @@ pages/Users/UbahKataSandi.blade.php|names|newPassword
 - `pages/Admin/transaction.blade.php|hookIds|umkm`: id tetap sama; dibuat lewat @foreach di panel x-ui.sheet name="detail"
 - `pages/Admin/transaction.blade.php|names|header`: slot header (x-app-layout) diganti @section('page-title') di layouts/admin
 - `pages/Admin/umkm.blade.php|hookIds|alamat`: pindah ke pages/Users/JastipPage.blade.php
-- `pages/Admin/umkm.blade.php|hookIds|autocomplete`: pindah ke pages/Admin/umkm_create.blade.php, pages/Users/DaftarAlamat.blade.php
+- `pages/Admin/umkm.blade.php|hookIds|autocomplete`: Google Places Autocomplete dihapus dari Tambah Resto (detail alamat tidak terisi); alamat kini #alamat diisi manual
 - `pages/Admin/umkm.blade.php|hookIds|editForm`: modal tambah/edit di daftar dihapus: tambah di halaman umkm_create (wizard), edit di Detail Resto (UMKM_update)
 - `pages/Admin/umkm.blade.php|hookIds|edit_alamat`: pindah ke pages/Admin/UMKM_update.blade.php
 - `pages/Admin/umkm.blade.php|hookIds|edit_close_time`: pindah ke pages/Admin/UMKM_update.blade.php
@@ -237,7 +237,7 @@ pages/Users/UbahKataSandi.blade.php|names|newPassword
 - `pages/Admin/umkm.blade.php|hookIds|edit_nama_umkm`: pindah ke pages/Admin/UMKM_update.blade.php
 - `pages/Admin/umkm.blade.php|hookIds|edit_no_telp_umkm`: pindah ke pages/Admin/UMKM_update.blade.php
 - `pages/Admin/umkm.blade.php|hookIds|edit_open_time`: pindah ke pages/Admin/UMKM_update.blade.php
-- `pages/Admin/umkm.blade.php|hookIds|geo`: pindah ke pages/Admin/umkm_create.blade.php, pages/Users/JastipPage.blade.php
+- `pages/Admin/umkm.blade.php|hookIds|geo`: pindah ke pages/Admin/umkm_create.blade.php (diisi manual atau dari tautan Google Maps yang ditempel)
 - `pages/Admin/umkm.blade.php|hookIds|image-preview`: modal tambah/edit di daftar dihapus: tambah di halaman umkm_create (wizard), edit di Detail Resto (UMKM_update)
 - `pages/Admin/umkm.blade.php|hookIds|link`: pindah ke pages/Admin/umkm_create.blade.php, pages/Users/JastipPage.blade.php
 - `pages/Admin/umkm.blade.php|hookIds|logo_umkm`: pindah ke pages/Admin/UMKM_update.blade.php, pages/Admin/umkm_create.blade.php
