@@ -62,15 +62,17 @@
             <x-ui.input type="text" name="nama_umkm" id="nama_umkm" :value="old('nama_umkm')" required placeholder="Mis. Ayam Bakar Maknyos - Sukabirus" :error="$errors->has('nama_umkm')" />
         </x-ui.field>
 
-        {{-- Figma: CARI ALAMAT RESTO / KONFIRMASI ALAMAT. Hook lama: #autocomplete, #link, #geo --}}
-        <x-ui.field label="Alamat" for="autocomplete" required :error="$errors->first('alamat')" hint="Ketik alamat lalu pilih dari saran supaya lokasi di peta ikut terisi.">
-            <x-ui.input type="text" name="alamat" id="autocomplete" icon="map-pin" :value="old('alamat')" required autocomplete="off" placeholder="Masukkan lokasi"
-                        data-places data-geo-target="#geo" data-link-target="#link" :error="$errors->has('alamat')" />
-            <input type="hidden" name="link" id="link" value="{{ old('link') }}">
+        {{-- Alamat dan lokasi diisi manual (tanpa Google Places API) --}}
+        <x-ui.field label="Alamat" for="alamat" required :error="$errors->first('alamat')">
+            <x-ui.input type="text" name="alamat" id="alamat" icon="map-pin" :value="old('alamat')" required autocomplete="street-address" placeholder="Mis. Jl. Sukabirus No. 56, Citeureup, Dayeuhkolot" :error="$errors->has('alamat')" />
         </x-ui.field>
 
-        <x-ui.field label="Koordinat" for="geo" required :error="$errors->first('geo')" hint="Format lintang,bujur. Terisi otomatis saat alamat dipilih dari saran; bisa juga diisi manual.">
-            <x-ui.input type="text" name="geo" id="geo" :value="old('geo')" required class="font-mono" placeholder="-6.9738,107.6301" :error="$errors->has('geo')" />
+        <x-ui.field label="Tautan Google Maps (opsional)" for="link" :error="$errors->first('link')" hint="Salin tautan lokasi resto dari Google Maps. Bila berisi koordinat, kolom Koordinat terisi otomatis.">
+            <x-ui.input type="url" name="link" id="link" icon="external-link" :value="old('link')" placeholder="https://www.google.com/maps/…" :error="$errors->has('link')" />
+        </x-ui.field>
+
+        <x-ui.field label="Koordinat" for="geo" required :error="$errors->first('geo')" hint="Format lintang,bujur, mis. -6.9738,107.6301. Di Google Maps: klik kanan lokasi resto, lalu klik angka koordinat untuk menyalinnya.">
+            <x-ui.input type="text" name="geo" id="geo" :value="old('geo')" required class="font-mono" placeholder="-6.9738,107.6301" inputmode="decimal" pattern="\s*-?\d{1,3}(\.\d+)?\s*,\s*-?\d{1,3}(\.\d+)?\s*" title="Lintang,bujur, mis. -6.9738,107.6301" :error="$errors->has('geo')" />
         </x-ui.field>
 
         <div class="grid grid-cols-2 gap-3">
@@ -206,11 +208,23 @@
     </div>
 </form>
 
-<x-admin.maps-script />
 @endsection
 
 @push('js')
 <script>
+// Tautan Google Maps panjang memuat koordinat (@lat,lng atau !3dLAT!4dLNG): isi kolom Koordinat bila masih kosong
+document.addEventListener('DOMContentLoaded', () => {
+    const link = document.getElementById('link');
+    const geo = document.getElementById('geo');
+    link.addEventListener('input', () => {
+        const m = link.value.match(/@(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/) || link.value.match(/!3d(-?\d{1,3}\.\d+)!4d(-?\d{1,3}\.\d+)/);
+        if (m && geo.value.trim() === '') {
+            geo.value = m[1] + ',' + m[2];
+            geo.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    });
+});
+
 document.addEventListener('alpine:init', () => {
     let seq = 0;
     Alpine.data('restoWizard', (initial) => ({
