@@ -148,8 +148,9 @@ class UmkmController extends Controller
             'close_time' => 'required|date_format:H:i',
             'no_telp_umkm' => 'required|string|max:255',
             'vip' => 'required|in:0,1',
-            'link' => 'nullable|string',
-            'geo' => 'required|string|max:255',
+            'link' => 'nullable|url|max:2048',
+            // Diisi manual (tanpa Google Places): format lintang,bujur karena dipakai menghitung jarak dan ongkir
+            'geo' => ['required', 'regex:/^\s*-?\d{1,3}(\.\d+)?\s*,\s*-?\d{1,3}(\.\d+)?\s*$/'],
             // Produk awal dari wizard (Figma: Produk*, minimal satu); produk lain bisa ditambah nanti dari halaman detail
             'products' => 'required|array|min:1|max:50',
             'products.*.nama_makanan' => 'required|string|max:255',
@@ -166,7 +167,8 @@ class UmkmController extends Controller
             'close_time' => 'jam tutup',
             'no_telp_umkm' => 'no. telp',
             'vip' => 'VIP',
-            'geo' => 'koordinat lokasi',
+            'geo' => 'koordinat',
+            'link' => 'tautan Google Maps',
             'products' => 'produk',
             'products.*.nama_makanan' => 'nama produk',
             'products.*.deskripsi' => 'deskripsi produk',
@@ -189,7 +191,7 @@ class UmkmController extends Controller
                     'vip' => $request->vip,
                     // Tanpa Google Places, tautan peta dibuat dari teks alamat
                     'link' => $request->link ?: 'https://www.google.com/maps/search/?api=1&query=' . urlencode($request->alamat),
-                    'geo' => $request->geo,
+                    'geo' => preg_replace('/\s+/', '', $request->geo),
                 ]);
 
                 foreach ((array) $request->input('products', []) as $i => $product) {
